@@ -1,0 +1,46 @@
+---
+title: "Data Validation Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+## Validation Summary
+
+Date: `r Sys.Date()`
+
+Excel File: `r params$filepath`
+
+## Validation Results
+
+```{r, echo=FALSE, results='asis'}
+if (nrow(params$errors) > 0) {
+  cat("### Format Check\n\n")
+  cat("The following checks verify that the data in the Excel file is in the expected format:\n\n")
+
+  # Separate format errors from other errors
+  format_errors <- params$errors[grepl("should be", params$errors$Message), ]
+  other_errors <- params$errors[!grepl("should be", params$errors$Message), ]
+
+  # Filter by error level
+  warning_errors <- format_errors[format_errors$Level == "Warning", ]
+  error_errors <- other_errors[other_errors$Level == "Error", ]
+
+  if (nrow(warning_errors) > 0) {
+    cat("#### Format Warnings Found:\n\n")
+    DT::datatable(warning_errors)
+  } else {
+    cat("No format warnings found.\n\n")
+  }
+
+  if (nrow(error_errors) > 0) {
+    cat("#### Validation Errors Found:\n\n")
+    DT::datatable(error_errors)
+  } else {
+    cat("No validation errors found.\n\n")
+  }
+
+} else {
+  cat("No errors found. Validation successful!\n")
+}
