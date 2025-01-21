@@ -10,7 +10,7 @@ This R Shiny application validates data collected in the field for biological en
 2. **Clone the Repository:**
 
     ```bash
-    git clone <your_github_repo_url>
+    git clone https://github.com/gsamuele78/biological-data-validator.git
     ```
 
 3. **Install Required Packages:**
