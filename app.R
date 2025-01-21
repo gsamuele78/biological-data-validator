@@ -1,3 +1,40 @@
+# In app.R - UI
+# ... (Other UI elements)
+
+h4("Search and Filter Plot History"),
+            textInput("search_plot_code", "Plot Code"),
+            dateInput("search_from_date", "From Date"),
+            dateInput("search_to_date", "To Date"),
+            actionButton("search_button", "Search"),
+            
+            hr(),
+            
+            h4("Plot History"),
+            DT::dataTableOutput("history_table"), # Use DT package for interactive tables
+            
+            # Add more UI elements for viewing, modifying, deleting data here
+            h4("Edit Record"),
+            numericInput("edit_record_id", "Record ID to Edit", value = NA),
+            actionButton("load_record_button", "Load Record"),
+            
+            # Add fields for editing data (make sure to handle NULL values appropriately)
+            textInput("edit_filepath", "Filepath", value = ""),
+            textInput("edit_plot_code", "Plot Code", value = ""),
+            dateInput("edit_sample_date", "Sample Date", value = NULL),
+            textInput("edit_detector", "Detector", value = ""),
+            textInput("edit_region", "Region", value = ""),
+            textInput("edit_validation_status", "Validation Status", value = ""),
+            textInput("edit_report_path", "Report Path", value = ""),
+            
+            actionButton("update_record_button", "Update Record"),
+            
+            h4("Delete Record"),
+            numericInput("delete_record_id", "Record ID to Delete", value = NA),
+            actionButton("delete_record_button", "Delete Record"),
+            
+            hr()
+
+
 # In app.R - Server
 # ... (Other server logic)
 
