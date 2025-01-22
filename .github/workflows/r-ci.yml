@@ -8,22 +8,29 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # Explicitly set Ubuntu version
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Fetch all history for all branches and tags
 
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
       with:
         use-public-rspm: true
 
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
     - name: Install dependencies
       run: |
-        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot"))'
+        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'remotes::install_deps(dependencies = TRUE)'
     - name: Cache R packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3 # Updated to v3
       with:
         path: |
           ${{ env.R_LIBS_USER }}
@@ -32,11 +39,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-r-${{ matrix.config.r }}-
           ${{ runner.os }}-r-
+
     - name: Lint code
       run: R -e 'lintr::lint_pkg()'
 
     - name: Run tests
       run: R -e 'testthat::test_dir("tests/testthat")'
-      
+
     - name: Style code
       run: R -e 'styler::style_pkg()'
+      
+    - name: Build package documentation
+      run: R -e 'pkgdown::build_site()'
