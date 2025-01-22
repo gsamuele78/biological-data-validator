@@ -96,7 +96,8 @@ example_report <- Report$new(
 # Generate the report in a temporary directory
 report_output_path <- file.path(tempdir(), "example_report")
 dir.create(report_output_path, recursive = TRUE, showWarnings = FALSE)
-example_report$generate(report_output_path)
+#example_report$generate(report_output_path)
+example_report$generate(report_output_path, project_root)
 log_info("Report generated at: {report_output_path}")
 
 # 3. Database Interaction
