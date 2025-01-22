@@ -64,7 +64,7 @@ biological-data-validator/
 3. **Clone the Repository:**
 
     ```bash
-    git clone <your_github_repo_url>
+    git clone https://github.com/gsamuele78/biological-data-validator.git
     cd biological-data-validator
     ```
 
