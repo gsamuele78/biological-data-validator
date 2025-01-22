@@ -33,8 +33,12 @@ jobs:
         sudo apt-get install --no-install-recommends software-properties-common dirmngr
         sudo apt update
         curl -s "https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_jammy.sh" | sudo bash -s
+        wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+        sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
         sudo apt update
-        sudo apt install -y r-base-dev
+        sudo apt install -y r-base r-base-dev
+        
+        
         
     - name: Install dependencies
       run: |
