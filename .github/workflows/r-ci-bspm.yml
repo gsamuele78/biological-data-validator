@@ -30,8 +30,7 @@ jobs:
 
     - name: Setup BSPM and r2u
       run: |
-        sudo apt-get install --no-install-recommends software-properties-common
-        sudo add-apt-repository -y "deb [arch=amd64] https://packagemanager.posit.co/cran/jammy/"
+        sudo apt-get install --no-install-recommends software-properties-common dirmngr
         sudo apt update
         curl -s "https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_jammy.sh" | sudo bash -s
         sudo apt update
