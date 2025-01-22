@@ -60,6 +60,9 @@ main <- function(opt) {
     # Initialize DatabaseHandler
     db_handler <- DatabaseHandler$new(opt$database)
 
+    # Find project root
+    project_root <- rprojroot::find_root(rprojroot::has_file(".Rprofile"))
+
     if (opt$search) {
         # --- Search Records ---
         log_info("Performing database search...")
