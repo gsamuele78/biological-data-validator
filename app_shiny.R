@@ -1,12 +1,11 @@
-#!/usr/bin/env Rscript
-# app_cli.R (Main CLI Script)
+# app_shiny.R
 
-# Install and load necessary packages using renv
+# Load necessary libraries using renv
 if (!require("renv")) install.packages("renv")
 renv::restore()
 
-library(optparse)
-library(logger)
+library(shiny)
+library(DT)
 
 # Source R functions and classes
 source("R/data_classes.R")
@@ -15,133 +14,138 @@ source("R/report_class.R")
 source("R/path_generation_class.R")
 source("R/email_class.R")
 source("R/db_interaction_class.R")
-source("R/utils.R")  # For logging and other utilities
+source("R/utils.R")
 
-# --- Command Line Options ---
-
-option_list <- list(
-  make_option(c("-f", "--file"), type = "character", default = NULL,
-              help = "Path to the Excel data file", metavar = "character"),
-  make_option(c("-i", "--images"), type = "character", default = NULL,
-              help = "Comma-separated paths to image files (optional)", metavar = "character"),
-  make_option(c("-b", "--base_path"), type = "character", default = "/default/path",
-              help = "Base path for saving data and reports", metavar = "character"),
-  make_option(c("-e", "--email"), type = "character", default = NULL,
-              help = "Email address to send the report to (optional)", metavar = "character"),
-  make_option(c("-d", "--database"), type = "character", default = "validation_history.db",
-              help = "Path to the SQLite database file", metavar = "character"),
-  make_option(c("-s", "--search"), action = "store_true", default = FALSE,
-              help = "Perform a search on the database records"),
-  make_option(c("-p", "--plot_code"), type = "character", default = NULL,
-              help = "Plot code to search for (use with --search)", metavar = "character"),
-  make_option(c("--from_date"), type = "character", default = NULL,
-              help = "Start date for search (YYYY-MM-DD, use with --search)", metavar = "character"),
-  make_option(c("--to_date"), type = "character", default = NULL,
-              help = "End date for search (YYYY-MM-DD, use with --search)", metavar = "character"),
-  make_option(c("-u", "--update"), action = "store_true", default = FALSE,
-              help = "Update a database record"),
-  make_option(c("--update_id"), type = "integer", default = NULL,
-              help = "ID of the record to update (use with --update)", metavar = "integer"),
-  make_option(c("--delete"), action = "store_true", default = FALSE,
-              help = "Delete a database record"),
-  make_option(c("--delete_id"), type = "integer", default = NULL,
-              help = "ID of the record to delete (use with --delete)", metavar = "integer")
+# UI
+ui <- fluidPage(
+    titlePanel("Biological Environment Data Validation"),
+    sidebarLayout(
+        sidebarPanel(
+            fileInput("excel_file", "Choose Excel File", accept = c(".xlsx", ".xls")),
+            fileInput("image_files", "Choose Image Files (Max 4)", multiple = TRUE, accept = c("image/jpeg", "image/png")),
+            textInput("base_path", "Customizable Path", value = "/default/path"),
+            actionButton("validate_button", "Validate Data"),
+            downloadButton("download_report", "Download Report"),
+            
+            hr(), # Horizontal line separator
+            
+            h4("Search and Filter Plot History"),
+            textInput("search_plot_code", "Plot Code"),
+            dateInput("search_from_date", "From Date"),
+            dateInput("search_to_date", "To Date"),
+            actionButton("search_button", "Search"),
+            
+            hr(),
+            
+            h4("Plot History"),
+            DT::dataTableOutput("history_table"), # Use DT package for interactive tables
+            
+            # Add more UI elements for viewing, modifying, deleting data here
+            h4("Edit Record"),
+            numericInput("edit_record_id", "Record ID to Edit", value = NA),
+            actionButton("load_record_button", "Load Record"),
+            
+            # Add fields for editing data (make sure to handle NULL values appropriately)
+            textInput("edit_filepath", "Filepath", value = ""),
+            textInput("edit_plot_code", "Plot Code", value = ""),
+            dateInput("edit_sample_date", "Sample Date", value = NULL),
+            textInput("edit_detector", "Detector", value = ""),
+            textInput("edit_region", "Region", value = ""),
+            textInput("edit_validation_status", "Validation Status", value = ""),
+            textInput("edit_report_path", "Report Path", value = ""),
+            
+            actionButton("update_record_button", "Update Record"),
+            
+            h4("Delete Record"),
+            numericInput("delete_record_id", "Record ID to Delete", value = NA),
+            actionButton("delete_record_button", "Delete Record"),
+            
+            hr(),
+            h3("Use Case Examples"),
+            verbatimTextOutput("use_case_examples")
+        ),
+        mainPanel(
+            verbatimTextOutput("validation_output"),
+            uiOutput("report_link"), # For online report viewing
+            # Output for displaying the plot history table
+            tableOutput("plot_history_table")
+        )
+    )
 )
 
-opt_parser <- OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
-
-# --- Main Execution ---
-
-main <- function(opt) {
-    # Start logging
-    setup_logging() # Function defined in R/utils.R
-
+# Server
+server <- function(input, output, session) {
     # Initialize DatabaseHandler
-    db_handler <- DatabaseHandler$new(opt$database)
-
-    if (opt$search) {
-        # --- Search Records ---
-        log_info("Performing database search...")
-        records <- db_handler$get_plot_history(
-            plot_code = opt$plot_code,
-            from_date = if (!is.null(opt$from_date)) as.Date(opt$from_date) else NULL,
-            to_date = if (!is.null(opt$to_date)) as.Date(opt$to_date) else NULL
-        )
+    db_handler <- DatabaseHandler$new()
+    
+    # Initialize PathGenerator with the default base path
+    path_generator <- PathGenerator$new(input$base_path)  # Use a default path or a user-specified path
+    
+    # Initialize Validator with the PathGenerator instance
+    validator <- Validator$new(path_generator)  # Pass the PathGenerator instance to Validator
+    
+    # Initialize EmailSender
+    email_sender <- EmailSender$new()
+    
+    # Reactive values to store data and errors
+    data <- reactiveValues(excel_data = NULL, errors = NULL)
+    
+    # Load Excel data when a file is selected
+    observeEvent(input$excel_file, {
+        req(input$excel_file)
+        data$excel_data <- ExcelData$new(input$excel_file$datapath)
+        # Since we don't have separate sheet1 and sheet2 reactive values, 
+        # you can directly use data$excel_data$sheet1_data and data$excel_data$sheet2_data
+    })
+    
+    # Validate data when the button is clicked
+    observeEvent(input$validate_button, {
+        req(data$excel_data)
         
-        if (nrow(records) > 0) {
-            print(records)
-            log_info("Found {nrow(records)} matching records.")
-        } else {
-            log_info("No matching records found.")
-        }
-
-    } else if (opt$update && !is.null(opt$update_id)) {
-        # --- Update Record ---
-        log_info("Updating record with ID: {opt$update_id}...")
-        # You'll need to add logic here to get the updated values
-        # For example, prompt the user or use additional command-line options
-        # ...
+        # Perform validation
+        data$errors <- validator$validate(data$excel_data)
         
-        # Example update (replace with actual updated values)
-        db_handler$update_plot_data(
-            id = opt$update_id,
-            filepath = "updated_filepath",
-            plot_code = "updated_plot_code",
-            sample_date = as.character(Sys.Date()),
-            detector = "updated_detector",
-            region = "updated_region",
-            validation_status = "updated_status",
-            report_path = "updated_report_path"
-        )
-        log_info("Record updated successfully.")
-
-    } else if (opt$delete && !is.null(opt$delete_id)) {
-        # --- Delete Record ---
-        log_info("Deleting record with ID: {opt$delete_id}...")
-        db_handler$delete_plot_data(opt$delete_id)
-        log_info("Record deleted successfully.")
-
-    } else if (!is.null(opt$file)) {
-        # --- Validate Data ---
-        log_info("Starting data validation...")
-        log_info("Loading data from: {opt$file}")
-
-        # Initialize PathGenerator with the base path
-        path_generator <- PathGenerator$new(opt$base_path)
-
-        # Initialize Validator with the PathGenerator instance
-        validator <- Validator$new(path_generator)
-
-        # Load Excel data
-        excel_data <- ExcelData$new(opt$file)
-
-        # Validate data
-        errors <- validator$validate(excel_data)
-
-        # Generate report path
-        sample_row <- excel_data$sheet1_data[[1]]
-        data_path <- path_generator$generate(
-          sample_row$Plot.code,
-          sample_row$Sample.date,
-          sample_row$Detector,
-          sample_row$Region
-        )
-        report_path <- file.path(data_path, "report-validation.html")
-
-        # Generate report using the Report class
-        report <- Report$new(opt$file, errors, excel_data$sheet1_data, excel_data$sheet2_data)
-        report$generate(data_path)
+        # Display validation results
+        output$validation_output <- renderPrint({
+            if (nrow(data$errors) > 0) {
+                paste(apply(data$errors, 1, function(x) paste(x, collapse = " | ")), collapse = "\n")
+            } else {
+                "Validation successful!"
+            }
+        })
         
-        if (nrow(errors) > 0) {
-            log_error("Data validation failed with {nrow(errors)} errors.")
-            print(errors)  # Print errors to console
-        } else {
-            log_info("Data validation successful.")
-        
+        # Generate paths for saving data and report
+        if (nrow(data$errors) == 0) {
+            # Assuming validation is successful, generate paths
+            sample_row <- data$excel_data$sheet1_data[[1]] # Example: Use the first row for path generation
+            data_path <- path_generator$generate(
+                sample_row$Plot.code,
+                sample_row$Sample.date,
+                sample_row$Detector,
+                sample_row$Region
+            )
+            report_path <- file.path(data_path, "report-validation.html")
+            
+            # Save data, images, and generate report (replace with your actual logic)
+            
+            # Save the Excel file
+            file.copy(input$excel_file$datapath, file.path(data_path, input$excel_file$name))
+            
+            # Handle image uploads
+            if (!is.null(input$image_files)) {
+                handle_image_uploads(input$image_files, data_path)
+            }
+            
+            # Generate report using the Report class
+            report <- Report$new(input$excel_file$datapath, data$errors, data$excel_data$sheet1_data, data$excel_data$sheet2_data)
+            report$generate(data_path)
+            
+            # Send email (optional)
+            # email_sender$send(report_path)
+            
             # Add data to database
             plot_data_id <- db_handler$add_plot_data(
-                opt$file, 
+                input$excel_file$datapath, 
                 sample_row$Plot.code, 
                 as.character(sample_row$Sample.date), 
                 sample_row$Detector, 
@@ -150,28 +154,202 @@ main <- function(opt) {
                 report_path
             )
             
-            # If images were provided, add them to the database as well
-            if (!is.null(opt$images)) {
-                image_paths <- unlist(strsplit(opt$images, ","))
-                for (image_path in image_paths) {
-                    db_handler$add_image_data(plot_data_id, image_path)
+            # If images were uploaded, add them to the database as well
+            if (!is.null(input$image_files)) {
+                for (i in 1:nrow(input$image_files)) {
+                    db_handler$add_image_data(plot_data_id, file.path(data_path, input$image_files$name[i]))
                 }
             }
+            
+            # Update plot history table
+            output$plot_history_table <- renderTable({
+                db_handler$get_plot_history()
+            })
         }
-
-        # Send email (if provided)
-        if (!is.null(opt$email)) {
-          email_sender <- EmailSender$new()
-          email_sender$send(report_path, opt$email)
-          log_info("Report sent to: {opt$email}")
+    })
+    
+    # Handle report download
+    output$download_report <- downloadHandler(
+        filename = "report-validation.html",
+        content = function(file) {
+            # Determine the correct report path
+            # This could be stored in a reactive variable or determined from data$excel_data
+            # For example, using the first row of sheet1 data for path generation
+            sample_row <- data$excel_data$sheet1_data[[1]]
+            data_path <- path_generator$generate(
+                sample_row$Plot.code,
+                sample_row$Sample.date,
+                sample_row$Detector,
+                sample_row$Region
+            )
+            report_path <- file.path(data_path, "report-validation.html")
+            
+            file.copy(report_path, file)
         }
-    } else {
-        # --- Invalid Usage ---
-        log_error("Invalid usage. Use --help for more information.")
-    }
+    )
+    
+    # Search plot history
+    observeEvent(input$search_button, {
+        filtered_data <- db_handler$get_plot_history(
+            plot_code = input$search_plot_code,
+            from_date = input$search_from_date,
+            to_date = input$search_to_date
+        )
+        output$history_table <- DT::renderDataTable({
+            DT::datatable(filtered_data, options = list(pageLength = 10, scrollX = TRUE)) # Make table scrollable
+        })
+    })
+    
+    # Load record for editing
+    observeEvent(input$load_record_button, {
+        req(input$edit_record_id)
+        record <- db_handler$get_plot_history() # Assuming you have a function to get a record by ID
+        record <- record[record$id == input$edit_record_id, ]
+        
+        if (nrow(record) > 0) {
+            updateTextInput(session, "edit_filepath", value = record$filepath)
+            updateTextInput(session, "edit_plot_code", value = record$plot_code)
+            updateDateInput(session, "edit_sample_date", value = as.Date(record$sample_date))
+            updateTextInput(session, "edit_detector", value = record$detector)
+            updateTextInput(session, "edit_region", value = record$region)
+            updateTextInput(session, "edit_validation_status", value = record$validation_status)
+            updateTextInput(session, "edit_report_path", value = record$report_path)
+        } else {
+            # Handle case where no record is found
+            showModal(modalDialog(
+                title = "Error",
+                "No record found with the specified ID.",
+                easyClose = TRUE
+            ))
+        }
+    })
+    
+    # Update record
+    observeEvent(input$update_record_button, {
+        req(input$edit_record_id)
+        db_handler$update_plot_data(
+            input$edit_record_id,
+            input$edit_filepath,
+            input$edit_plot_code,
+            as.character(input$edit_sample_date),
+            input$edit_detector,
+            input$edit_region,
+            input$edit_validation_status,
+            input$edit_report_path
+        )
+        
+        # Refresh the history table
+        output$history_table <- DT::renderDataTable({
+            DT::datatable(db_handler$get_plot_history(), options = list(pageLength = 10, scrollX = TRUE))
+        })
+        
+        # Show a success message
+        showModal(modalDialog(
+            title = "Success",
+            "Record updated successfully.",
+            easyClose = TRUE
+        ))
+    })
+    
+    # Delete record
+    observeEvent(input$delete_record_button, {
+        req(input$delete_record_id)
+        
+        showModal(modalDialog(
+            title = "Confirm Delete",
+            paste("Are you sure you want to delete record ID", input$delete_record_id, "?"),
+            footer = tagList(
+                modalButton("Cancel"),
+                actionButton("confirm_delete", "Delete")
+            ),
+            easyClose = TRUE
+        ))
+    })
+    
+    # Confirm delete action
+    observeEvent(input$confirm_delete, {
+        db_handler$delete_plot_data(input$delete_record_id)
+        
+        # Refresh the history table
+        output$history_table <- DT::renderDataTable({
+            DT::datatable(db_handler$get_plot_history(), options = list(pageLength = 10, scrollX = TRUE))
+        })
+        
+        removeModal() # Close the confirmation modal
+        
+        # Show a success message
+        showModal(modalDialog(
+            title = "Success",
+            "Record deleted successfully.",
+            easyClose = TRUE
+        ))
+    })
+    
+    # Display plot history
+    output$plot_history_table <- renderTable({
+        db_handler$get_plot_history() # Initially show all history
+    })
+    
+    # Display plot history with interactive features from DT package
+    output$history_table <- DT::renderDataTable({
+        DT::datatable(db_handler$get_plot_history(), options = list(pageLength = 10, scrollX = TRUE))
+    })
+    
+    # Use Case Examples
+    output$use_case_examples <- renderPrint({
+        # Example with valid data
+        valid_sheet1_data <- list(
+            Sheet1Data$new(list(Plot.code = "Plot1", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")),
+            Sheet1Data$new(list(Plot.code = "Plot1", SU = 2, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")),
+            Sheet1Data$new(list(Plot.code = "Plot1", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")),
+            Sheet1Data$new(list(Plot.code = "Plot1", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4"))
+        )
+        
+        valid_sheet2_data <- list(
+            Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")),
+            Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")),
+            Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")),
+            Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 4, Species = "Species D", species_abb = "Sp. D", cover = 80, Layer = "Moss", Notes = "Note D"))
+        )
+        
+        valid_excel_data <- ExcelData$new("dummy_path")  # Provide a dummy path
+        valid_excel_data$sheet1_data <- valid_sheet1_data
+        valid_excel_data$sheet2_data <- valid_sheet2_data
+        
+        # Example with invalid data
+        invalid_sheet1_data <- list(
+            Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")),
+            Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # Duplicate SU
+            Sheet1Data$new(list(Plot.code = "Plot2", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")),
+            Sheet1Data$new(list(Plot.code = "Plot2", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4"))
+        )
+        
+        invalid_sheet2_data <- list(
+            Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")),
+            Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")),
+            Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C"))
+            # Missing Subplot 4
+        )
+        
+        invalid_excel_data <- ExcelData$new("dummy_path")  # Provide a dummy path
+        invalid_excel_data$sheet1_data <- invalid_sheet1_data
+        invalid_excel_data$sheet2_data <- invalid_sheet2_data
+        
+        # Initialize PathGenerator with a default base path for the examples
+        example_path_generator <- PathGenerator$new("/example/path")
+        
+        # Initialize Validator with the PathGenerator
+        example_validator <- Validator$new(example_path_generator)
+        
+        # Perform validation and print results
+        cat("Use Case Example 1: Valid Data\n")
+        cat("Validation Errors:\n")
+        print(example_validator$validate(valid_excel_data))
+        
+        cat("\n\nUse Case Example 2: Invalid Data\n")
+        cat("Validation Errors:\n")
+        print(example_validator$validate(invalid_excel_data))
+    })
 }
 
-# Run main function if script is executed
-if (!interactive()) {
-  main(opt)
-}
+shinyApp(ui, server)
