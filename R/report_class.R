@@ -1,5 +1,6 @@
 # R/report_class.R
 library(R6)
+library(rmarkdown)
 
 #' Report class for generating validation reports
 Report <- R6Class("Report",
@@ -29,16 +30,16 @@ Report <- R6Class("Report",
     #' @description
     #' Generate the HTML report
     #' @param output_path Directory where the report should be saved
-    #' @param project_root Directory where is the project
-    generate = function(output_path, project_root) { # Add project_root argument
-    rmarkdown::render(file.path(project_root, "report.Rmd"), # Use absolute path
-                      output_file = file.path(output_path, "report-validation.html"),
-                      params = list(
-                        filepath = self$filepath,
-                        errors = self$errors,
-                        sheet1 = self$sheet1,
-                        sheet2 = self$sheet2
-                      ))
-  }
+    #' @param project_root The root directory of the project
+    generate = function(output_path, project_root) {
+      rmarkdown::render(file.path(project_root, "report.Rmd"),
+                        output_file = file.path(output_path, "report-validation.html"),
+                        params = list(
+                          filepath = self$filepath,
+                          errors = self$errors,
+                          sheet1 = self$sheet1,
+                          sheet2 = self$sheet2
+                        ))
+    }
   )
 )
