@@ -54,8 +54,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -e
-        R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'
-        R -e 'remotes::install_deps(dependencies = TRUE)'
+        R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'        
       working-directory: ${{ github.workspace }}
       shell: bash
 
