@@ -219,8 +219,94 @@ See the [examples guide](https://www.google.com/url?sa=E&q=doc%2Fexamples.md) fo
 ### Linting
 **Purpose:** Identify potential code style, syntax, and logical errors.
 * **Tool:** ``` lintr ``` package
-
 * **Configuration:** ```  .lintr ``` file
-
 * **How to Run:**
   ``` lintr::lint_pkg() ```
+### Styling
+**Purpose:** Automatically format code according to a consistent style guide (tidyverse style guide by default).
+* **Tool:** styler package
+* **How to Run:**
+  ``` styler::style_pkg() ```
+### Testing
+**Purpose:** Ensure that individual components (functions, classes) of the code work as expected.
+* **Tool:** testthat package
+* **Structure:** Tests are located in the tests/testthat directory.
+* **How to Run:**
+  ``` testthat::test_dir("tests/testthat") ```
+## Continuous Integration (CI)
+**Purpose:** Automate linting, styling, and testing on every push and pull request to the main branch.
+
+* **Platform:** GitHub Actions
+
+* **Workflow File:** ``` .github/workflows/r-ci.yml ```
+
+* **Actions:**
+*    Checks out the repository code.
+*    Sets up ``` R ```.
+*    Installs dependencies using renv.
+*    Runs ``` lintr ``` to check code style and potential errors.
+*    Runs ``` testthat ``` to execute unit tests.
+*    Runs ``` styler ``` to automatically format code.
+
+## Logging
+**Purpose:** Record important events, warnings, and errors during the application's execution for debugging and monitoring.
+* **Tool:** logger package
+* **Configuration:** ``` setup_logging() ``` function in R/utils.R
+* **Usage:**
+```bash  
+log_info("Starting data validation...")
+log_error("Data validation failed with {length(errors)} errors.")
+ ```
+## Package Management
+**Purpose:** Create reproducible environments and manage project dependencies, ensuring that the correct versions of all required R packages are installed and used.
+* **Tool:** ``` renv ```  package
+* **Workflow:**
+ 1.  **Initialization:** ``` renv::init() ``` initializes a new project environment and creates an renv folder, renv.lock file, and modifies .Rprofile to automatically source renv/activate.R.
+ 2.  **Installation:** ``` renv::install("package_name") ``` installs the specified package and records the version in renv.lock.
+ 3.  **Snapshot:** ``` renv::snapshot() ``` updates the renv.lock file with the current state of the project's R library.
+ 4.  **Restore:** ``` renv::restore() ``` installs the packages and versions specified in the renv.lock file, ensuring a consistent environment.
+
+## Documentation
+**Purpose:** Provide clear and comprehensive documentation for users and developers.
+* **Tools:**
+* **roxygen2:** Generates documentation from specially formatted comments in the code (e.g., function descriptions, parameter details).
+* **pkgdown:** Creates a static website from the R package's documentation, making it easy to browse and search (optional).
+
+**Workflow:**
+1. **Write roxygen2 comments:** Add roxygen2 style comments (lines starting with #') to your R code to document functions, classes, and data.
+2. **Generate documentation:**
+    ```bash
+     # In the R console
+    devtools::document()
+     ```
+3. **Build website (optional):**
+   ```bash
+   # In the R console
+   install.packages("pkgdown") # If you don't have pkgdown
+   pkgdown::build_site()
+     ```
+##   Contributing
+Contributions to this project are welcome! If you would like to contribute, please follow these guidelines:
+1. Fork the repository on GitHub.
+2. Create a new branch for your feature or bug fix:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+   or
+      ```bash
+   git checkout -b bugfix/your-bug-fix
+   ```
+3. Make your changes and commit them with clear and descriptive commit messages.
+4. Write unit tests for your changes using testthat.
+5. Ensure your code passes linting with lintr.
+6. Style your code with styler.
+7. Update the documentation if necessary.
+8. Push your branch to your forked repository.
+9. Create a pull request to the main branch of the original repository.
+
+## License
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+      
+      
+   
