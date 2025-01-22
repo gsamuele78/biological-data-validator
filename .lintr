@@ -7,3 +7,4 @@ linters: with_defaults(
     object_usage_linter = NULL
 )
 exclusions: list("app_cli.R", "app_shiny.R")  # Corrected exclusion list
+
