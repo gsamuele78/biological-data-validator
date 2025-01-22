@@ -40,22 +40,19 @@ jobs:
         
     - name: Install lintr separately (verbose)
       run: |
-        R -e 'bspm::disable()'
-        R -e 'install.packages("lintr", verbose = TRUE)'
+        R -e 'bspm::disable(); install.packages("lintr", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
       
     - name: Install remotes separately
       run: |
-        R -e 'bspm::disable()'
-        R -e 'install.packages("remotes", verbose = TRUE)'
+        R -e 'bspm::disable(); install.packages("remotes", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
         
     - name: Install dependencies
       run: |
         set -e
         R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'
-        R -e 'bspm::disable()'
-         R -e 'remotes::install_deps(dependencies = TRUE)'
+        R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }}
       shell: bash
     
