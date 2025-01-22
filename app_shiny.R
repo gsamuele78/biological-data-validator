@@ -138,7 +138,8 @@ server <- function(input, output, session) {
             
             # Generate report using the Report class
             report <- Report$new(input$excel_file$datapath, data$errors, data$excel_data$sheet1_data, data$excel_data$sheet2_data)
-            report$generate(data_path)
+            #report$generate(data_path)
+            report$generate(data_path, project_root)
             
             # Send email (optional)
             # email_sender$send(report_path)
