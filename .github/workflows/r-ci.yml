@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04 # Explicitly set Ubuntu version
+    runs-on: ubuntu-22.04 # Updated to Ubuntu 22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -30,6 +30,7 @@ jobs:
         R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }} # Set working directory
+
     - name: Cache R packages
       uses: actions/cache@v3 # Updated to v3
       with:
@@ -42,14 +43,13 @@ jobs:
           ${{ runner.os }}-r-
 
     - name: Lint code
-      run: R -e 'lintr::lint_pkg()'
+      run: R -e 'lintr::lint_package()' # Corrected function call
 
     - name: Run tests
       run: R -e 'testthat::test_dir("tests/testthat")'
 
     - name: Style code
       run: R -e 'styler::style_pkg()'
-      
+
     - name: Build package documentation
       run: R -e 'pkgdown::build_site()'
-
