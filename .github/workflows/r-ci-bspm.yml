@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    
+    env: # Set R_LIBS_USER at the job level
+      R_LIBS_USER: ${{ github.workspace }}/R-lib
 
     steps:
     - uses: actions/checkout@v3
@@ -38,10 +41,16 @@ jobs:
         sudo apt update
         sudo apt install -y r-base r-base-dev
         
+    - name: Install lintr separately (verbose)
+      run: |
+        R -e 'install.packages("lintr", repos = "https://r2u.stat.illinois.edu/ubuntu", verbose = TRUE)'
+      working-directory: ${{ github.workspace }}
+    
+    
     - name: Install dependencies
       run: |
         set -e
-        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
+        R -e 'install.packages(c("styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }}
       shell: bash
@@ -51,20 +60,31 @@ jobs:
       with:
         path: |
           ${{ env.R_LIBS_USER }}
-          !${{ env.R_LIBS_USER }}/testing
         key: ${{ runner.os }}-r-${{ matrix.config.r }}-${{ hashFiles('**/DESCRIPTION') }}
         restore-keys: |
           ${{ runner.os }}-r-${{ matrix.config.r }}-
           ${{ runner.os }}-r-
 
     - name: Lint code
-      run: R -e 'lintr::lint_package()'
+      run: |
+        set -e
+        R -e 'lintr::lint_package()'
+      shell: bash
 
     - name: Run tests
-      run: R -e 'testthat::test_dir("tests/testthat")'
+      run: |
+        set -e
+        R -e 'testthat::test_dir("tests/testthat")'
+      shell: bash
 
     - name: Style code
-      run: R -e 'styler::style_pkg()'
+      run: |
+        set -e
+        R -e 'styler::style_pkg()'
+      shell: bash
 
     - name: Build package documentation
-      run: R -e 'pkgdown::build_site()'
+      run: |
+        set -e
+        R -e 'pkgdown::build_site()'
+      shell: bash
