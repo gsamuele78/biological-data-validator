@@ -1,23 +1,30 @@
 # R/validation_classes.R
-
 library(R6)
 
-# Base class for validation rules
+#' Base class for validation rules
 ValidationRule <- R6Class("ValidationRule",
   public = list(
+    #' @description
+    #' Check the Excel data for errors
+    #' @param excel_data An ExcelData object
     check = function(excel_data) {
       stop("Subclasses must implement the 'check' method.")
     },
+    #' @description
+    #' Get the error level for this rule
     get_error_level = function() {
       "Error"  # Default error level
     }
   )
 )
 
-# Data type validation rule
+#' Data type validation rule
 DataTypeValidationRule <- R6Class("DataTypeValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the Excel data for data type errors
+    #' @param excel_data An ExcelData object
     check = function(excel_data) {
         errors <- data.frame(Sheet = character(), Row = integer(), Column = character(), Message = character(), stringsAsFactors = FALSE)
 
@@ -46,16 +53,21 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
 
         return(errors)
     },
+    #' @description
+    #' Get the error level for this rule
     get_error_level = function() {
       "Warning"  # Data type issues are often warnings
     }
   )
 )
 
-# Specific validation rules (e.g., max 4 rows per plot)
+#' Maximum rows validation rule
 MaxRowsValidationRule <- R6Class("MaxRowsValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the Excel data for maximum rows errors
+    #' @param excel_data An ExcelData object
     check = function(excel_data) {
         errors <- data.frame(Sheet = character(), Row = integer(), Column = character(), Message = character(), stringsAsFactors = FALSE)
 
@@ -68,17 +80,17 @@ MaxRowsValidationRule <- R6Class("MaxRowsValidationRule",
         }
 
         return(errors)
-    },
-    get_error_level = function() {
-      "Error"
     }
   )
 )
 
-# Unique SU values validation rule
+#' Unique SU values validation rule
 UniqueSUValidationRule <- R6Class("UniqueSUValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the Excel data for unique SU errors
+    #' @param excel_data An ExcelData object
     check = function(excel_data) {
         errors <- data.frame(Sheet = character(), Row = integer(), Column = character(), Message = character(), stringsAsFactors = FALSE)
 
@@ -90,17 +102,17 @@ UniqueSUValidationRule <- R6Class("UniqueSUValidationRule",
         }
 
         return(errors)
-    },
-    get_error_level = function() {
-      "Error"
     }
   )
 )
 
-# Empty SU rows and Notes validation rule
+#' Notes validation rule (checks if notes are present when SU rows are empty in Sheet 2)
 NotesValidationRule <- R6Class("NotesValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the Excel data for missing notes errors
+    #' @param excel_data An ExcelData object
     check = function(excel_data) {
       errors <- data.frame(Sheet = character(), Row = integer(), Column = character(), Message = character(), stringsAsFactors = FALSE)
       
@@ -123,20 +135,21 @@ NotesValidationRule <- R6Class("NotesValidationRule",
       }
       
       return(errors)
-    },
-    get_error_level = function() {
-      "Error"
     }
   )
 )
 
-# --- Validator Class ---
-
+#' Validator class that applies all validation rules
 Validator <- R6Class("Validator",
   public = list(
+    #' @field rules List of validation rules
     rules = list(),
+    #' @field path_generator PathGenerator object
     path_generator = NULL,
 
+    #' @description
+    #' Create a new Validator object
+    #' @param path_generator A PathGenerator object
     initialize = function(path_generator) {
       self$path_generator <- path_generator
       self$add_rule(DataTypeValidationRule$new())
@@ -145,10 +158,16 @@ Validator <- R6Class("Validator",
       self$add_rule(NotesValidationRule$new())
     },
     
+    #' @description
+    #' Add a validation rule to the validator
+    #' @param rule A ValidationRule object
     add_rule = function(rule) {
       self$rules <- c(self$rules, rule)
     },
 
+    #' @description
+    #' Validate the Excel data using all added rules
+    #' @param excel_data An ExcelData object
     validate = function(excel_data) {
       all_errors <- data.frame(Sheet = character(), 
                                Row = integer(), 
