@@ -1,92 +1,150 @@
-# User Guide for Biological Environment Data Validation Tool
+# User Guide
 
-This guide provides instructions on how to use the Biological Environment Data Validation Tool.
+## Introduction
 
-## Table of Contents
+The Biological Environment Data Validation Tool is designed to help you validate and manage data collected from field studies. It provides two interfaces:
 
-1. [Introduction](#introduction)
-2. [Installation](#installation)
-3. [Running the Application](#running-the-application)
-4. [Usage](#usage)
-    *   [Uploading Data](#uploading-data)
-    *   [Validation](#validation)
-    *   [Report Generation](#report-generation)
-    *   [Data Management](#data-management)
-5. [Troubleshooting](#troubleshooting)
+1. **Command-Line Interface (CLI):** A text-based interface for interacting with the tool using commands.
+2. **Shiny Web Application:** A graphical user interface that allows you to interact with the tool through a web browser.
 
-## 1. Introduction <a name="introduction"></a>
+This guide will walk you through the steps of using both interfaces.
 
-The Biological Environment Data Validation Tool is an R Shiny application designed to validate field-collected data for biological environment studies. It ensures data quality by checking data types, enforcing validation rules, and generating detailed reports.
+## Installation
 
-## 2. Installation <a name="installation"></a>
+Before you can use the tool, you need to install R and the required packages. Follow the instructions in the [Installation](README.md#installation) section of the main `README.md` file.
 
-Before running the application, ensure you have R and RStudio installed. Then, follow these steps:
+## Using the Command-Line Interface (CLI)
 
-1. **Clone the Repository:**
+### Running the CLI
+
+1. Open your terminal or command prompt.
+2. Navigate to the project directory:
 
     ```bash
-    git clone <your_github_repo_url>
+    cd /path/to/biological-data-validator
     ```
 
-2. **Install Required Packages:**
+3. Execute the `app_cli.R` script using `Rscript`:
 
-    Open RStudio and run the following command in the console:
-
-    ```R
-    install.packages(c("openxlsx", "readxl", "lubridate", "knitr", "rmarkdown", "mailR", "DBI", "RSQLite", "shiny", "shinyFiles", "DT"))
+    ```bash
+    Rscript app_cli.R [command] [options]
     ```
 
-## 3. Running the Application <a name="running-the-application"></a>
+### CLI Commands
 
-### RStudio Desktop
+#### Validate Data
 
-1. Open the  `biological-data-validator.Rproj`  file in RStudio.
-2. Open  `app.R`.
-3. Click the "Run App" button in the top-right corner.
+This command validates an Excel data file and generates a report.
 
-### RStudio Server
+```bash
+Rscript app_cli.R --file <path_to_excel_file> --base_path <output_directory>
+```
+*   --file or -f: (Required) Path to the Excel data file (e.g., data/sample_data.xlsx).
 
-1. In RStudio Server, go to "New Project" -> "Version Control" -> "Git" and clone the repository using its URL.
-2. Open  `app.R`.
-3. Click the "Run App" button.
+*   --images or -i: (Optional) Comma-separated paths to image files to be associated with the data.
 
-## 4. Usage <a name="usage"></a>
+*   --base_path or -b: (Optional) The base directory where the validation report and any associated data will be saved (default: /default/path).
 
-### 4.1 Uploading Data <a name="uploading-data"></a>
+*   --email or -e: (Optional) Email address to send the validation report to.
 
-*   **Excel File:** Click the "Choose Excel File" button to upload your Excel data file (`.xlsx`  or  `.xls`). The file should have two sheets named "Sheet1" and "Sheet2" with the specified data fields.
-*   **Images (Optional):** Click the "Choose Image Files" button to upload up to four JPEG images.
-*   **Custom Path (Optional):** Modify the "Customizable Path" to specify where data and reports will be saved.
+*   --database or -d: (Optional) Path to the SQLite database file (default: validation_history.db).
 
-### 4.2 Validation <a name="validation"></a>
+**Example:**
+```bash
+Rscript app_cli.R --file data/sample_data.xlsx --base_path output_data --email test@example.com
+```
+#### Search Records
+This command searches the database for plot data records based on specified criteria.
+```bash
+Rscript app_cli.R --search --plot_code <plot_code> --from_date <start_date> --to_date <end_date>
+```
+*   --search or -s: (Required) Indicates that you want to perform a search.
 
-*   Click the "Validate Data" button to start the validation process.
-*   The application will check the data types and apply the validation rules defined in the  `validation_classes.R`  file.
-*   The results will be displayed in the "Validation Output" tab, indicating any errors or warnings found.
+*   --plot_code or -p: (Optional) The plot code to search for.
 
-### 4.3 Report Generation <a name="report-generation"></a>
+*   --from_date: (Optional) The start date for the search (format: YYYY-MM-DD).
 
-*   If no errors are found, a validation report will be generated automatically.
-*   Click the "Download Report" button to download the report as an HTML file.
-*   The report includes a summary of the validation results, error levels (Warning, Error), and details of any issues found.
+*   --to_date: (Optional) The end date for the search (format: YYYY-MM-DD).
+**Example:**
+```bash
+Rscript app_cli.R --search --plot_code Plot1 --from_date 2023-01-01 --to_date 2023-12-31
+```
+#### Update Record
+This command updates an existing record in the database. (Note: Currently, you need to manually update the values in the app_cli.R script.) 
 
-### 4.4 Data Management <a name="data-management"></a>
+```bash
+Rscript app_cli.R --update --update_id <record_id>
+```
+*   --update or -u: (Required) Indicates that you want to update a record.
 
-*   **Search and Filter:** Use the "Plot Code", "From Date", and "To Date" fields to search and filter historical data. Click the "Search" button to apply the filters.
-*   **Edit Records:**
-    1. Enter the ID of the record to edit in the "Record ID to Edit" field.
-    2. Click "Load Record".
-    3. Modify the fields.
-    4. Click "Update Record".
-*   **Delete Records:**
-    1. Enter the ID of the record to delete in the "Record ID to Delete" field.
-    2. Click "Delete Record".
-    3. Confirm the deletion.
+*   --update_id: (Required) The ID of the record you want to update.
+**Example:**
+```bash
+Rscript app_cli.R --update --update_id 1
+```
+#### Delete Record
+This command deletes a record from the database.
+```bash
+Rscript app_cli.R --delete --delete_id <record_id>
+```
+*   --delete: (Required) Indicates that you want to delete a record.
 
-## 5. Troubleshooting <a name="troubleshooting"></a>
+*   --delete_id: (Required) The ID of the record you want to delete.
+**Example:**
+```bash
+Rscript app_cli.R --delete --delete_id 1
+```
+#### Get Help
+This command displays help information about the available commands and options.
+```bash
+Rscript app_cli.R --help
+```
+## Using the Shiny Web Application
+## Launching the Shiny App
+1. Open R or RStudio in the project directory.
+2. Run the run_shiny_app() function (defined in .Rprofile):
+```bash
+run_shiny_app()
+```
+This will open the Shiny app in your default web browser.
 
-*   **Error: "Package not found"**: Ensure all required R packages are installed (see the Installation section).
-*   **Error: "Report not generated"**: Check the "Validation Output" tab for any errors that might have prevented report generation.
-*   **Application not responding**: Try refreshing the web page or restarting the application in RStudio.
+## Shiny App Features
+#### Uploading Data
+* **Excel File:** Click the "Choose Excel File" button and select your Excel data file (.xlsx or .xls).
 
-If you encounter any other issues, please refer to the R console for detailed error messages or contact the project developers for assistance.
+* **Images (Optional):** Click the "Choose Image Files" button and select up to four image files (JPEG or PNG) that you want to associate with the data.
+
+#### Customizing the Output Path
+You can change the base path for saving data and reports by entering a new path in the "Customizable Path" field.
+
+#### Validating Data
+* Click the "Validate Data" button to start the validation process. The tool will check the data types, apply the validation rules, and generate a report.
+
+#### Viewing and Downloading the Report
+* The validation report will be displayed in the main panel of the Shiny app.
+
+* You can download the report as an HTML file by clicking the "Download Report" button.
+
+#### Searching and Filtering Plot History
+* **Plot Code:** Enter a plot code in the "Plot Code" field to search for specific plot records.
+
+* **Date Range:** Use the "From Date" and "To Date" fields to filter records based on the sample date.
+
+* Click the "Search" button to apply the filters. The results will be displayed in the "Plot History" table.
+
+#### Editing Records
+1. **Load Record:** Enter the ID of the record you want to edit in the "Record ID to Edit" field and click "Load Record." The record's data will be loaded into the edit fields.
+2. **Modify Fields:** Change the values in the fields as needed.
+3. **Update Record:** Click the "Update Record" button to save the changes to the database.
+
+#### Deleting Records
+1. **Enter ID:** Enter the ID of the record you want to delete in the "Record ID to Delete" field.
+2. **Delete:** Click the "Delete Record" button.
+3. **Confirm:** Confirm the deletion when prompted.
+
+#### Troubleshooting
+* If you encounter any errors, check the R console for error messages.
+* Make sure that all required packages are installed (renv::restore() should handle this).
+* If you are using the CLI, ensure that you are providing the correct command-line arguments.
+* If you are using the Shiny app, make sure that the necessary files (Excel data, images) are being uploaded correctly.
+* If you find a bug or have a suggestion for improvement, please open an issue on the project's GitHub repository.
