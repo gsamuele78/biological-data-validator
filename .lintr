@@ -6,5 +6,7 @@ linters: with_defaults(
     trailing_blank_lines_linter = NULL,
     object_usage_linter = NULL
 )
-exclusions: list("app_cli.R", "app_shiny.R")  # Corrected exclusion list
+exclusions: list("app_cli.R", "app_shiny.R")
+
+# The last line should be blank (a newline character)
 
