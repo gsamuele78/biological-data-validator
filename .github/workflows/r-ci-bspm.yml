@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -22,33 +22,32 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        set -e
         sudo apt update
         sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk
-      shell: bash
 
     - name: Configure Java for R
-      run: |
-        set -e
-        sudo R CMD javareconf
-      shell: bash
+      run: sudo R CMD javareconf
 
-    - name: Setup BSPM
+    - name: Setup BSPM and r2u
       run: |
-        set -e
-        sudo apt install --no-install-recommends software-properties-common dirmngr
-        sudo add-apt-repository -y "deb [arch=amd64] https://packagemanager.posit.co/cran/jammy/"
+        sudo apt-get install --no-install-recommends software-properties-common dirmngr
+        sudo mkdir -p /etc/apt/keyrings
+        sudo wget -qO- https://eddelbuettel.github.io/r2u/assets/dirk.eddelbuettel.asc | sudo tee /etc/apt/keyrings/cranapt.asc
+        sudo wget -qO- https://eddelbuettel.github.io/r2u/assets/dirk.eddelbuettel.key | sudo tee /etc/apt/keyrings/cranapt.key
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends r-base-dev
         sudo apt update
-        sudo apt install -y r-base-dev
-      shell: bash
+        sudo apt install -y --no-install-recommends r-cran-r2u
+        sudo add-apt-repository -y "deb [arch=amd64 signed-by=/etc/apt/keyrings/cranapt.asc] https://r2u.stat.illinois.edu/ubuntu jammy main"
+        sudo apt install -y --no-install-recommends bspm
+        sudo apt install -y r-base-dev r-base
+        sudo apt update
 
     - name: Install dependencies
       run: |
-        set -e
-        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
-        R -e 'remotes::install_deps(dependencies = TRUE)'
+        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"), repos = "https://r2u.stat.illinois.edu/ubuntu")'
+        R -e 'remotes::install_deps(dependencies = TRUE, repos = "https://r2u.stat.illinois.edu/ubuntu")'
       working-directory: ${{ github.workspace }}
-      shell: bash
 
     - name: Cache R packages
       uses: actions/cache@v3
@@ -62,25 +61,13 @@ jobs:
           ${{ runner.os }}-r-
 
     - name: Lint code
-      run: |
-        set -e
-        R -e 'lintr::lint_package()'
-      shell: bash
+      run: R -e 'lintr::lint_package()'
 
     - name: Run tests
-      run: |
-        set -e
-        R -e 'testthat::test_dir("tests/testthat")'
-      shell: bash
+      run: R -e 'testthat::test_dir("tests/testthat")'
 
     - name: Style code
-      run: |
-        set -e
-        R -e 'styler::style_pkg()'
-      shell: bash
+      run: R -e 'styler::style_pkg()'
 
     - name: Build package documentation
-      run: |
-        set -e
-        R -e 'pkgdown::build_site()'
-      shell: bash
+      run: R -e 'pkgdown::build_site()'
