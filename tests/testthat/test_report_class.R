@@ -6,8 +6,6 @@ source("../../R/data_classes.R")
 
 context("Report Generation")
 
-# Find the project root
-project_root <- find_root(has_file(".Rprofile")) 
 
 test_that("Report generates an HTML file", {
   # Create dummy data for the report
@@ -22,7 +20,7 @@ test_that("Report generates an HTML file", {
   dummy_sheet2_data <- list(Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")))
 
   # Find project root
-  #project_root <- find_root(has_file(".Rprofile"))
+  project_root <- find_root(has_file(".Rprofile"))
 
   # Create a Report object
   report <- Report$new(
