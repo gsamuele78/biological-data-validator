@@ -8,6 +8,7 @@
 
 This R project provides a comprehensive solution for validating data collected in biological environment field studies. It is designed to ensure data quality, consistency, and integrity through a series of checks and validations. The project supports both a Command-Line Interface (CLI) and a Shiny web application interface, catering to a wide range of user preferences and technical expertise.
 
+
 The tool performs the following key functions:
 
 -   **Data Type Validation:** Ensures that the data entered in the Excel files conforms to the expected data types (e.g., numeric, character, date).
