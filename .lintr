@@ -1,9 +1,7 @@
 # .lintr configuration file
-linters: with_defaults(
-    line_length_linter = line_length_linter(120),
-    object_name_linter = object_name_linter(styles = c("camelCase", "snake_case")),
-    trailing_whitespace_linter = NULL,
-    trailing_blank_lines_linter = NULL,
-    object_usage_linter = NULL
-)
-exclusions: list("app_cli.R", "app_shiny.R")
+linters: with_defaults(line_length_linter = line_length_linter(120),
+  object_name_linter = object_name_linter(styles = c("camelCase", "snake_case")),
+  trailing_whitespace_linter = NULL,
+  trailing_blank_lines_linter = NULL,
+  object_usage_linter = NULL)
+exclusions: "app_cli.R","app_shiny.R"
