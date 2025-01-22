@@ -22,24 +22,33 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk
+        set -e
+        sudo apt update
+        sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk
+      shell: bash
 
     - name: Configure Java for R
-      run: sudo R CMD javareconf
+      run: |
+        set -e
+        sudo R CMD javareconf
+      shell: bash
 
     - name: Setup BSPM
       run: |
-        sudo apt-get install --no-install-recommends software-properties-common dirmngr
-        sudo add-apt-repository -y "deb [arch=amd64] https://packagemanager.posit.co/cran/jammy/" # Hardcode codename
-        sudo apt-get update
-        sudo apt-get install -y r-base-dev
+        set -e
+        sudo apt install --no-install-recommends software-properties-common dirmngr
+        sudo add-apt-repository -y "deb [arch=amd64] https://packagemanager.posit.co/cran/jammy/"
+        sudo apt update
+        sudo apt install -y r-base-dev
+      shell: bash
 
     - name: Install dependencies
       run: |
+        set -e
         R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }}
+      shell: bash
 
     - name: Cache R packages
       uses: actions/cache@v3
@@ -53,13 +62,25 @@ jobs:
           ${{ runner.os }}-r-
 
     - name: Lint code
-      run: R -e 'lintr::lint_package()'
+      run: |
+        set -e
+        R -e 'lintr::lint_package()'
+      shell: bash
 
     - name: Run tests
-      run: R -e 'testthat::test_dir("tests/testthat")'
+      run: |
+        set -e
+        R -e 'testthat::test_dir("tests/testthat")'
+      shell: bash
 
     - name: Style code
-      run: R -e 'styler::style_pkg()'
+      run: |
+        set -e
+        R -e 'styler::style_pkg()'
+      shell: bash
 
     - name: Build package documentation
-      run: R -e 'pkgdown::build_site()'
+      run: |
+        set -e
+        R -e 'pkgdown::build_site()'
+      shell: bash
