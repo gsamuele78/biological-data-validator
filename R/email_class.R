@@ -1,11 +1,15 @@
 # R/email_class.R
-
 library(R6)
 library(mailR)
 
+#' EmailSender class for sending validation reports via email
 EmailSender <- R6Class("EmailSender",
   public = list(
-    send = function(report_path, recipient = "test@gmail.com") {
+    #' @description
+    #' Send the validation report via email
+    #' @param report_path Path to the HTML report
+    #' @param recipient Recipient email address
+    send = function(report_path, recipient = "pinco.pallino@gmail.com") {
       # You'll need to set up your email server details here (SMTP)
       send.mail(from = "<your_email@example.com>",
                 to = recipient,
