@@ -52,6 +52,7 @@ jobs:
       run: |
         set -e
         R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'
+        R -e 'install.packages("DT")'
         R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }}
       shell: bash
