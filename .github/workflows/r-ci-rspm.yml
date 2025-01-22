@@ -55,6 +55,18 @@ jobs:
           ${{ runner.os }}-r-${{ matrix.config.r }}-
           ${{ runner.os }}-r-
 
+    - name: Fix .lintr Encoding (if needed)
+      run: |
+        echo "Ensuring .lintr is UTF-8 encoded"
+        iconv -f $(file -b --mime-encoding .lintr) -t UTF-8 .lintr > .lintr.tmp
+        mv .lintr.tmp .lintr
+      shell: bash
+
+    - name: Debug - Print Project Root
+      run: |
+        R -e 'library(rprojroot); print(find_root(has_file(".Rprofile")))'
+      working-directory: ${{ github.workspace }}
+      
     - name: Lint code
       run: |
         set -e
