@@ -43,12 +43,12 @@ jobs:
         
     - name: Install lintr separately (verbose)
       run: |
-        R -e 'install.packages("lintr", repos = "https://r2u.stat.illinois.edu/ubuntu", verbose = TRUE)'
+        R -e 'install.packages("lintr", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
       
     - name: Install remotes separately
       run: |
-        R -e 'install.packages("remotes", repos = "https://r2u.stat.illinois.edu/ubuntu", verbose = TRUE)'
+        R -e 'install.packages("remotes", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
         
     - name: Install dependencies
