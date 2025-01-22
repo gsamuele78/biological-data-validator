@@ -42,8 +42,7 @@ jobs:
         
     - name: Install dependencies
       run: |
-        R -e 'install.packages("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown")'
-        R -e 'remotes::install_deps(dependencies = TRUE, repos = "https://r2u.stat.illinois.edu/ubuntu")'
+        R -e 'install.packages("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown")'        
       working-directory: ${{ github.workspace }}
 
     - name: Cache R packages
