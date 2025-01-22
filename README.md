@@ -1,5 +1,9 @@
 # Biological Environment Data Validation Tool
 
+[![R-CI (RSPM)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-rspm.yml/badge.svg)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-rspm.yml)
+[![R-CI (BSPM)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-bspm.yml/badge.svg)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-bspm.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Description
 
 This R project provides a comprehensive solution for validating data collected in biological environment field studies. It is designed to ensure data quality, consistency, and integrity through a series of checks and validations. The project supports both a Command-Line Interface (CLI) and a Shiny web application interface, catering to a wide range of user preferences and technical expertise.
