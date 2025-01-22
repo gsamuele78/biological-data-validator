@@ -2,22 +2,76 @@
 
 ## Description
 
-This R project validates data collected in the field for biological environment studies. It checks data type consistency, adherence to specific validation rules, generates reports, and manages historical data. The project supports both a Command-Line Interface (CLI) and a Shiny web application interface.
+This R project provides a comprehensive solution for validating data collected in biological environment field studies. It is designed to ensure data quality, consistency, and integrity through a series of checks and validations. The project supports both a Command-Line Interface (CLI) and a Shiny web application interface, catering to a wide range of user preferences and technical expertise.
+
+The tool performs the following key functions:
+
+-   **Data Type Validation:** Ensures that the data entered in the Excel files conforms to the expected data types (e.g., numeric, character, date).
+-   **Validation Rules:** Applies specific validation rules relevant to biological environment studies, such as:
+    -   Maximum of 4 rows per plot code with SU (Sampling Unit) values of 1, 2, 3, and 4.
+    -   Unique SU values for each plot.
+    -   Presence of corresponding notes when SU rows are empty.
+-   **Report Generation:** Creates detailed HTML reports summarizing the validation results, including error levels (Warning, Error) for each issue found.
+-   **Data Management:** Stores validation history in an SQLite database, allowing users to track, search, update, and delete records.
+-   **Image Handling:** (Optional) Associates image files (e.g., JPEG, PNG) with plot data records.
+-   **Email Integration:** (Optional) Sends validation reports via email.
+
+## Project Structure
+
+The project is organized as follows:
+```bash
+biological-data-validator/
+├── app_cli.R # Main CLI script
+├── app_shiny.R # Main Shiny script
+├── R/ # R functions and classes (shared)
+│ ├── data_classes.R
+│ ├── validation_classes.R
+│ ├── report_class.R
+│ ├── path_generation_class.R
+│ ├── email_class.R
+│ ├── db_interaction_class.R
+│ └── utils.R
+├── tests/ # Unit tests
+│ └── testthat/
+│ ├── test_data_classes.R
+│ ├── test_validation_rules.R
+│ └── ...
+├── doc/ # Documentation files
+│ ├── developer_guide.md
+│ ├── user_guide.md
+│ └── examples.md
+├── examples/ # Usage examples
+│ └── examples.R
+├── report.Rmd # R Markdown report template
+├── data/ # Sample data
+│ └── sample_data.xlsx
+├── .lintr # Linter configuration
+├── .Rprofile # Project-specific R settings
+├── project_specific_rprofile.R # Project-specific R settings template
+├── .github/ # GitHub Actions workflows
+│ └── workflows/
+│ └── r-ci.yml
+├── LICENSE
+├── README.md
+└── renv/ # renv environment files
+└── renv.lock
+```
 
 ## Installation
 
 1. **Install R:** Download and install the latest version of R from [https://www.r-project.org/](https://www.r-project.org/).
-2. **Clone the Repository:**
+2. **Install RStudio (Recommended):** Download and install RStudio Desktop from [https://www.rstudio.com/products/rstudio/download/](https://www.rstudio.com/products/rstudio/download/).
+3. **Clone the Repository:**
 
     ```bash
     git clone <your_github_repo_url>
     cd biological-data-validator
     ```
 
-3. **Install Dependencies:**
+4. **Install Dependencies:**
 
     ```R
-    # (Open R console in the project directory)
+    # (Open R console or RStudio in the project directory)
     install.packages("renv")  # If you don't have renv
     renv::restore()
     ```
@@ -28,8 +82,8 @@ This R project validates data collected in the field for biological environment 
 
 This project offers two interfaces:
 
-1. **Command-Line Interface (CLI):** For users who prefer the terminal or need to automate the validation process.
-2. **Shiny Web Application:** For a more interactive, graphical user interface.
+1. **Command-Line Interface (CLI):** Suitable for users comfortable with the terminal or those who need to automate the validation process through scripts.
+2. **Shiny Web Application:** Provides a user-friendly, interactive graphical interface for users who prefer a visual approach.
 
 ### Running the CLI Version
 
@@ -50,8 +104,8 @@ This project offers two interfaces:
 
 ### Running the Shiny Version
 
-1. **Open RStudio** or start an R session in the project directory.
-2. **Run the `run_shiny_app()` function** defined in the `.Rprofile` file:
+1. **Open R or RStudio** in the project directory.
+2. **Run the `run_shiny_app()` function** defined in the `.Rprofile` file (it will be added automatically if it doesn't exist):
 
     ```R
     run_shiny_app()
@@ -61,7 +115,7 @@ This project offers two interfaces:
 
 ### CLI Usage
 
-The CLI is the main interface for interacting with the tool in command-line mode. Here are the commands:
+The CLI provides a command-line interface for interacting with the tool. Here are the available commands:
 
 #### Validate Data
 
@@ -158,16 +212,15 @@ Rscript app_cli.R --help
     *   Click "Delete Record".
 
     *   Confirm the deletion when prompted.
+## Examples
+See the [examples guide](https://www.google.com/url?sa=E&q=doc%2Fexamples.md) for detailed usage examples.  
 
-### Project Maintenance
+## Project Maintenance
+### Linting
+**Purpose:** Identify potential code style, syntax, and logical errors.
+* **Tool:** ``` lintr ``` package
 
-**Linting:** Run lintr::lint_pkg() in the R console to check for style and syntax issues.
+* **Configuration:** ```  .lintr ``` file
 
-**Styling:** Run styler::style_pkg() to automatically format code according to the style guide.
-
-**Testing:** Run testthat::test_dir("tests/testthat") to execute unit tests.
-
-**CI (GitHub Actions):** Linting, styling, and testing are automatically performed on pushes and pull requests to the main branch.
-
-## License
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+* **How to Run:**
+  ``` lintr::lint_pkg() ```
