@@ -6,6 +6,9 @@ source("../../R/data_classes.R")
 
 context("Report Generation")
 
+# Find the project root
+project_root <- find_root(has_file(".Rprofile")) 
+
 test_that("Report generates an HTML file", {
   # Create dummy data for the report
   dummy_errors <- data.frame(
