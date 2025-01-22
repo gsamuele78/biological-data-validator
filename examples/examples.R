@@ -97,6 +97,7 @@ example_report <- Report$new(
 report_output_path <- file.path(tempdir(), "example_report")
 dir.create(report_output_path, recursive = TRUE, showWarnings = FALSE)
 #example_report$generate(report_output_path)
+project_root <- rprojroot::find_root(rprojroot::has_file(".Rprofile"))
 example_report$generate(report_output_path, project_root)
 log_info("Report generated at: {report_output_path}")
 
