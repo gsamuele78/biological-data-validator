@@ -1,0 +1,36 @@
+Package: biological-data-validator
+Title: Biological Environment Data Validation Tool
+Version: 0.1.0
+Authors@R: 
+    person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")) # You can add your ORCID if you have one
+Description: A tool for validating data collected in biological environment field studies.
+Depends:
+    R (>= 4.0)
+Imports:
+    R6,
+    openxlsx,
+    readxl,
+    lubridate,
+    knitr,
+    rmarkdown,
+    mailR,
+    DBI,
+    RSQLite,
+    shiny,
+    shinyFiles,
+    DT,
+    logger,
+    optparse,
+    rprojroot,
+    renv,
+    styler,
+    lintr,
+    testthat
+Suggests: 
+    pkgdown
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
