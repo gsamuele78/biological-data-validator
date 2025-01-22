@@ -4,6 +4,11 @@ output:
   html_document:
     toc: true
     toc_float: true
+params:
+  filepath: "default_filepath"
+  errors: NA
+  sheet1: NA
+  sheet2: NA
 ---
 
 ## Validation Summary
