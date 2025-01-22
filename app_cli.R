@@ -131,7 +131,9 @@ main <- function(opt) {
 
         # Generate report using the Report class
         report <- Report$new(opt$file, errors, excel_data$sheet1_data, excel_data$sheet2_data)
-        report$generate(data_path)
+        #report$generate(data_path)
+        report$generate(data_path, project_root)
+        
         
         if (nrow(errors) > 0) {
             log_error("Data validation failed with {nrow(errors)} errors.")
