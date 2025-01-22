@@ -7,6 +7,3 @@ linters: with_defaults(
     object_usage_linter = NULL
 )
 exclusions: list("app_cli.R", "app_shiny.R")
-
-# The last line should be blank (a newline character)
-
