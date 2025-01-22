@@ -1,99 +1,100 @@
-# Developer Guide for Biological Environment Data Validation Tool
+# Developer's Guide
 
-This guide provides information for developers who want to contribute to or modify the Biological Environment Data Validation Tool.
+## Architecture
 
-## Table of Contents
+The project follows a modular architecture based on R6 classes. The main components are:
 
-1. [Project Structure](#project-structure)
-2. [Code Style](#code-style)
-3. [Adding Validation Rules](#adding-validation-rules)
-4. [Modifying the UI](#modifying-the-ui)
-5. [Testing](#testing)
-6. [Contributing](#contributing)
+-   **Data Classes (`R/data_classes.R`):**
+    -   `Sheet1Data`: Represents a single row of data from Sheet 1 of the Excel file.
+    -   `Sheet2Data`: Represents a single row of data from Sheet 2 of the Excel file.
+    -   `ExcelData`: Represents the entire Excel data, containing lists of `Sheet1Data` and `Sheet2Data` objects.
+-   **Validation Classes (`R/validation_classes.R`):**
+    -   `ValidationRule`: Base class for all validation rules.
+    -   `DataTypeValidationRule`: Validates data types of columns.
+    -   `MaxRowsValidationRule`: Checks for the maximum number of rows per plot code.
+    -   `UniqueSUValidationRule`: Ensures unique SU values for each plot.
+    -   `NotesValidationRule`: Validates the presence of notes when SU rows are empty.
+    -   `Validator`: Applies all validation rules to the `ExcelData`.
+-   **Report Class (`R/report_class.R`):**
+    -   `Report`: Generates an HTML report summarizing the validation results.
+-   **Path Generation Class (`R/path_generation_class.R`):**
+    -   `PathGenerator`: Creates directory paths for saving reports and data based on plot code, sample date, detector, and region.
+-   **Email Class (`R/email_class.R`):**
+    -   `EmailSender`: Sends validation reports via email.
+-   **Database Interaction Class (`R/db_interaction_class.R`):**
+    -   `DatabaseHandler`: Handles interactions with the SQLite database (add, search, update, delete records).
+-   **Utility Functions (`R/utils.R`):**
+    -   `setup_logging()`: Configures logging for the application.
+    -   `handle_image_uploads()`: Handles image uploads in the Shiny app.
 
-## 1. Project Structure <a name="project-structure"></a>
+## CLI (`app_cli.R`)
 
-The project has the following directory structure:
+The CLI uses the `optparse` package to parse command-line arguments. The `main()` function in `app_cli.R` orchestrates the validation, report generation, and database operations based on the provided arguments.
 
-biological-data-validator/  
-├── app.R # Shiny app (UI and server combined)  
-├── R/ # R functions and classes  
-│ ├── data_classes.R  
-│ ├── validation_classes.R  
-│ ├── report_class.R  
-│ ├── path_generation_class.R  
-│ ├── email_class.R  
-│ └── db_interaction_class.R  
-├── data/ # Sample data  
-│ └── sample_data.xlsx  
-├── report.Rmd # R Markdown report template  
-├── LICENSE  
-├── README.md  
-└── doc/ # Documentation files  
-├── user_guide.md  
-├── examples/  
-│ ├── valid_data_example.R  
-│ └── invalid_data_example.R  
-└── developer_guide.md
+### Extending the CLI
 
+-   **Adding new commands:**
+    1. Add new options to the `option_list` in `app_cli.R`.
+    2. Handle the new options in the `main()` function, calling the appropriate functions/methods from the R6 classes.
+-   **Adding new command-line arguments to existing commands:**
+    1. Modify the relevant options in `option_list`.
+    2. Update the corresponding logic in the `main()` function to use the new arguments.
 
-*   **`app.R`:**  Contains the Shiny application code (UI and server logic).
-*   **`R/`:**  Contains R6 classes that define the data model, validation rules, report generation, path generation, email functionality, and database interactions.
-*   **`data/`:**  Contains a sample Excel data file (`sample_data.xlsx`).
-*   **`report.Rmd`:**  The R Markdown template for generating validation reports.
-*   **`doc/`:** Contains documentation files, including the user guide, examples, and this developer guide.
+## Shiny App (`app_shiny.R`)
 
-## 2. Code Style <a name="code-style"></a>
+The Shiny app provides a reactive user interface. It uses reactive values and observers to respond to user inputs and update the UI accordingly. The server function in `app_shiny.R` handles the logic for data validation, report generation, database interaction, and UI updates.
 
-*   Follow the [tidyverse style guide](https://style.tidyverse.org/) for R code.
-*   Use meaningful variable and function names.
-*   Comment your code to explain complex logic.
-*   Keep functions short and focused on a single task.
-*   Use R6 classes to organize related data and functions.
+### Extending the Shiny App
 
-## 3. Adding Validation Rules <a name="adding-validation-rules"></a>
+-   **Adding new UI elements:**
+    1. Modify the `ui` object in `app_shiny.R` to add new input elements (e.g., buttons, text inputs, select boxes) or output elements (e.g., tables, plots).
+    2. Update the `server` function to handle the logic associated with the new UI elements.
+-   **Adding new reactive logic:**
+    1. Create new reactive expressions or observers using `reactive()` or `observeEvent()`.
+    2. Use reactive values (`reactiveValues()`) to store and update data that is shared between different parts of the app.
 
-To add a new validation rule:
+## Examples (`examples/examples.R`)
 
-1. Create a new R6 class that inherits from the  `ValidationRule`  base class in  `R/validation_classes.R`.
-2. Implement the  `check()`  method in your new class. The  `check()`  method should take an  `ExcelData`  object as input and return a data frame of errors found.
-3. Add an instance of your new validation rule class to the  `Validator`  object in  `app.R`  (inside the server function).
+This file contains examples demonstrating how to use the different classes and functions of the project. It is a good starting point for understanding how the components work together. It also serves as a basis for writing unit tests.
 
-**Example:**
+## Tests (`tests/testthat`)
+
+Unit tests are written using the `testthat` package. Each test file focuses on testing a specific component (e.g., data classes, validation rules).
+
+### Writing Tests
+
+-   Create a new test file in `tests/testthat` (e.g., `test_my_new_feature.R`).
+-   Use `test_that()` to define test cases.
+-   Use `expect_` functions (e.g., `expect_equal()`, `expect_true()`, `expect_error()`) to make assertions about the expected behavior of the code.
+
+### Running Tests
 
 ```R
-# In R/validation_classes.R
-
-MyNewValidationRule <- R6Class("MyNewValidationRule",
-  inherit = ValidationRule,
-  public = list(
-    check = function(excel_data) {
-      errors <- data.frame(Sheet = character(), Row = integer(), Column = character(), Message = character(), stringsAsFactors = FALSE)
-      # ... your validation logic here ...
-      return(errors)
-    }
-  )
-)
-
-# In app.R (inside the server function)
-validator <- Validator$new(path_generator)
-validator$add_rule(MyNewValidationRule$new()) # Add the new rule
+testthat::test_dir("tests/testthat")
 ```
-## 4. Modifying the UI <a name="modifying-the-ui"></a>
-The UI is defined in the ui object within app.R. You can modify the UI by adding or removing Shiny input and output elements. Refer to the Shiny documentation for more information on creating Shiny UIs.
+## Extending the Tool
+## Adding Validation Rules
+1.  **Create a new R6 class** that inherits from ValidationRule.
+2.  **Implement** the check() **method** to perform the validation logic. The check() method should accept an ExcelData object as input and return a data frame of errors (if any).
+3.  **(Optional) Implement** the get_error_level() **method** to specify the error level (e.g., "Warning", "Error") for the rule.
+4.  **Add an instance of your new rule** to the Validator in both app_cli.R and app_shiny.R.
 
-## 5. Testing <a name="testing"></a>
-Manual Testing: Run the application and test the various features with different inputs (valid and invalid data).
+## Adding Data Fields
+1. **Modify** the Sheet1Data and/or Sheet2Data **classes** to include the new fields.
+2. **Update the validation rules** (in validation_classes.R) to handle the new fields (if necessary).
+3. **Update the report generation logic** (in report_class.R and report.Rmd) to include the new fields in the report.
+4. **Modify the database schema** (in db_interaction_class.R) if you want to store the new fields in the database.
 
-Automated Testing (Recommended): Write unit tests using the testthat package to automatically test your validation rules and other functions.
+## Adding Database Features
+1. **Extend** the DatabaseHandler **class** with new methods for interacting with the database (e.g., new types of queries, data modification functions).
+2. **Update the CLI and/or Shiny app** to provide an interface for the new features. This might involve adding new command-line options (in app_cli.R) or new UI elements (in app_shiny.R).
 
-## 6. Contributing <a name="contributing"></a>
-If you want to contribute to the project, please follow these steps:
+## Adding Email Functionality
+**Update** the EmailSender **class** with new methods for interacting with the database (e.g., new types of queries, data modification functions).
 
-1. Fork the repository on GitHub.
-2. Create a new branch for your changes: git checkout -b my-new-feature
-3. Make your changes and commit them: git commit -m "Add some feature"
-4. Push your branch to your fork: git push origin my-new-feature
-5. Create a pull request on the main repository.
-
-Please ensure your code follows the code style guidelines and includes appropriate tests.
+## Documentation
+-   **roxygen2 Comments:** Document all functions, classes, and methods using roxygen2 style comments.
+-   **pkgdown Website (Optional):** If you choose to use pkgdown, update the website by running pkgdown::build_site().
+-   **README.md:** Keep the main README.md up-to-date with any changes to the project's features, installation instructions, or usage examples.
+-   **User Guide (doc/user_guide.md):** Update the user guide with instructions on how to use any new features.
+-   **Developer's Guide (doc/developer_guide.md):** Update the developer's guide with information about the new code, changes to the architecture, or any other relevant details for developers.
