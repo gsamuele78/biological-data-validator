@@ -1,7 +1,7 @@
 # Biological Environment Data Validation Tool
 
-[![R-CI (RSPM)](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-rspm.yml/badge.svg)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-rspm.yml)
-[![R-CI (BSPM)](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-bspm.yml/badge.svg)](https://github.com/<your_github_username>/<your_repo_name>/actions/workflows/r-ci-bspm.yml)
+[![R-CI (BSPM) - Ubuntu 22.04](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-bspm.yml/badge.svg)](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-bspm.yml)
+[![R-CI (RSPM) - Ubuntu 22.04](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-rspm.yml/badge.svg)](https://github.com/gsamuele78/biological-data-validator/actions/workflows/r-ci-rspm.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Description
