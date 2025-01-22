@@ -44,3 +44,23 @@ if (nrow(params$errors) > 0) {
 } else {
   cat("No errors found. Validation successful!\n")
 }
+
+## Data Overview (Sheet 1)
+
+# Display the first few rows of Sheet 1
+if (!is.null(params$sheet1) && length(params$sheet1) > 0) {
+    sheet1_df <- do.call(rbind, lapply(params$sheet1, function(x) data.frame(x)))
+    knitr::kable(head(sheet1_df))
+} else {
+    cat("Sheet 1 data is not available or empty.\n")
+}
+
+##Data Overview (Sheet 2)
+
+# Display the first few rows of Sheet 2
+if (!is.null(params$sheet2) && length(params$sheet2) > 0) {
+    sheet2_df <- do.call(rbind, lapply(params$sheet2, function(x) data.frame(x)))
+    knitr::kable(head(sheet2_df))
+} else {
+    cat("Sheet 2 data is not available or empty.\n")
+}
