@@ -145,6 +145,3 @@ ExcelData <- R6Class("ExcelData",
     }
   )
 )
-    }
-  )
-)
