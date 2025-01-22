@@ -38,12 +38,13 @@ jobs:
         sudo apt update
         sudo apt install -y r-base r-base-dev
         
-        
-        
     - name: Install dependencies
       run: |
-        R -e 'install.packages("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown")'        
+        set -e
+        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
+        R -e 'remotes::install_deps(dependencies = TRUE)'
       working-directory: ${{ github.workspace }}
+      shell: bash
 
     - name: Cache R packages
       uses: actions/cache@v3
