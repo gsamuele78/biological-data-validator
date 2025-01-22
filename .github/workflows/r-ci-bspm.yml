@@ -31,18 +31,12 @@ jobs:
     - name: Setup BSPM and r2u
       run: |
         sudo apt-get install --no-install-recommends software-properties-common dirmngr
-        sudo mkdir -p /etc/apt/keyrings
-        sudo wget -qO- https://eddelbuettel.github.io/r2u/assets/dirk.eddelbuettel.asc | sudo tee /etc/apt/keyrings/cranapt.asc
-        sudo wget -qO- https://eddelbuettel.github.io/r2u/assets/dirk.eddelbuettel.key | sudo tee /etc/apt/keyrings/cranapt.key
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends r-base-dev
+        sudo add-apt-repository -y "deb [arch=amd64] https://packagemanager.posit.co/cran/jammy/"
         sudo apt update
-        sudo apt install -y --no-install-recommends r-cran-r2u
-        sudo add-apt-repository -y "deb [arch=amd64 signed-by=/etc/apt/keyrings/cranapt.asc] https://r2u.stat.illinois.edu/ubuntu jammy main"
-        sudo apt install -y --no-install-recommends bspm
-        sudo apt install -y r-base-dev r-base
+        curl -s "https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_jammy.sh" | sudo bash -s
         sudo apt update
-
+        sudo apt install -y r-base-dev
+        
     - name: Install dependencies
       run: |
         R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"), repos = "https://r2u.stat.illinois.edu/ubuntu")'
