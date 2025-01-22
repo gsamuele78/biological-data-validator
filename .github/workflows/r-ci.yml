@@ -8,10 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # Explicitly set Ubuntu version
+    runs-on: ubuntu-24.04 # Explicitly set Ubuntu version
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0  # Fetch all history for all branches and tags
 
@@ -29,6 +29,7 @@ jobs:
       run: |
         R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'remotes::install_deps(dependencies = TRUE)'
+      working-directory: ${{ github.workspace }} # Set working directory
     - name: Cache R packages
       uses: actions/cache@v3 # Updated to v3
       with:
@@ -51,3 +52,4 @@ jobs:
       
     - name: Build package documentation
       run: R -e 'pkgdown::build_site()'
+
