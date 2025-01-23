@@ -53,7 +53,7 @@ jobs:
         set -e
         R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'
         R -e 'install.packages("DT")'
-        R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE)'
+        R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE, Ncpus = parallel::detectCores())'
       working-directory: ${{ github.workspace }}
       shell: bash
     
@@ -85,11 +85,11 @@ jobs:
         set -e
         R -e 'lintr::lint_package()'
       shell: bash
-
+      
     - name: Run tests
       run: |
         set -e
-        R -e 'testthat::test_dir("tests/testthat")'
+        R -e 'testthat::test_dir("tests/testthat", reporter = "progress")' 
       shell: bash
 
     - name: Style code
