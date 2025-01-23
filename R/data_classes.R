@@ -75,6 +75,34 @@ Sheet1Data <- R6Class("Sheet1Data",
       self$Brioph.cov <- as.numeric(data_row[["Brioph.cov"]])
       self$notes <- as.character(data_row[["notes"]])
     }
+    #' @description
+    #' Convert the Sheet1Data object to a data frame
+    to_data_frame = function() {
+      data.frame(
+        Plot.code = self$Plot.code,
+        SU = self$SU,
+        Sample.date = as.character(self$Sample.date),
+        Detector = self$Detector,
+        X = self$X,
+        Y = self$Y,
+        Region = self$Region,
+        Elevation = self$Elevation,
+        Aspect = self$Aspect,
+        Slope = self$Slope,
+        Cop.tot = self$Cop.tot,
+        Litter.cov = self$Litter.cov,
+        Bare.soil.cov = self$Bare.soil.cov,
+        Tree.cov = self$Tree.cov,
+        Tree.h = self$Tree.h,
+        Shrub.cov = self$Shrub.cov,
+        Shrub.h = self$Shrub.h,
+        Herb.cov = self$Herb.cov,
+        Herb.h = self$Herb.h,
+        Brioph.cov = self$Brioph.cov,
+        notes = self$notes,
+        stringsAsFactors = FALSE
+      )
+    }
   )
 )
 
@@ -107,6 +135,20 @@ Sheet2Data <- R6Class("Sheet2Data",
       self$cover <- as.numeric(data_row[["cover"]])
       self$Layer <- as.character(data_row[["Layer"]])
       self$Notes <- as.character(data_row[["Notes"]])
+    }
+    #' @description
+    #' Convert the Sheet2Data object to a data frame
+    to_data_frame = function() {
+      data.frame(
+        Plot.code = self$Plot.code,
+        Subplot = self$Subplot,
+        Species = self$Species,
+        species_abb = self$species_abb,
+        cover = self$cover,
+        Layer = self$Layer,
+        Notes = self$Notes,
+        stringsAsFactors = FALSE
+      )
     }
   )
 )
