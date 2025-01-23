@@ -41,7 +41,7 @@ jobs:
         set -e
         R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown"))'
         R -e 'install.packages("DT")'
-        R -e 'remotes::install_deps(dependencies = TRUE)'
+        R -e 'remotes::install_deps(dependencies = TRUE, Ncpus = parallel::detectCores())'        
       working-directory: ${{ github.workspace }}
       shell: bash
 
@@ -77,9 +77,9 @@ jobs:
     - name: Run tests
       run: |
         set -e
-        R -e 'testthat::test_dir("tests/testthat")'
+        R -e 'testthat::test_dir("tests/testthat", reporter = "progress")' 
       shell: bash
-
+      
     - name: Style code
       run: |
         set -e
