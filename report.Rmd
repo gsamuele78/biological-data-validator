@@ -54,7 +54,7 @@ if (nrow(params$errors) > 0) {
 
 # Display the first few rows of Sheet 1
 if (!is.null(params$sheet1) && length(params$sheet1) > 0) {
-    sheet1_df <- do.call(rbind, lapply(params$sheet1, function(x) data.frame(x)))
+    sheet1_df <- do.call(rbind, lapply(params$sheet1, function(x) x$to_data_frame()))
     knitr::kable(head(sheet1_df))
 } else {
     cat("Sheet 1 data is not available or empty.\n")
@@ -62,9 +62,8 @@ if (!is.null(params$sheet1) && length(params$sheet1) > 0) {
 
 ##Data Overview (Sheet 2)
 
-# Display the first few rows of Sheet 2
 if (!is.null(params$sheet2) && length(params$sheet2) > 0) {
-    sheet2_df <- do.call(rbind, lapply(params$sheet2, function(x) data.frame(x)))
+    sheet2_df <- do.call(rbind, lapply(params$sheet2, function(x) x$to_data_frame()))
     knitr::kable(head(sheet2_df))
 } else {
     cat("Sheet 2 data is not available or empty.\n")
