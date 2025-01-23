@@ -74,7 +74,7 @@ Sheet1Data <- R6Class("Sheet1Data",
       self$Herb.h <- as.numeric(data_row[["Herb.h"]])
       self$Brioph.cov <- as.numeric(data_row[["Brioph.cov"]])
       self$notes <- as.character(data_row[["notes"]])
-    }
+    },
     #' @description
     #' Convert the Sheet1Data object to a data frame
     to_data_frame = function() {
@@ -135,7 +135,7 @@ Sheet2Data <- R6Class("Sheet2Data",
       self$cover <- as.numeric(data_row[["cover"]])
       self$Layer <- as.character(data_row[["Layer"]])
       self$Notes <- as.character(data_row[["Notes"]])
-    }
+    },
     #' @description
     #' Convert the Sheet2Data object to a data frame
     to_data_frame = function() {
