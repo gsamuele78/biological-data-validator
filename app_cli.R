@@ -126,8 +126,6 @@ main <- function(opt) {
         sample_row <- excel_data$sheet1_data[[1]]
         data_path <- path_generator$generate(
           sample_row$Plot.code,
-          sample_row$Sample.date,
-          sample_row$Detector,
           sample_row$Region
         )
         report_path <- file.path(data_path, "report-validation.html")
