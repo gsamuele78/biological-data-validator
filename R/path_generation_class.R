@@ -18,15 +18,10 @@ PathGenerator <- R6Class("PathGenerator",
     #' @description
     #' Generate a directory path based on plot code, sample date, detector, and region
     #' @param plot_code Plot code
-    #' @param sample_date Sample date
-    #' @param detector Detector
     #' @param region Region
-    generate = function(plot_code, sample_date, detector, region) {
-      year <- year(sample_date)
-      month <- sprintf("%02d", month(sample_date))
-      day <- sprintf("%02d", day(sample_date))
+    generate = function(plot_code, region) {
       
-      path <- file.path(self$base_path, year, month, day, region, detector, plot_code)
+      path <- file.path(self$base_path, region, plot_code)
       
       if (!dir.exists(path)) {
         dir.create(path, recursive = TRUE)
