@@ -11,7 +11,7 @@ EmailSender <- R6Class("EmailSender",
     #' @param recipient Recipient email address
     send = function(report_path, recipient = "pinco.pallino@gmail.com") {
       # You'll need to set up your email server details here (SMTP)
-      send.mail(from = "<your_email@example.com>",
+      send.mail(from = "your_email@example.com", 
                 to = recipient,
                 subject = "Data Validation Report",
                 body = "Please find the attached data validation report.",
@@ -19,9 +19,9 @@ EmailSender <- R6Class("EmailSender",
                 attach.files = report_path,
                 smtp = list(host.name = "smtp.gmail.com", # Example: Gmail SMTP
                             port = 587,
-                            user.name = "<your_email@example.com>",
-                            passwd = "<your_password>",
-                            ssl = TRUE),
+                            user.name = "your_email@example.com",
+                            passwd = "your_password", # App Password
+                            tls = TRUE),
                 authenticate = TRUE,
                 send = TRUE)
     }
