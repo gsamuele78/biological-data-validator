@@ -27,17 +27,42 @@ jobs:
 
     - name: Configure Java for R
       run: sudo R CMD javareconf
-
-    - name: Setup BSPM and r2u
+      
+    - name: Set up apt sources for r2u and CRAN
       run: |
-        sudo apt-get install --no-install-recommends software-properties-common dirmngr
-        sudo apt update
-        curl -s "https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_jammy.sh" | sudo bash -s
-        wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
-        sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
-        sudo apt update
-        sudo apt install -y r-base r-base-dev
+        sudo mkdir -p /etc/apt/sources.list.d/
+        echo "deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/cranapt.list
+        echo "deb [arch=amd64] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | sudo tee /etc/apt/sources.list.d/cran_r.list
+        sudo wget -q -O /etc/apt/trusted.gpg.d/cranapt_key.asc https://eddelbuettel.github.io/r2u/assets/dirk_eddelbuettel_key.asc
+        sudo wget -q -O /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
+
+    - name: Update apt and install dependencies with retry
+      run: |
+        # Retry apt-get update up to 5 times with a 10 second delay
+        for i in {1..5}; do
+          sudo apt-get update && break || sleep 10;
+        done
+        # Install required packages (including bspm prerequisites)
+        sudo apt-get install -y r-base-core python3-dbus python3-gi python3-apt
+
+    - name: Install bspm in R and enable it
+      run: |
+        Rscript -e "install.packages('bspm', repos='https://cran.r-project.org')"
+        RHOME=$(R RHOME)
+        sudo bash -c "echo 'suppressMessages(bspm::enable())' >> ${RHOME}/etc/Rprofile.site"
+        sudo bash -c "echo 'options(bspm.version.check=FALSE)' >> ${RHOME}/etc/Rprofile.site"
         
+    - name: Basic install R
+      run: |
+       # sudo apt-get install --no-install-recommends software-properties-common dirmngr
+       # sudo apt update
+       # curl -s "https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_jammy.sh" | sudo bash -s
+       # wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+       # sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+        sudo apt update
+        sudo apt-get install --no-install-recommends software-properties-common dirmngr
+        sudo apt install -y r-base r-base-dev
+    
     - name: Install lintr separately (verbose)
       run: |
         R -e 'bspm::disable(); install.packages("lintr", verbose = TRUE)'
