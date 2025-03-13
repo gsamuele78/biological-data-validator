@@ -18,7 +18,8 @@ jobs:
     - name: Set up R
       uses: r-lib/actions/setup-r@v2
       with:
-        use-public-rspm: false
+        use-public-rspm: false                
+        r-version: '4.4.3'  # adjust as needed
 
     - name: Install system dependencies
       run: |
@@ -28,13 +29,26 @@ jobs:
     - name: Configure Java for R
       run: sudo R CMD javareconf
       
-    - name: Set up apt sources for r2u and CRAN
+
+    - name: Configure apt repositories for r2u and CRAN
       run: |
-        sudo mkdir -p /etc/apt/sources.list.d/
+        # Add r2u repository for CRAN as Ubuntu binaries
         echo "deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/cranapt.list
+        # Add CRAN repository (optional, for up-to-date R binaries)
         echo "deb [arch=amd64] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | sudo tee /etc/apt/sources.list.d/cran_r.list
+        # Import GPG keys for both repositories
         sudo wget -q -O /etc/apt/trusted.gpg.d/cranapt_key.asc https://eddelbuettel.github.io/r2u/assets/dirk_eddelbuettel_key.asc
         sudo wget -q -O /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
+        sudo apt-get update
+
+    - name: Install bspm and configure for container use
+      run: |
+        # Install bspm as a system package (to avoid user library issues)
+        sudo Rscript --vanilla -e 'install.packages("bspm", repos="https://cran.r-project.org")'
+        # In container environments, set bspm.sudo=TRUE to bypass D-Bus
+        echo "options(bspm.sudo = TRUE)" >> ~/.Rprofile
+        # Enable bspm (this will now use sudo because of the option above)
+        sudo Rscript --vanilla -e 'suppressMessages(bspm::enable())'
 
     - name: Update apt and install dependencies with retry
       run: |
@@ -72,15 +86,23 @@ jobs:
       run: |
         R -e 'bspm::disable(); install.packages("remotes", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
+
+    - name: Install additional R packages
+      run: |
+        Rscript --vanilla -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"), repos="https://cran.r-project.org")'
+        Rscript --vanilla -e 'install.packages(c("DT"), repos="https://cran.r-project.org")' 
+    
+    - name: Run R CMD check
+      run: R CMD check .
         
     - name: Install dependencies
       run: |
         set -e
-        R -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"))'
-        R -e 'install.packages("DT")'
         R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE, Ncpus = parallel::detectCores())'
       working-directory: ${{ github.workspace }}
       shell: bash
+
+
     
     - name: Cache R packages
       uses: actions/cache@v3
