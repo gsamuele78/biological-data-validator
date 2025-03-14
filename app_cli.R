@@ -54,6 +54,17 @@ opt <- parse_args(opt_parser)
 # --- Main Execution ---
 
 main <- function(opt) {
+    #get the current working directory
+    getwd()
+    setwd( getwd())
+    #Debug normalize path
+    tryCatch({
+        normalizePath("")
+    }, error = function(e) {
+        print("Empty path detected!")
+        print(e)
+    })
+
     # Start logging
     setup_logging() # Function defined in R/utils.R
 

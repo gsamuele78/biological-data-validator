@@ -7,5 +7,6 @@ linters: linters_with_defaults(
   )
 exclusions: list(
     "app_cli.R",
-    "app_shiny.R"
+    "app_shiny.R",
+    "app_cli.R.git
   )
