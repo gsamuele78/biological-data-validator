@@ -19,7 +19,7 @@ Excel File: `r params$filepath`
 
 ## Validation Results
 
-```{r, echo=FALSE, results='asis'}
+```{r, echo=FALSE, results='asis'}```
 if (nrow(params$errors) > 0) {
   cat("### Format Check\n\n")
   cat("The following checks verify that the data in the Excel file is in the expected format:\n\n")
