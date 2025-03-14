@@ -5,8 +5,4 @@ linters: linters_with_defaults(
     trailing_blank_lines_linter = NULL,
     object_usage_linter = NULL
   )
-exclusions: list(
-    "app_cli.R",
-    "app_shiny.R"   
-  )
 
