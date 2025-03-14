@@ -24,7 +24,7 @@ option_list <- list(
               help = "Path to the Excel data file", metavar = "character"),
   make_option(c("-i", "--images"), type = "character", default = NULL,
               help = "Comma-separated paths to image files (optional)", metavar = "character"),
-  make_option(c("-b", "--base_path"), type = "character", default = "/default/path",
+  make_option(c("-b", "--base_path"), type = "character", default = getwd(),
               help = "Base path for saving data and reports", metavar = "character"),
   make_option(c("-e", "--email"), type = "character", default = NULL,
               help = "Email address to send the report to (optional)", metavar = "character"),
