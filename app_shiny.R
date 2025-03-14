@@ -158,7 +158,7 @@ server <- function(input, output, session) {
             
             # If images were uploaded, add them to the database as well
             if (!is.null(input$image_files)) {
-                for (i in 1:nrow(input$image_files)) {
+                for (i in seq_len(nrow(input$image_files))) {
                     db_handler$add_image_data(plot_data_id, file.path(data_path, input$image_files$name[i]))
                 }
             }

@@ -1,9 +1,7 @@
 Package: biological-data-validator
 Title: Biological Environment Data Validation Tool
 Version: 0.1.0
-Authors@R: 
-    person("Gianfranco", "Samuele", email = "gianfranco.samuele2@unibo.it", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID")) # You can add your ORCID if you have one
+Authors@R: person("Gianfranco", "Samuele", email = "gianfranco.samuele2@unibo.it", role = c("aut", "cre"), comment = c(ORCID = "YOUR-ORCID-ID")) # You can add your ORCID if you have one
 Description: A tool for validating data collected in biological environment field studies.
 Depends:
     R (>= 4.0)
