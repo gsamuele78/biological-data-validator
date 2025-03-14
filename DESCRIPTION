@@ -2,7 +2,7 @@ Package: biological-data-validator
 Title: Biological Environment Data Validation Tool
 Version: 0.1.0
 Authors@R: 
-    person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre"),
+    person("Gianfranco", "Samuele", email = "gianfranco.samuele2@unibo.it", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID")) # You can add your ORCID if you have one
 Description: A tool for validating data collected in biological environment field studies.
 Depends:
@@ -10,6 +10,7 @@ Depends:
 Imports:
     R6,
     openxlsx,
+    readr,
     readxl,
     lubridate,
     knitr,
