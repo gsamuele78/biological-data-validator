@@ -1,4 +1,4 @@
-# R/path_generation_class.R
+# R/path_generation_class.R # nolint: commented_code_linter.
 library(R6)
 library(lubridate)
 
