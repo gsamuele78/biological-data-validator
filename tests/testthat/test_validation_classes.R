@@ -2,8 +2,11 @@
 library(testthat)
 library(openxlsx)
 source("../../R/data_classes.R")
-source("../../R/validation_classes.R")
+source("../../R/report_class.R")
 source("../../R/path_generation_class.R")
+source("../../R/validation_classes.R")
+source("../../R/utils.R")
+
 
 context("Validation Classes")
 
