@@ -1,7 +1,7 @@
 # R/report_class.R # nolint: commented_code_linter.
 library(R6)
 library(rmarkdown)
-library(logger)
+#library(logger)
 
 #' Report class for generating validation reports
 Report <- R6Class("Report",
@@ -29,7 +29,7 @@ Report <- R6Class("Report",
       sheet1_df <- do.call(rbind, lapply(self$data_source$sheet1_data, function(x) x$to_data_frame()))
       sheet2_df <- do.call(rbind, lapply(self$data_source$sheet2_data, function(x) x$to_data_frame()))
       
-      log_info(paste("Generating validation report for:", self$data_source$filepath))
+      logger::log_info(paste("Generating validation report for:", self$data_source$filepath))
       
       tryCatch({
         rmarkdown::render(file.path(project_root, "report.Rmd"),
@@ -41,11 +41,11 @@ Report <- R6Class("Report",
                             sheet2 = sheet2_df,
                             file_type = self$data_source$file_type
                           ))
-        log_success(paste("Successfully generated validation report at:", 
+        logger::log_success(paste("Successfully generated validation report at:", 
                           file.path(output_path, "report-validation.html")))
         return(TRUE)
       }, error = function(e) {
-        log_error(paste("Failed to generate validation report. Error:", e$message))
+        logger::log_error(paste("Failed to generate validation report. Error:", e$message))
         return(FALSE) # nolint: return_linter.
       })
     },
@@ -55,19 +55,19 @@ Report <- R6Class("Report",
     #' @param output_path Path to save the errors CSV file
     #' @return TRUE if successful
     export_errors_to_csv = function(output_path) {
-      log_info(paste("Exporting validation errors to CSV:", output_path))
+      logger::log_info(paste("Exporting validation errors to CSV:", output_path))
       
       tryCatch({
         if (!is.null(self$errors) && nrow(self$errors) > 0) {
           readr::write_csv(self$errors, output_path)
-          log_success(paste("Successfully exported validation errors to:", output_path))
+          logger::log_success(paste("Successfully exported validation errors to:", output_path))
           return(TRUE)
         } else {
-          log_info("No errors to export.")
+          logger::log_info("No errors to export.")
           return(FALSE)
         }
       }, error = function(e) {
-        log_error(paste("Failed to export validation errors. Error:", e$message))
+        logger::log_error(paste("Failed to export validation errors. Error:", e$message))
         return(FALSE) # nolint: return_linter.
       })
     }

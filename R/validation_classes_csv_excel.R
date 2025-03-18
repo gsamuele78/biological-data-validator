@@ -26,39 +26,39 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
     #' Check the data source for data type errors
     #' @param data_source A DataSource object
     check = function(data_source) {
-        errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                            Message = character(), stringsAsFactors = FALSE)
+      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
+                           Message = character(), stringsAsFactors = FALSE)
 
-        # Sheet 1 validation
-        for (i in seq_along(data_source$sheet1_data)) {
-            data_row <- data_source$sheet1_data[[i]]
+      # Sheet 1 validation
+      for (i in seq_along(data_source$sheet1_data)) {
+        data_row <- data_source$sheet1_data[[i]]
 
-            if (!is.character(data_row$Plot.code)) {
-                errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                                 Column = "Plot.code", 
-                                                 Message = "Plot.code should be alphanumeric."))
-            }
-            if (!is.numeric(data_row$SU) || data_row$SU < 1 || data_row$SU > 4) {
-                errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                                 Column = "SU", 
-                                                 Message = "SU should be a number between 1 and 4."))
-            }
-            # ... (Add validation for other columns in Sheet1 with specific row numbers)
+        if (!is.character(data_row$Plot.code)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Plot.code", 
+                                             Message = "Plot.code should be alphanumeric."))
         }
-
-        # Sheet 2 validation
-        for (i in seq_along(data_source$sheet2_data)) {
-            data_row <- data_source$sheet2_data[[i]]
-
-            if (!is.character(data_row$Plot.code)) {
-                errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                                 Column = "Plot.code", 
-                                                 Message = "Plot.code should be alphanumeric."))
-            }
-            # ... (Add validation for other columns in Sheet2 with specific row numbers)
+        if (!is.numeric(data_row$SU) || data_row$SU < 1 || data_row$SU > 4) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "SU", 
+                                             Message = "SU should be a number between 1 and 4."))
         }
+        # ... (Add validation for other columns in Sheet1 with specific row numbers)
+      }
 
-        return(errors)
+      # Sheet 2 validation
+      for (i in seq_along(data_source$sheet2_data)) {
+        data_row <- data_source$sheet2_data[[i]]
+
+        if (!is.character(data_row$Plot.code)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "Plot.code", 
+                                             Message = "Plot.code should be alphanumeric."))
+        }
+        # ... (Add validation for other columns in Sheet2 with specific row numbers)
+      }
+
+      return(errors)
     },
     #' @description
     #' Get the error level for this rule
@@ -76,20 +76,20 @@ MaxRowsValidationRule <- R6Class("MaxRowsValidationRule",
     #' Check the data source for maximum rows errors
     #' @param data_source A DataSource object
     check = function(data_source) {
-        errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                            Message = character(), stringsAsFactors = FALSE)
+      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
+                           Message = character(), stringsAsFactors = FALSE)
 
-        # Rule 1: Maximum 4 rows with same Plot.code and SU values 1,2,3,4
-        plot_counts <- table(sapply(data_source$sheet1_data, function(x) x$Plot.code))
-        if (any(plot_counts > 4)) {
-            for (plot in names(plot_counts[plot_counts > 4])) {
-                errors <- rbind(errors, data.frame(Source = "Sheet1", Row = NA, 
-                                                 Column = "Plot.code", 
-                                                 Message = paste("More than 4 rows with Plot.code:", plot)))
-            }
+      # Rule 1: Maximum 4 rows with same Plot.code and SU values 1,2,3,4
+      plot_counts <- table(sapply(data_source$sheet1_data, function(x) x$Plot.code))
+      if (any(plot_counts > 4)) {
+        for (plot in names(plot_counts[plot_counts > 4])) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = NA, 
+                                             Column = "Plot.code", 
+                                             Message = paste("More than 4 rows with Plot.code:", plot)))
         }
+      }
 
-        return(errors)
+      return(errors)
     }
   )
 )
@@ -102,21 +102,21 @@ UniqueSUValidationRule <- R6Class("UniqueSUValidationRule",
     #' Check the data source for unique SU errors
     #' @param data_source A DataSource object
     check = function(data_source) {
-        errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                            Message = character(), stringsAsFactors = FALSE)
+      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
+                           Message = character(), stringsAsFactors = FALSE)
 
-        for (plot in unique(sapply(data_source$sheet1_data, function(x) x$Plot.code))) {
-            su_values <- sapply(data_source$sheet1_data[sapply(data_source$sheet1_data, 
-                                                              function(x) x$Plot.code == plot)], 
-                               function(x) x$SU)
-            if (length(su_values) != length(unique(su_values))) {
-                errors <- rbind(errors, data.frame(Source = "Sheet1", Row = NA, 
-                                                 Column = "SU", 
-                                                 Message = paste("Duplicate SU values found for Plot.code:", plot)))
-            }
+      for (plot in unique(sapply(data_source$sheet1_data, function(x) x$Plot.code))) {
+        su_values <- sapply(data_source$sheet1_data[sapply(data_source$sheet1_data, 
+                                                           function(x) x$Plot.code == plot)], 
+                            function(x) x$SU)
+        if (length(su_values) != length(unique(su_values))) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = NA, 
+                                             Column = "SU", 
+                                             Message = paste("Duplicate SU values found for Plot.code:", plot)))
         }
+      }
 
-        return(errors)
+      return(errors)
     }
   )
 )
@@ -130,30 +130,30 @@ NotesValidationRule <- R6Class("NotesValidationRule",
     #' @param data_source A DataSource object
     check = function(data_source) {
       errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                          Message = character(), stringsAsFactors = FALSE)
+                           Message = character(), stringsAsFactors = FALSE)
       
       sheet1_data_list <- data_source$sheet1_data
       sheet2_data_list <- data_source$sheet2_data
       
       for (i in seq_along(sheet1_data_list)) {
-          plot_code <- sheet1_data_list[[i]]$Plot.code
-          su_value <- sheet1_data_list[[i]]$SU
+        plot_code <- sheet1_data_list[[i]]$Plot.code
+        su_value <- sheet1_data_list[[i]]$SU
           
-          # Find corresponding rows in Sheet2
-          matching_rows_sheet2 <- which(sapply(sheet2_data_list, function(x) x$Plot.code) == plot_code & 
+        # Find corresponding rows in Sheet2
+        matching_rows_sheet2 <- which(sapply(sheet2_data_list, function(x) x$Plot.code) == plot_code & 
                                         sapply(sheet2_data_list, function(x) x$Subplot) == su_value)
           
-          if (length(matching_rows_sheet2) == 0) {
-              # Check if Note in Sheet1 contains text
-              if (is.null(sheet1_data_list[[i]]$notes) || is.na(sheet1_data_list[[i]]$notes) || 
-                  sheet1_data_list[[i]]$notes == "") {
-                  errors <- rbind(errors, data.frame(Source = "Sheet2", Row = NA, 
-                                                   Column = "Subplot", 
-                                                   Message = paste("Missing data in Sheet2 for Plot.code:", 
-                                                                 plot_code, "and SU:", su_value, 
-                                                                 "without a corresponding note in Sheet1.")))
-              }
+        if (length(matching_rows_sheet2) == 0) {
+          # Check if Note in Sheet1 contains text
+          if (is.null(sheet1_data_list[[i]]$notes) || is.na(sheet1_data_list[[i]]$notes) || 
+                sheet1_data_list[[i]]$notes == "") {
+            errors <- rbind(errors, data.frame(Source = "Sheet2", Row = NA, 
+                                               Column = "Subplot", 
+                                               Message = paste("Missing data in Sheet2 for Plot.code:", 
+                                                               plot_code, "and SU:", su_value, 
+                                                               "without a corresponding note in Sheet1.")))
           }
+        }
       }
       
       return(errors)
@@ -170,7 +170,7 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
     #' @param data_source A DataSource object
     check = function(data_source) {
       errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                          Message = character(), stringsAsFactors = FALSE)
+                           Message = character(), stringsAsFactors = FALSE)
       
       # Only run this validation for CSV data sources
       if (data_source$file_type != "csv") {
@@ -183,8 +183,8 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
       
       if (!file.exists(species_path)) {
         errors <- rbind(errors, data.frame(Source = "FileSystem", Row = NA, 
-                                         Column = NA, 
-                                         Message = paste("Species data file not found:", species_path)))
+                                        Column = NA, 
+                                        Message = paste("Species data file not found:", species_path)))
       }
       
       return(errors)

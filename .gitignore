@@ -50,3 +50,7 @@ rsconnect/
 
 #Renvironment
 renv/
+
+#Rcheck
+. .Rcheck
+

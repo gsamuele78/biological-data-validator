@@ -13,7 +13,7 @@ setup_logging <- function(log_level = "INFO", log_file = "validation.log") {
   }
 
   # Load the logger package
-  library(logger)
+  #library(logger)
 
   # Convert the log level string to an actual log level object
   log_level_obj <- switch(toupper(log_level),
@@ -129,20 +129,20 @@ detect_file_type <- function(file_path) {
 #'   }
 #' }
 load_csv_data <- function(file_path, description = "CSV data") {
-  log_info(paste("Loading", description, "from CSV file:", file_path))
+  logger::log_info(paste("Loading", description, "from CSV file:", file_path))
   
   # Check if file exists
   if (!file.exists(file_path)) {
-    log_error(paste("File does not exist:", file_path))
+    logger::log_error(paste("File does not exist:", file_path))
     return(NULL)
   }
   
   tryCatch({
     data <- readr::read_csv(file_path, col_types = readr::cols())
-    log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
+    logger::log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
     return(as.data.frame(data))
   }, error = function(e) {
-    log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
+    logger::log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
     return(NULL)
   })
 }
@@ -163,27 +163,27 @@ load_csv_data <- function(file_path, description = "CSV data") {
 #'   print(head(excel_data))
 #' }
 load_excel_data <- function(file_path, sheet = 1, description = "Excel data") {
-  log_info(paste("Loading", description, "from Excel file:", file_path, "sheet:", sheet))
+  logger::log_info(paste("Loading", description, "from Excel file:", file_path, "sheet:", sheet))
 
   # Check if file exists
   if (!file.exists(file_path)) {
-    log_error(paste("File does not exist:", file_path))
+    logger::log_error(paste("File does not exist:", file_path))
     return(NULL)
   }
 
   # Check if file has a valid extension
   if (!grepl("\\.(xlsx|xls)$", file_path)) {
-    log_error(paste("Invalid file extension for:", file_path))
+    logger::log_error(paste("Invalid file extension for:", file_path))
     return(NULL)
   }
 
   # Load Excel data using readxl package
   tryCatch({
     data <- readxl::read_excel(file_path, sheet = sheet)
-    log_success(paste("Successfully loaded", description, "from Excel file:", file_path, "sheet:", sheet))
+    logger::log_success(paste("Successfully loaded", description, "from Excel file:", file_path, "sheet:", sheet))
     return(as.data.frame(data))
   }, error = function(e) {
-    log_error(paste("Failed to load", description, "from Excel file:", file_path, "sheet:", sheet, "\nError:", e$message))
+    logger::log_error(paste("Failed to load", description, "from Excel file:", file_path, "sheet:", sheet, "\nError:", e$message))
     return(NULL)
   })
 }
@@ -206,7 +206,7 @@ load_data <- function(file_path, description = "data", sheet = 1) {
   file_type <- detect_file_type(file_path)
   
   if (is.null(file_type)) {
-    log_error(paste("Unsupported file type for:", file_path))
+    logger::log_error(paste("Unsupported file type for:", file_path))
     return(NULL)
   }
   
@@ -232,15 +232,15 @@ load_data <- function(file_path, description = "data", sheet = 1) {
 #'   }
 #' }
 create_data_source <- function(file_path, file_type = NULL) {
-  log_info(paste("Creating DataSource from file:", file_path))
+  logger::log_info(paste("Creating DataSource from file:", file_path))
   
   tryCatch({
     # Create DataSource object
     data_source <- DataSource$new(file_path, file_type)
-    log_success(paste("Successfully created DataSource from file:", file_path))
+    logger::log_success(paste("Successfully created DataSource from file:", file_path))
     return(data_source)
   }, error = function(e) {
-    log_error(paste("Failed to create DataSource from file:", file_path, "Error:", e$message))
+    logger::log_error(paste("Failed to create DataSource from file:", file_path, "Error:", e$message))
     return(NULL)
   })
 }
@@ -260,20 +260,20 @@ create_data_source <- function(file_path, file_type = NULL) {
 #'   print(head(valid_values))
 #' }
 load_valid_values <- function(file_path, description = "Valid values") {
-  log_info(paste("Loading", description, "from text file:", file_path))
+  logger::log_info(paste("Loading", description, "from text file:", file_path))
   
   # Check if file exists
   if (!file.exists(file_path)) {
-    log_error(paste("File does not exist:", file_path))
+    logger::log_error(paste("File does not exist:", file_path))
     return(NULL)
   }
   
   tryCatch({
     valid_values <- readLines(file_path)
-    log_success(paste("Successfully loaded", description, "from text file:", file_path))
+    logger::log_success(paste("Successfully loaded", description, "from text file:", file_path))
     return(valid_values)
   }, error = function(e) {
-    log_error(paste("Failed to load", description, "from text file:", file_path, "Error:", e$message))
+    logger::log_error(paste("Failed to load", description, "from text file:", file_path, "Error:", e$message))
     return(NULL)
   })
 }
@@ -292,13 +292,13 @@ load_valid_values <- function(file_path, description = "Valid values") {
 #'   print(nrow(results))
 #' }
 validate_data_file <- function(file_path, output_path = NULL, validator = NULL) {
-  log_info(paste("Validating data file:", file_path))
+  logger::log_info(paste("Validating data file:", file_path))
   
   # Create a DataSource object
   data_source <- create_data_source(file_path)
   
   if (is.null(data_source)) {
-    log_error("Failed to create DataSource object")
+    logger::log_error("Failed to create DataSource object")
     return(NULL)
   }
   
@@ -313,9 +313,9 @@ validate_data_file <- function(file_path, output_path = NULL, validator = NULL) 
   # Log validation results
   num_errors <- nrow(validation_results)
   if (num_errors > 0) {
-    log_info(paste("Validation complete. Found", num_errors, "issues."))
+    logger::log_info(paste("Validation complete. Found", num_errors, "issues."))
   } else {
-    log_success("Validation complete. No issues found.")
+    logger::log_success("Validation complete. No issues found.")
   }
   
   return(validation_results)

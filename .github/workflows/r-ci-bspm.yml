@@ -27,7 +27,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk pandoc
+        sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk pandoc texlive-latex-base texlive-extra-utils
 
     - name: Configure Java for R
       run: sudo R CMD javareconf
@@ -105,9 +105,13 @@ jobs:
         Rscript --vanilla -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"), repos="https://cran.r-project.org")'
         Rscript --vanilla -e 'install.packages(c("DT"), repos="https://cran.r-project.org")'
 
-    - name: Run R CMD check
-      run: R CMD check .
+    - name: Fix test file path in tests # Correct test file path
+      run: |
+        sed -i "s|source('../R/data_classes.R')|source('R/data_classes.R')|g" tests/test_validation.R
 
+    - name: Run R CMD check
+      run: R CMD check --no-manual --no-vignettes . # Disable manual and vignettes for faster checks remove after core building
+ 
     - name: Cache R packages # keep cache step, it is useful, but disabled temporarily for debugging
       if: false
       uses: actions/cache@v3

@@ -128,9 +128,9 @@ create_dummy_excel(invalid_file_path_gen, invalid_sheet1_data_gen, invalid_sheet
 # 2. Load/import testing files using ExcelData (after normalization)
 
 # Define paths to the external data files and make lower case
-valid_file_path_ext <- tolower("../../data/rilievo_validazione.xlsx")
-invalid_file_path_non_valid_ext <- tolower("../../data/sample_data_non_valid.xlsx")
-invalid_file_path_valid_ext <- tolower("../../data/sample_data_valid.xlsx")
+valid_file_path_ext <- tolower("../../inst/extdata/Rilievo_Validazione.xlsx")
+invalid_file_path_non_valid_ext <- tolower("../../inst/extdata/sample_data_non_valid.xlsx")
+invalid_file_path_valid_ext <- tolower("../../inst/extdata/sample_data_valid.xlsx")
 
 # Load data from external files
 if (file.exists(valid_file_path_ext)) {

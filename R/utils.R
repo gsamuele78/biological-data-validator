@@ -13,7 +13,7 @@ setup_logging <- function(log_level = "INFO", log_file = "validation.log") {
   }
 
   # Load the logger package
-  library(logger)
+  #library(logger)
 
   # Convert the log level string to an actual log level object
   log_level_obj <- switch(toupper(log_level),
@@ -78,13 +78,13 @@ library(readxl)
 #'   }
 #' }
 load_csv_data <- function(file_path, description = "CSV data") {
-  log_info(paste("Loading", description, "from CSV file:", file_path))
+  logger::log_info(paste("Loading", description, "from CSV file:", file_path))
   tryCatch({
     data <- read.csv(file_path)
     log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
     return(data)
   }, error = function(e) {
-    log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
+    logger::log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
     return(NULL)
   })
 }
@@ -105,17 +105,17 @@ load_csv_data <- function(file_path, description = "CSV data") {
 #'   print(head(excel_data))
 #' }
 load_excel_data <- function(file_path, description = "Excel data") {
-  log_info(paste("Loading", description, "from Excel file:", file_path))
+  logger::log_info(paste("Loading", description, "from Excel file:", file_path))
 
   # Check if file exists
   if (!file.exists(file_path)) {
-    log_error(paste("File does not exist:", file_path))
+    logger::log_error(paste("File does not exist:", file_path))
     stop(paste("File does not exist:", file_path))
   }
 
   # Check if file has a valid extension
   if (!grepl("\\.(xlsx|xls)$", file_path)) {
-    log_error(paste("Invalid file extension for:", file_path))
+    logger::log_error(paste("Invalid file extension for:", file_path))
     stop(paste("Invalid file extension for:", file_path))
   }
 
@@ -123,11 +123,11 @@ load_excel_data <- function(file_path, description = "Excel data") {
   tryCatch(
     expr = {
       data <- readxl::read_excel(file_path) # Qualify with readxl:: to avoid potential conflicts
-      log_success(paste("Successfully loaded", description, "from Excel file:", file_path))
+      logger::log_success(paste("Successfully loaded", description, "from Excel file:", file_path))
       return(data)
     },
     error = function(e) {
-      log_error(paste("Failed to load", description, "from Excel file:", file_path, "\nError:", e$message))
+      logger::log_error(paste("Failed to load", description, "from Excel file:", file_path, "\nError:", e$message))
       stop(paste("Failed to load Excel file:", file_path, "\nError:", e$message)) # Stop execution on error
     }
   )
@@ -149,13 +149,13 @@ load_excel_data <- function(file_path, description = "Excel data") {
 #'   print(head(valid_values))
 #' }
 load_valid_values <- function(file_path, description = "Valid values") {
-  log_info(paste("Loading", description, "from text file:", file_path))
+  logger::log_info(paste("Loading", description, "from text file:", file_path))
   tryCatch({
     valid_values <- readLines(file_path)
-    log_success(paste("Successfully loaded", description, "from text file:", file_path))
+    logger::log_success(paste("Successfully loaded", description, "from text file:", file_path))
     return(valid_values)
   }, error = function(e) {
-    log_error(paste("Failed to load", description, "from text file:", file_path, "Error:", e$message))
+    logger::log_error(paste("Failed to load", description, "from text file:", file_path, "Error:", e$message))
     return(NULL)
   })
 }
