@@ -108,14 +108,16 @@ jobs:
       run: R CMD check .
 
     - name: Cache R packages # keep cache step, it is useful
+      env:
+        R_LIBS_USER: ${{ github.workspace }}/.Rlibs # Explicitly set R_LIBS_USER
       uses: actions/cache@v3
       with:
         path: |
           ${{ env.R_LIBS_USER }}
           !${{ env.R_LIBS_USER }}/testing
-        key: ${{ runner.os }}-r-${{ matrix.config.r }}-${{ hashFiles('**/DESCRIPTION', 'renv.lock')} } # include renv.lock in cache key
+        key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION', 'renv.lock')}} # include renv.lock in cache key
         restore-keys: |
-          ${{ runner.os }}-r-${{ matrix.config.r }}-
+          ${{ runner.os }}-r-
           ${{ runner.os }}-r-
 
     - name: Fix .lintr Encoding (if needed) # keep lintr step, if needed

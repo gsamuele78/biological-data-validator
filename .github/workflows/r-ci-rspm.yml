@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      R_LIBS_USER: ${{ github.workspace }}/R/library
 
     steps:
     - uses: actions/checkout@v3
@@ -45,15 +47,18 @@ jobs:
       working-directory: ${{ github.workspace }}
       shell: bash
 
+    - name: Set R_LIBS_USER environment variable
+      run: echo "R_LIBS_USER=${HOME}/R/library" >> $GITHUB_ENV
+
     - name: Cache R packages
       uses: actions/cache@v3
       with:
         path: |
           ${{ env.R_LIBS_USER }}
           !${{ env.R_LIBS_USER }}/testing
-        key: ${{ runner.os }}-r-${{ matrix.config.r }}-${{ hashFiles('**/DESCRIPTION') }}
+        key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION') }}
         restore-keys: |
-          ${{ runner.os }}-r-${{ matrix.config.r }}-
+          ${{ runner.os }}-r-
           ${{ runner.os }}-r-
 
     - name: Fix .lintr Encoding (if needed)
