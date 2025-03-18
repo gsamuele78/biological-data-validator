@@ -72,6 +72,8 @@ jobs:
         Rscript -e '.libPaths()'
         Rscript -e 'if("rprojroot" %in% installed.packages()) cat("rprojroot IS installed\n") else cat("rprojroot IS NOT installed\n")'
 
+    - name: Run R CMD check
+      run: R CMD check .
 
     - name: Cache R packages
       uses: actions/cache@v3
