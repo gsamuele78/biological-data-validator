@@ -41,6 +41,11 @@ jobs:
     - name: Set R_LIBS_USER environment variable
       run: echo "R_LIBS_USER=${{ github.workspace }}/R/library" >> $GITHUB_ENV
 
+    - name: Create R library directory
+      run: |
+        mkdir -p ${{ env.R_LIBS_USER }}
+      shell: bash
+
     - name: Debug - Print R_LIBS_USER and .libPaths() BEFORE install
       run: |
         Rscript -e 'cat("R_LIBS_USER env var:", Sys.getenv("R_LIBS_USER"), "\n")'
