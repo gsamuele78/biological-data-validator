@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-22.04
 
+    env:
+      R_LIBS_USER: ${{ github.workspace }}/.Rlibs # Explicitly set R_LIBS_USER upfront
+
     steps:
     - uses: actions/checkout@v3
       with:
@@ -79,16 +82,21 @@ jobs:
         Rscript -e 'install.packages("renv", repos="https://cran.r-project.org")'
         Rscript -e 'if (file.exists("renv.lock")) { renv::restore() }' # only restore if renv.lock exists
 
+    - name: Install remotes separately # Ensure remotes is installed before dependency installation
+      run: |
+        R -e 'bspm::disable(); install.packages("remotes", repos = "https://cran.r-project.org", verbose = TRUE)'
+      working-directory: ${{ github.workspace }}
+
+    - name: Install R package dependencies # Using r-lib action to install dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        extra-packages: any::rcmdcheck # Install rcmdcheck as well, if you use it
+        verbose: true
+
     - name: Install lintr separately (verbose) # keep it if needed, but consider if remotes::install_deps should handle it
       if: false
       run: |
         R -e 'bspm::disable(); install.packages("lintr", verbose = TRUE)'
-      working-directory: ${{ github.workspace }}
-
-    - name: Install remotes separately # keep it if needed, but remotes should be already installed by setup-r or renv
-      if: false
-      run: |
-        R -e 'bspm::disable(); install.packages("remotes", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
 
     - name: Install additional R packages # keep it if needed, but consider if remotes::install_deps or renv should handle it
@@ -97,19 +105,11 @@ jobs:
         Rscript --vanilla -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"), repos="https://cran.r-project.org")'
         Rscript --vanilla -e 'install.packages(c("DT"), repos="https://cran.r-project.org")'
 
-    - name: Install dependencies using remotes # This should install all dependencies from DESCRIPTION
-      run: |
-        set -e
-        R -e 'bspm::disable(); remotes::install_deps(dependencies = TRUE, Ncpus = parallel::detectCores())'
-      working-directory: ${{ github.workspace }}
-      shell: bash
-
     - name: Run R CMD check
       run: R CMD check .
 
-    - name: Cache R packages # keep cache step, it is useful
-      env:
-        R_LIBS_USER: ${{ github.workspace }}/.Rlibs # Explicitly set R_LIBS_USER
+    - name: Cache R packages # keep cache step, it is useful, but disabled temporarily for debugging
+      if: false
       uses: actions/cache@v3
       with:
         path: |
