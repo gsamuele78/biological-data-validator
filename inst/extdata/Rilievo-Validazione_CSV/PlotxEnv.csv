@@ -1,0 +1,5 @@
+Plot.code,SU,Sample.date,Detector,X,Y,Region,Elevation,Aspect,Slope,Cop.tot,Litter.cov,Bare.soil.cov,Tree.cov,Tree.h,Shrub.cov,Shrub.h,Herb.cov,Herb.h,Brioph.cov,Notes
+A2.2024,1,DATA,CHAR,NUM,NUM,CHAR,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,NUM,CHAR
+,2,,,,,,,,,,,,,,,,,,,
+,3,,,,,,,,,,,,,,,,,,,
+,4,,,,,,,,,,,,,,,,,,,

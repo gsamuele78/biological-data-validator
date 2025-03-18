@@ -1,0 +1,5 @@
+Plot.code,SU,Sample.date,Detector,X,Y,Region,Elevation,Aspect,Slope,Cop.tot,Litter.cov,Bare.soil.cov,Tree.cov,Tree.h,Shrub.cov,Shrub.h,Herb.cov,Herb.h,Brioph.cov,Notes
+Prova.1.2024,1,12.13.2024,FerraraA,11.89442,43.86338,MARCHE,569,130,13,130,80,0,80,,15,1,25,1,0,
+Prova.1.2025,2,12.13.2025,FerraraA,11.69675,43.03058,MARCHE,682,148,25,70,25,15,0,5.3,15,,60,0.8,5,
+Prova.1.2024,3,12.13.2026,FerraraA,11.80738,43.87918,MARCHI,776,107,19,20,25,150,90,2,5,7,85,0.2,10,
+Prova.1.2024,4,12.13.2027,FerraraA,,,MARCHE,,,,,,,,,,,,,,sarei morta. Guarda foto.
