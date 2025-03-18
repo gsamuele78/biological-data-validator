@@ -70,31 +70,31 @@ DatabaseHandler <- R6Class("DatabaseHandler",
     #' @param from_date Start date for filtering (optional)
     #' @param to_date End date for filtering (optional)
     get_plot_history = function(plot_code = NULL, from_date = NULL, to_date = NULL) {
-        query <- "SELECT * FROM plot_data WHERE 1=1"
-        params <- list()
+      query <- "SELECT * FROM plot_data WHERE 1=1"
+      params <- list()
         
-        if (!is.null(plot_code) && plot_code != "") {
-            query <- paste(query, "AND plot_code LIKE ?")
-            params <- c(params, paste0("%", plot_code, "%"))
-        }
+      if (!is.null(plot_code) && plot_code != "") {
+        query <- paste(query, "AND plot_code LIKE ?")
+        params <- c(params, paste0("%", plot_code, "%"))
+      }
         
-        if (!is.null(from_date)) {
-            query <- paste(query, "AND sample_date >= ?")
-            params <- c(params, as.character(from_date))
-        }
+      if (!is.null(from_date)) {
+        query <- paste(query, "AND sample_date >= ?")
+        params <- c(params, as.character(from_date))
+      }
         
-        if (!is.null(to_date)) {
-            query <- paste(query, "AND sample_date <= ?")
-            params <- c(params, as.character(to_date))
-        }
+      if (!is.null(to_date)) {
+        query <- paste(query, "AND sample_date <= ?")
+        params <- c(params, as.character(to_date))
+      }
         
-        query <- paste(query, "ORDER BY timestamp DESC")
+      query <- paste(query, "ORDER BY timestamp DESC")
         
-        if (length(params) > 0) {
-            dbGetQuery(self$db, query, params = params)
-        } else {
-            dbGetQuery(self$db, query)
-        }
+      if (length(params) > 0) {
+        dbGetQuery(self$db, query, params = params)
+      } else {
+        dbGetQuery(self$db, query)
+      }
     },
     
     #' @description

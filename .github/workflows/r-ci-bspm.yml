@@ -105,9 +105,9 @@ jobs:
         Rscript --vanilla -e 'install.packages(c("styler", "testthat", "optparse", "rprojroot", "pkgdown"), repos="https://cran.r-project.org")'
         Rscript --vanilla -e 'install.packages(c("DT"), repos="https://cran.r-project.org")'
 
-    - name: Fix test file path in tests # Correct test file path
-      run: |
-        sed -i "s|source('../R/data_classes.R')|source('R/data_classes.R')|g" tests/test_validation.R
+#    - name: Fix test file path in tests # Correct test file path
+#      run: |
+#        sed -i "s|source('../R/data_classes.R')|source('R/data_classes.R')|g" tests/test_validation.R
 
     - name: Run R CMD check
       run: R CMD check --no-manual --no-vignettes . # Disable manual and vignettes for faster checks remove after core building

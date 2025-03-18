@@ -177,12 +177,12 @@ ExcelData <- R6Class("ExcelData",
       sheet1 <- openxlsx::read.xlsx(self$filepath, sheet = 1)
       sheet2 <- openxlsx::read.xlsx(self$filepath, sheet = 2)
 
-#      for (i in 1:nrow(sheet1)) {
+      # for (i in 1:nrow(sheet1)) {
       for (i in seq_len(nrow(sheet1))) {  
         self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
       }
 
-#      for (i in 1:nrow(sheet2)) {
+      # for (i in 1:nrow(sheet2)) {
       for (i in seq_len(nrow(sheet2))) {  
         self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
       }

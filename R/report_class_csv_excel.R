@@ -42,7 +42,7 @@ Report <- R6Class("Report",
                             file_type = self$data_source$file_type
                           ))
         logger::log_success(paste("Successfully generated validation report at:", 
-                          file.path(output_path, "report-validation.html")))
+                                  file.path(output_path, "report-validation.html")))
         return(TRUE)
       }, error = function(e) {
         logger::log_error(paste("Failed to generate validation report. Error:", e$message))

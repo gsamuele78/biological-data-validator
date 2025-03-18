@@ -170,46 +170,46 @@ test_that("DataTypeValidationRule identifies correct errors (generated data)", {
 })
 
 test_that("MaxRowsValidationRule identifies correct errors (generated data)", {
-    invalid_sheet1_data_max_rows <- rbind(invalid_sheet1_data_gen, data.frame(
-        Plot.code = "Plot2",
-        SU = 5,
-        Sample.date = Sys.Date(),
-        Detector = "DetectorA",
-        Region = "RegionX",
-        X = 1,
-        Y = 1,
-        Elevation = 1,
-        Aspect = 1,
-        Slope = 1,
-        Cop.tot = 1,
-        Litter.cov = 1,
-        Bare.soil.cov = 1,
-        Tree.cov = 1,
-        Tree.h = 1,
-        Shrub.cov = 1,
-        Shrub.h = 1,
-        Herb.cov = 1,
-        Herb.h = 1,
-        Brioph.cov = 1,
-        notes = "Note 5"
-    ))
-    invalid_file_path_max_rows <- file.path(tempdir(), "invalid_data_max_rows.xlsx")
-    create_dummy_excel(invalid_file_path_max_rows, invalid_sheet1_data_max_rows, invalid_sheet2_data_gen)
+  invalid_sheet1_data_max_rows <- rbind(invalid_sheet1_data_gen, data.frame(
+    Plot.code = "Plot2",
+    SU = 5,
+    Sample.date = Sys.Date(),
+    Detector = "DetectorA",
+    Region = "RegionX",
+    X = 1,
+    Y = 1,
+    Elevation = 1,
+    Aspect = 1,
+    Slope = 1,
+    Cop.tot = 1,
+    Litter.cov = 1,
+    Bare.soil.cov = 1,
+    Tree.cov = 1,
+    Tree.h = 1,
+    Shrub.cov = 1,
+    Shrub.h = 1,
+    Herb.cov = 1,
+    Herb.h = 1,
+    Brioph.cov = 1,
+    notes = "Note 5"
+  ))
+  invalid_file_path_max_rows <- file.path(tempdir(), "invalid_data_max_rows.xlsx")
+  create_dummy_excel(invalid_file_path_max_rows, invalid_sheet1_data_max_rows, invalid_sheet2_data_gen)
 
-    invalid_excel_data_max_rows <- ExcelData$new(invalid_file_path_max_rows)
-    invalid_excel_data_max_rows$insert(invalid_file_path_max_rows)
+  invalid_excel_data_max_rows <- ExcelData$new(invalid_file_path_max_rows)
+  invalid_excel_data_max_rows$insert(invalid_file_path_max_rows)
     
-    errors <- MaxRowsValidationRule$new()$check(invalid_excel_data_max_rows)
-    expect_true(nrow(errors) > 0)
-    expect_equal(errors$Message[1], "More than 4 rows with Plot.code: Plot2")
+  errors <- MaxRowsValidationRule$new()$check(invalid_excel_data_max_rows)
+  expect_true(nrow(errors) > 0)
+  expect_equal(errors$Message[1], "More than 4 rows with Plot.code: Plot2")
 })
 
 test_that("UniqueSUValidationRule identifies correct errors (generated data)", {
-    invalid_excel_data_gen <- ExcelData$new(invalid_file_path_gen)
-    invalid_excel_data_gen$insert(invalid_file_path_gen)
-    errors <- UniqueSUValidationRule$new()$check(invalid_excel_data_gen)
-    expect_true(nrow(errors) > 0)
-    expect_equal(errors$Message[1], "Duplicate SU values found for Plot.code: Plot2")
+  invalid_excel_data_gen <- ExcelData$new(invalid_file_path_gen)
+  invalid_excel_data_gen$insert(invalid_file_path_gen)
+  errors <- UniqueSUValidationRule$new()$check(invalid_excel_data_gen)
+  expect_true(nrow(errors) > 0)
+  expect_equal(errors$Message[1], "Duplicate SU values found for Plot.code: Plot2")
 })
 
 test_that("NotesValidationRule identifies correct errors (generated data)", {
