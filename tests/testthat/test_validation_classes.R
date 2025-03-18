@@ -131,30 +131,42 @@ create_dummy_excel(invalid_file_path_gen, invalid_sheet1_data_gen, invalid_sheet
 # 2. Load/import testing files using ExcelData (after normalization)
 
 # Define paths to the external data files and make lower case
-valid_file_path_ext <- tolower("../../inst/extdata/Rilievo_Validazione.xlsx")
-invalid_file_path_non_valid_ext <- tolower("../../inst/extdata/sample_data_non_valid.xlsx")
-invalid_file_path_valid_ext <- tolower("../../inst/extdata/sample_data_valid.xlsx")
+rel_path_valid_file_xlsx <- tolower("../../inst/extdata/Rilievo_Validazione.xlsx")
+rel_path_invalid_file_sample <- tolower("../../inst/extdata/sample_data_no_valid.xlsx")
+rel_path_valid_file_sample <- tolower("../../inst/extdata/sample_data_valid.xlsx")
 
 # Load data from external files
-if (file.exists(valid_file_path_ext)) {
-  valid_excel_data_ext <- load_excel_data(valid_file_path_ext)
+if (file.exists(rel_path_valid_file_xlsx)) {
+  valid_excel_data_real <- load_excel_data(rel_path_valid_file_xlsx, "Rilievo Validazione")
 } else {
-  message(paste("Warning: External valid file not found at", valid_file_path_ext, ". Some tests may be skipped."))
-  valid_excel_data_ext <- NULL
+  message(paste(
+    "Warning: External valid file not found at",
+    rel_path_valid_file_xlsx,
+    ". Some tests may be skipped."
+  ))
+  valid_excel_data_real <- NULL
 }
 
-if (file.exists(invalid_file_path_non_valid_ext)) {
-  invalid_excel_data_non_valid_ext <- load_excel_data(invalid_file_path_non_valid_ext)
+if (file.exists(rel_path_invalid_file_sample)) {
+  invalid_excel_data_sample <- load_excel_data(rel_path_invalid_file_sample, "Sample Data (non-valid)")
 } else {
-  message(paste("Warning: External invalid (non-valid) file not found at", invalid_file_path_non_valid_ext, ". Some tests may be skipped."))
-  invalid_excel_data_non_valid_ext <- NULL
+  message(paste(
+    "Warning: External invalid (non-valid) file not found at", 
+    rel_path_invalid_file_sample, 
+    ". Some tests may be skipped."
+  ))
+  invalid_excel_data_sample <- NULL
 }
 
-if (file.exists(invalid_file_path_valid_ext)) {
-  invalid_excel_data_valid_ext <- load_excel_data(invalid_file_path_valid_ext)
+if (file.exists(rel_path_valid_file_sample)) {
+  valid_excel_data_sample <- load_excel_data(rel_path_valid_file_sample, "Sample Data (valid)")
 } else {
-  message(paste("Warning: External invalid (valid) file not found at", invalid_file_path_valid_ext, ". Some tests may be skipped."))
-  invalid_excel_data_valid_ext <- NULL
+  message(paste(
+    "Warning: External invalid (valid) file not found at", 
+    rel_path_valid_file_sample, 
+    ". Some tests may be skipped."
+  ))
+  valid_excel_data_sample <- NULL
 }
 
 # --- Tests ---
@@ -220,7 +232,10 @@ test_that("NotesValidationRule identifies correct errors (generated data)", {
   invalid_excel_data_gen$insert(invalid_file_path_gen)
   errors <- NotesValidationRule$new()$check(invalid_excel_data_gen)
   expect_true(nrow(errors) > 0)
-  expect_equal(errors$Message[1], "Missing data in Sheet2 for Plot.code: Plot2 and SU: 4 without a corresponding note in Sheet1.")
+  expect_equal(
+    errors$Message[1],
+    "Missing data in Sheet2 for Plot.code: Plot2 and SU: 4 without a corresponding note in Sheet1."
+  )
 })
 
 test_that("Validator applies all rules correctly (generated data)", {
@@ -229,7 +244,10 @@ test_that("Validator applies all rules correctly (generated data)", {
   errors <- validator$validate(invalid_excel_data_gen)
   expect_true(nrow(errors) > 0)
   expect_true(any(grepl("Duplicate SU values found for Plot.code: Plot2", errors$Message)))
-  expect_true(any(grepl("Missing data in Sheet2 for Plot.code: Plot2 and SU: 4 without a corresponding note in Sheet1.", errors$Message)))
+  expect_true(any(grepl(
+    "Missing data in Sheet2 for Plot.code: Plot2 and SU: 4 without a corresponding note in Sheet1.",
+    errors$Message
+  )))
 })
 
 # Tests using externally loaded data (if available)
