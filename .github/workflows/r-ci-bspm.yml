@@ -77,7 +77,8 @@ jobs:
         sudo apt-get install --no-install-recommends software-properties-common dirmngr
         sudo apt install -y r-base r-base-dev
 
-    - name: Install renv and restore # add renv restore step to handle dependencies
+    - name: Install renv and restore # remove renv restore step to simplify
+      if: false
       run: |
         Rscript -e 'install.packages("renv", repos="https://cran.r-project.org")'
         Rscript -e 'if (file.exists("renv.lock")) { renv::restore() }' # only restore if renv.lock exists
@@ -91,7 +92,6 @@ jobs:
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         extra-packages: any::rcmdcheck # Install rcmdcheck as well, if you use it
-        verbose: true
 
     - name: Install lintr separately (verbose) # keep it if needed, but consider if remotes::install_deps should handle it
       if: false
