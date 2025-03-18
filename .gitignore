@@ -52,5 +52,5 @@ rsconnect/
 renv/
 
 #Rcheck
-. .Rcheck
+..Rcheck
 
