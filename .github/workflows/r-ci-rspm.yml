@@ -22,11 +22,11 @@ jobs:
       with:
         use-public-rspm: true
 
-    - name: Install system dependencies
+    - name: Install system dependencies (including LaTeX for PDF manual)
       run: |
         set -e
         sudo apt update
-        sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk pandoc
+        sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev openjdk-11-jdk pandoc texlive-latex-base texlive-fonts-recommended
       shell: bash
 
     - name: Check pandoc version
@@ -74,6 +74,7 @@ jobs:
 
     - name: Run R CMD check
       run: R CMD check .
+      shell: bash
 
     - name: Cache R packages
       uses: actions/cache@v3
