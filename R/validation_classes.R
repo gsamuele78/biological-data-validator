@@ -294,7 +294,7 @@ NotesValidationRule <- R6Class("NotesValidationRule",
         
         # Skip if either value is missing
         if (is.null(plot_code) || is.null(su_value)) {
-          next
+          next()
         }
           
         # Find corresponding rows in Sheet2
@@ -383,7 +383,7 @@ Validator <- R6Class("Validator",
       for (rule in self$rules) {
         # Check for NULL or invalid rule
         if (is.null(rule) || !("check" %in% names(rule))) {
-          next
+          next()
         }
         
         # Apply the validation rule

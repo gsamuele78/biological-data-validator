@@ -2,6 +2,11 @@
 
 # Utility functions for logging and other common tasks
 
+# Import necessary libraries (if not already imported)
+library(logger)
+library(readxl)
+
+
 #' @description
 #' Set up logging for the application
 #' @param log_level The logging level (e.g., "INFO", "DEBUG", "ERROR", "TRACE")
@@ -58,9 +63,7 @@ handle_image_uploads <- function(image_files, base_path) {
   }
 }
 
-# Import necessary libraries (if not already imported)
-library(logger)
-library(readxl)
+
 
 #' Load data from a CSV file.
 #'
