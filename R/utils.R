@@ -81,7 +81,7 @@ load_csv_data <- function(file_path, description = "CSV data") {
   logger::log_info(paste("Loading", description, "from CSV file:", file_path))
   tryCatch({
     data <- read.csv(file_path)
-    log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
+    logger::log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
     return(data)
   }, error = function(e) {
     logger::log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
