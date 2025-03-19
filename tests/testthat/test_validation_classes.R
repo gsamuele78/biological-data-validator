@@ -40,26 +40,26 @@ create_dummy_excel <- function(file_path, sheet1_data, sheet2_data) {
   invisible(file_path)
 }
 
-#' Load Excel data from file
-#'
-#' @param file_path Path to the Excel file
-#' @param description Optional description for the data
-#' @return ExcelData object with loaded data
-load_excel_data <- function(file_path, description = NULL) {
-  # Normalize file path
-  normalized_path <- tolower(file_path)
-  
-  # Check if the file exists
-  if (!file.exists(normalized_path)) {
-    stop(paste("File does not exist:", normalized_path))
-  }
-
-  # Load data using ExcelData class
-  excel_data <- ExcelData$new(normalized_path)
-  excel_data$insert(normalized_path)
-  
-  return(excel_data)
-}
+##' Load Excel data from file
+##'
+##' @param file_path Path to the Excel file
+##' @param description Optional description for the data
+##' @return ExcelData object with loaded data
+#load_excel_data <- function(file_path, description = NULL) {
+#  # Normalize file path
+#  normalized_path <- tolower(file_path)
+#  
+#  # Check if the file exists
+#  if (!file.exists(normalized_path)) {
+#    stop(paste("File does not exist:", normalized_path))
+#  }
+#
+#  # Load data using ExcelData class
+#  excel_data <- ExcelData$new(normalized_path)
+#  excel_data$insert(normalized_path)
+#  
+#  return(excel_data)
+#}
 
 # --- Setup for tests ---
 
