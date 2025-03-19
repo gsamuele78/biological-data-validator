@@ -36,7 +36,7 @@ create_dummy_excel <- function(file_path, sheet1_data, sheet2_data) {
 
   # Save the workbook
   saveWorkbook(wb, file_path, overwrite = TRUE)
-  
+
   invisible(file_path)
 }
 
@@ -48,7 +48,7 @@ create_dummy_excel <- function(file_path, sheet1_data, sheet2_data) {
 #load_excel_data <- function(file_path, description = NULL) {
 #  # Normalize file path
 #  normalized_path <- tolower(file_path)
-#  
+#
 #  # Check if the file exists
 #  if (!file.exists(normalized_path)) {
 #    stop(paste("File does not exist:", normalized_path))
@@ -57,7 +57,7 @@ create_dummy_excel <- function(file_path, sheet1_data, sheet2_data) {
 #  # Load data using ExcelData class
 #  excel_data <- ExcelData$new(normalized_path)
 #  excel_data$insert(normalized_path)
-#  
+#
 #  return(excel_data)
 #}
 
@@ -175,8 +175,8 @@ invalid_excel_data_sample <- tryCatch({
     load_excel_data(rel_path_invalid_file_sample, "Sample Data (non-valid)")
   } else {
     message(paste(
-      "Warning: External invalid (non-valid) file not found at", 
-      rel_path_invalid_file_sample, 
+      "Warning: External invalid (non-valid) file not found at",
+      rel_path_invalid_file_sample,
       ". Some tests may be skipped."
     ))
     NULL
@@ -191,8 +191,8 @@ valid_excel_data_sample <- tryCatch({
     load_excel_data(rel_path_valid_file_sample, "Sample Data (valid)")
   } else {
     message(paste(
-      "Warning: External invalid (valid) file not found at", 
-      rel_path_valid_file_sample, 
+      "Warning: External invalid (valid) file not found at",
+      rel_path_valid_file_sample,
       ". Some tests may be skipped."
     ))
     NULL
@@ -214,10 +214,10 @@ test_that("DataTypeValidationRule identifies correct errors (generated data)", {
   # Arrange
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
   data_type_rule <- DataTypeValidationRule$new()
-  
+
   # Act
   errors <- data_type_rule$check(invalid_excel_data_gen)
-  
+
   # Assert
   expect_true(is.data.frame(errors))
   expect_equal(data_type_rule$get_error_level(), "Warning")
@@ -255,7 +255,7 @@ test_that("MaxRowsValidationRule identifies correct errors (generated data)", {
   invalid_excel_data_max_rows <- load_excel_data(invalid_file_path_max_rows)
   max_rows_rule <- MaxRowsValidationRule$new()
   errors <- max_rows_rule$check(invalid_excel_data_max_rows)
-  
+
   # Assert
   expect_true(nrow(errors) > 0)
   expect_true(any(grepl("More than 4 rows with Plot.code: Plot2", errors$Message)))
@@ -266,10 +266,10 @@ test_that("UniqueSUValidationRule identifies correct errors (generated data)", {
   # Arrange
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
   unique_su_rule <- UniqueSUValidationRule$new()
-  
+
   # Act
   errors <- unique_su_rule$check(invalid_excel_data_gen)
-  
+
   # Assert
   expect_true(nrow(errors) > 0)
   expect_true(any(grepl("Duplicate SU value 1 found for Plot.code: Plot2", errors$Message)))
@@ -280,10 +280,10 @@ test_that("NotesValidationRule identifies correct errors (generated data)", {
   # Arrange
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
   notes_rule <- NotesValidationRule$new()
-  
+
   # Act
   errors <- notes_rule$check(invalid_excel_data_gen)
-  
+
   # Assert
   expect_true(nrow(errors) > 0)
   expect_true(any(grepl(
@@ -296,10 +296,10 @@ test_that("NotesValidationRule identifies correct errors (generated data)", {
 test_that("Validator applies all rules correctly (generated data)", {
   # Arrange
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
-  
+
   # Act
   errors <- validator$validate(invalid_excel_data_gen)
-  
+
   # Assert
   expect_true(nrow(errors) > 0)
   expect_true("Level" %in% colnames(errors))
@@ -313,7 +313,7 @@ test_that("ValidationRule base class cannot be used directly", {
   # Arrange
   base_rule <- ValidationRule$new()
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
-  
+
   # Act & Assert
   expect_error(base_rule$check(invalid_excel_data_gen), "Subclasses must implement the 'check' method")
 })
@@ -323,10 +323,10 @@ test_that("Empty data handling works correctly", {
   empty_file_path <- file.path(tempdir(), "empty_data.xlsx")
   create_dummy_excel(empty_file_path, NULL, NULL)
   empty_excel_data <- load_excel_data(empty_file_path)
-  
+
   # Act
   errors <- validator$validate(empty_excel_data)
-  
+
   # Assert
   expect_true(is.data.frame(errors))
 })
@@ -337,7 +337,7 @@ if (!is.null(invalid_excel_data_sample)) {
   test_that("Validator properly processes external invalid data", {
     # Act
     errors <- validator$validate(invalid_excel_data_sample)
-    
+
     # Assert
     expect_true(is.data.frame(errors))
     # We can't make specific assertions about the content without knowing the data,
@@ -354,7 +354,7 @@ if (!is.null(valid_excel_data_sample)) {
   test_that("Validator correctly processes external valid data", {
     # Act
     errors <- validator$validate(valid_excel_data_sample)
-    
+
     # Assert
     expect_true(is.data.frame(errors))
     # Valid data might still have some warnings, so we don't assert nrow(errors) == 0
@@ -367,7 +367,7 @@ if (!is.null(valid_excel_data_real)) {
   test_that("Validator correctly processes external real data", {
     # Act
     errors <- validator$validate(valid_excel_data_real)
-    
+
     # Assert
     expect_true(is.data.frame(errors))
   })
@@ -378,16 +378,16 @@ if (!is.null(valid_excel_data_real)) {
 test_that("ValidationRule helper methods work correctly", {
   # Arrange
   rule <- DataTypeValidationRule$new()
-  
+
   # Act
   empty_errors <- rule$create_empty_errors()
   error_entry <- rule$create_error("Sheet1", 1, "Column1", "Test message")
-  
+
   # Assert
   expect_true(is.data.frame(empty_errors))
   expect_equal(nrow(empty_errors), 0)
   expect_equal(colnames(empty_errors), c("Sheet", "Row", "Column", "Message"))
-  
+
   expect_true(is.data.frame(error_entry))
   expect_equal(nrow(error_entry), 1)
   expect_equal(error_entry$Sheet, "Sheet1")
@@ -405,7 +405,7 @@ on.exit({
     file.path(tempdir(), "invalid_data_max_rows.xlsx"),
     file.path(tempdir(), "empty_data.xlsx")
   )
-  
+
   # Remove each file if it exists
   for (file in files_to_remove) {
     if (file.exists(file)) {
