@@ -239,6 +239,7 @@ test_that("DataTypeValidationRule identifies correct errors (generated data)", {
   data_type_rule <- DataTypeValidationRule$new()
 
   # Act
+  plot_codes <- sapply(invalid_excel_data_gen$sheet1_data, function(x) x$Plot.code)
   errors <- data_type_rule$check(invalid_excel_data_gen)
 
   # Assert
@@ -291,6 +292,7 @@ test_that("UniqueSUValidationRule identifies correct errors (generated data)", {
   unique_su_rule <- UniqueSUValidationRule$new()
 
   # Act
+  plot_codes <- unique(sapply(invalid_excel_data_gen$sheet1_data, function(x) x$Plot.code))
   errors <- unique_su_rule$check(invalid_excel_data_gen)
 
   # Assert
@@ -321,6 +323,7 @@ test_that("Validator applies all rules correctly (generated data)", {
   invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
 
   # Act
+  plot_codes <- sapply(invalid_excel_data_gen$sheet1_data, function(x) x$Plot.code)
   errors <- validator$validate(invalid_excel_data_gen)
 
   # Assert
@@ -403,6 +406,7 @@ test_that("UniqueSUValidationRule identifies correct errors (generated data, CSV
   unique_su_rule <- UniqueSUValidationRule$new()
 
   # Act
+  plot_codes <- unique(sapply(invalid_excel_data_csv$sheet1_data, function(x) x$Plot.code))
   errors <- unique_su_rule$check(invalid_excel_data_csv)
 
   # Assert
@@ -433,6 +437,7 @@ test_that("Validator applies all rules correctly (generated data, CSV)", {
   invalid_excel_data_csv <- ExcelData$new(invalid_file_path_csv)
 
   # Act
+  plot_codes <- sapply(invalid_excel_data_csv$sheet1_data, function(x) x$Plot.code)
   errors <- validator$validate(invalid_excel_data_csv)
 
   # Assert

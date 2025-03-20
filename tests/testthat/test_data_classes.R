@@ -1,5 +1,6 @@
 # tests/testthat/test_data_classes.R
 library(testthat)
+library(R6) 
 source("../../R/data_classes.R")
 
 context("Data Classes")
