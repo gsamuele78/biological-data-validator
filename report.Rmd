@@ -19,52 +19,41 @@ Excel File: `r params$filepath`
 
 ## Validation Results
 
-```{r, echo=FALSE, results='asis'}```
+```{r, echo=FALSE, results='asis'}
 if (nrow(params$errors) > 0) {
-  cat("### Format Check\n\n")
-  cat("The following checks verify that the data in the Excel file is in the expected format:\n\n")
+  cat("### Validation Issues\n\n")
+  cat("The following issues were detected during the validation process.  Please review each issue and correct the data accordingly.\n\n")
 
-  # Separate format errors from other errors
-  format_errors <- params$errors[grepl("should be", params$errors$Message), ]
-  other_errors <- params$errors[!grepl("should be", params$errors$Message), ]
-
-  # Filter by error level
-  warning_errors <- format_errors[format_errors$Level == "Warning", ]
-  error_errors <- other_errors[other_errors$Level == "Error", ]
-
-  if (nrow(warning_errors) > 0) {
-    cat("#### Format Warnings Found:\n\n")
-    DT::datatable(warning_errors)
-  } else {
-    cat("No format warnings found.\n\n")
-  }
-
-  if (nrow(error_errors) > 0) {
-    cat("#### Validation Errors Found:\n\n")
-    DT::datatable(error_errors)
-  } else {
-    cat("No validation errors found.\n\n")
-  }
-
+  # Display all errors
+  cat("#### All Issues:\n\n")
+  DT::datatable(params$errors, options = list(pageLength = 10))
 } else {
-  cat("No errors found. Validation successful!\n")
+  cat("No issues found! The validation was successful.\n")
 }
+
+```
 
 ## Data Overview (Sheet 1)
 
 # Display the first few rows of Sheet 1
+```{r, echo=FALSE, results='asis'}
 if (!is.null(params$sheet1) && length(params$sheet1) > 0) {
+    cat("### First 10 Rows of Sheet 1\n\n")
     sheet1_df <- do.call(rbind, lapply(params$sheet1, function(x) x$to_data_frame()))
-    knitr::kable(head(sheet1_df))
+    knitr::kable(head(sheet1_df, 10))
 } else {
     cat("Sheet 1 data is not available or empty.\n")
 }
+```
 
-##Data Overview (Sheet 2)
+## Data Overview (Sheet 2)
 
+```{r, echo=FALSE, results='asis'}
 if (!is.null(params$sheet2) && length(params$sheet2) > 0) {
+    cat("### First 10 Rows of Sheet 2\n\n")
     sheet2_df <- do.call(rbind, lapply(params$sheet2, function(x) x$to_data_frame()))
-    knitr::kable(head(sheet2_df))
+    knitr::kable(head(sheet2_df, 10))
 } else {
     cat("Sheet 2 data is not available or empty.\n")
 }
+```
