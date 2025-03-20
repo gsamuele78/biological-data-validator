@@ -1,0 +1,9 @@
+Plot.code,SU,Sample.date,Detector,X,Y,Region,Elevation,Aspect,Slope,Cop.tot,Litter.cov,Bare.soil.cov,Tree.cov,Tree.h,Shrub.cov,Shrub.h,Herb.cov,Herb.h,Brioph.cov,notes
+PlotA,1,6/15/2023,DetX,10.52,45.23,Tuscany,250,180,15,80,10,5,50,15,20,2,60,1,5,Valid
+PlotA,2,6/15/2023,DetX,10.53,45.24,Tuscany,255,175,12,75,15,8,45,14,25,2.5,55,0.8,7,Valid
+PlotA,3,6/15/2023,DetX,10.54,45.25,Tuscany,260,190,18,90,5,2,60,16,15,1.5,70,1.2,3,Valid
+PlotA,4,6/15/2023,DetX,10.55,45.26,Tuscany,245,200,20,85,8,3,55,12,18,1.8,65,0.9,6,Valid
+PlotB,1,6/16/2023,DetY,12.12,46.10,Umbria,300,220,25,70,20,10,40,10,30,3,50,0.5,10,Valid
+PlotB,2,6/16/2023,DetY,12.13,46.11,Umbria,310,210,22,65,25,12,35,9,35,3.5,45,0.4,12,Valid
+PlotB,3,6/16/2023,DetY,12.14,46.12,Umbria,320,205,28,75,15,8,45,11,25,2.5,55,0.6,8,Valid
+PlotB,4,6/16/2023,DetY,12.15,46.13,Umbria,330,230,30,80,12,5,50,13,20,2,60,0.7,5,Valid

@@ -1,0 +1,11 @@
+Plot.code,SU,Sample.date,Detector,X,Y,Region,Elevation,Aspect,Slope,Cop.tot,Litter.cov,Bare.soil.cov,Tree.cov,Tree.h,Shrub.cov,Shrub.h,Herb.cov,Herb.h,Brioph.cov,notes
+PlotC,1,6/17/2023,DetZ,9.80,44.55,Lazio,150,150,10,60,30,15,30,8,40,4,40,0.3,15,Valid
+PlotC,1,6/17/2023,DetZ,9.81,44.56,Lazio,145,140,8,55,35,18,25,7,45,4.5,35,0.2,18,Invalid (Duplicate SU)
+PlotC,3,6/17/2023,DetZ,9.82,44.57,Lazio,155,160,12,70,25,10,35,9,35,3.5,45,0.4,12,Valid
+PlotC,4,6/17/2023,DetZ,9.83,44.58,Lazio,160,145,15,65,28,12,30,8,40,4,40,0.3,15,Valid
+PlotD,1,6/18/2023,DetW,11.20,47.01,Abruzzo,500,300,35,95,2,1,70,20,10,0.5,80,2,1,Valid
+PlotD,2,6/18/2023,DetW,11.21,47.02,Abruzzo,510,310,32,92,3,0,65,18,12,0.8,75,1.5,2,Valid
+PlotD,3,6/18/2023,DetW,11.22,47.03,Abruzzo,520,320,38,98,1,0,75,22,8,0.2,85,2.5,0,Valid
+PlotD,4,6/18/2023,DetW,11.23,47.04,Abruzzo,530,330,40,96,2,1,72,21,9,0.3,82,2.2,1,Valid
+PlotD,5,6/18/2023,DetW,11.23,47.04,Abruzzo,530,330,40,96,2,1,72,21,9,0.3,82,2.2,1,Invalid (Too many SU)
+PlotE,1,6/19/2023,DetX,10.85,45.62,Tuscany,200,100,5,50,40,20,20,5,50,5,30,0.1,20,Invalid (Missing Sheet2 data)

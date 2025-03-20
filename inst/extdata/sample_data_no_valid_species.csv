@@ -1,0 +1,17 @@
+Plot.code,Subplot,Species,species_abb,cover,Layer,Notes
+PlotC,1,Pinus pinea,P. pinea,20,Tree,Dominant
+PlotC,1,Cistus incanus,C. incanus,10,Herb,Common
+PlotC,2,Juniperus oxycedrus,J. oxycedrus,15,Tree,Present
+PlotC,2,Thymus vulgaris,T. vulgaris,5,Herb,Present
+PlotC,3,Arbutus unedo,A. unedo,30,Tree,Dominant
+PlotC,3,Erica arborea,E. arborea,20,Herb,Common
+PlotC,4,Quercus suber,Q. suber,25,Tree,Present
+PlotC,4,Lavandula stoechas,L. stoechas,15,Herb,Present
+PlotD,1,Fagus sylvatica,F. sylvatica,60,Tree,Dominant
+PlotD,1,Poa nemoralis,P. nemoralis,30,Herb,Common
+PlotD,2,Carpinus betulus,C. betulus,50,Tree,Present
+PlotD,2,Festuca heterophylla,F. heterophylla,20,Herb,Present
+PlotD,3,Acer pseudoplatanus,A. pseudoplatanus,40,Tree,Present
+PlotD,3,Anemone apennina,A. apennina,15,Herb,Present
+PlotD,4,Tilia platyphyllos,T. platyphyllos,45,Tree,Present
+PlotD,4,Galium odoratum,G. odoratum,25,Herb,Present

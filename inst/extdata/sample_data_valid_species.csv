@@ -1,0 +1,17 @@
+Plot.code,Subplot,Species,species_abb,cover,Layer,Notes
+PlotA,1,Quercus ilex,Q. ilex,40,Tree,Dominant
+PlotA,1,Festuca ovina,F. ovina,30,Herb,Common
+PlotA,2,Fraxinus ornus,F. ornus,35,Tree,Present
+PlotA,2,Poa pratensis,P. pratensis,25,Herb,Present
+PlotA,3,Quercus pubescens,Q. pubescens,50,Tree,Dominant
+PlotA,3,Bromus erectus,B. erectus,40,Herb,Common
+PlotA,4,Carpinus betulus,C. betulus,45,Tree,Present
+PlotA,4,Dactylis glomerata,D. glomerata,35,Herb,Present
+PlotB,1,Fagus sylvatica,F. sylvatica,30,Tree,Dominant
+PlotB,1,Carex flacca,C. flacca,20,Herb,Common
+PlotB,2,Acer campestre,A. campestre,25,Tree,Present
+PlotB,2,Luzula forsteri,L. forsteri,15,Herb,Present
+PlotB,3,Ostrya carpinifolia,O. carpinifolia,40,Tree,Dominant
+PlotB,3,Festuca heterophylla,F. heterophylla,30,Herb,Common
+PlotB,4,Tilia cordata,T. cordata,35,Tree,Present
+PlotB,4,Brachypodium sylvaticum,B. sylvaticum,25,Herb,Present
