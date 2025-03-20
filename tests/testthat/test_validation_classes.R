@@ -40,6 +40,22 @@ create_dummy_excel <- function(file_path, sheet1_data, sheet2_data) {
   invisible(file_path)
 }
 
+#' Create a dummy CSV file for testing
+#'
+#' @param file_path Path where the CSV file will be saved
+#' @param sheet1_data Data frame for Sheet1 (or NULL)
+#' @param sheet2_data Data frame for Sheet2 (or NULL)
+#' @return The file path (invisibly)
+create_dummy_csv <- function(file_path, sheet1_data, sheet2_data) {
+  if (!is.null(sheet1_data) && !is.null(sheet2_data)) {
+    write.csv(sheet1_data, file_path, row.names = FALSE)
+    write.csv(sheet2_data, gsub("\\.csv", "_sheet2\\.csv", file_path), row.names = FALSE) # Save sheet2 to a separate file
+  } else {
+    stop("Both sheet1_data and sheet2_data must be provided for CSV files.")
+  }
+  invisible(file_path)
+}
+
 ##' Load Excel data from file
 ##'
 ##' @param file_path Path to the Excel file
@@ -145,6 +161,13 @@ invalid_file_path_gen <- file.path(tempdir(), "invalid_data_generated.xlsx")
 
 create_dummy_excel(valid_file_path_gen, valid_sheet1_data_gen, valid_sheet2_data_gen)
 create_dummy_excel(invalid_file_path_gen, invalid_sheet1_data_gen, invalid_sheet2_data_gen)
+
+# Create dummy CSV files
+valid_file_path_csv <- file.path(tempdir(), "valid_data_generated.csv")
+invalid_file_path_csv <- file.path(tempdir(), "invalid_data_generated.csv")
+
+create_dummy_csv(valid_file_path_csv, valid_sheet1_data_gen, valid_sheet2_data_gen)
+create_dummy_csv(invalid_file_path_csv, invalid_sheet1_data_gen, invalid_sheet2_data_gen)
 
 # 2. Load/import testing files using ExcelData (after normalization)
 
@@ -309,26 +332,25 @@ test_that("Validator applies all rules correctly (generated data)", {
   expect_true(any(grepl("Missing data in Sheet2", errors$Message)))
 })
 
-test_that("ValidationRule base class cannot be used directly", {
+test_that("ValidationRule helper methods work correctly", {
   # Arrange
-  base_rule <- ValidationRule$new()
-  invalid_excel_data_gen <- load_excel_data(invalid_file_path_gen)
-
-  # Act & Assert
-  expect_error(base_rule$check(invalid_excel_data_gen), "Subclasses must implement the 'check' method")
-})
-
-test_that("Empty data handling works correctly", {
-  # Arrange
-  empty_file_path <- file.path(tempdir(), "empty_data.xlsx")
-  create_dummy_excel(empty_file_path, NULL, NULL)
-  empty_excel_data <- load_excel_data(empty_file_path)
+  rule <- DataTypeValidationRule$new()
 
   # Act
-  errors <- validator$validate(empty_excel_data)
+  empty_errors <- rule$create_empty_errors()
+  error_entry <- rule$create_error("Sheet1", 1, "Column1", "Test message")
 
   # Assert
-  expect_true(is.data.frame(errors))
+  expect_true(is.data.frame(empty_errors))
+  expect_equal(nrow(empty_errors), 0)
+  expect_equal(colnames(empty_errors), c("Sheet", "Row", "Column", "Message"))
+
+  expect_true(is.data.frame(error_entry))
+  expect_equal(nrow(error_entry), 1)
+  expect_equal(error_entry$Sheet, "Sheet1")
+  expect_equal(error_entry$Row, 1)
+  expect_equal(error_entry$Column, "Column1")
+  expect_equal(error_entry$Message, "Test message")
 })
 
 # Tests using externally loaded data (if available)
@@ -375,25 +397,90 @@ if (!is.null(valid_excel_data_real)) {
   message("Skipping tests for external real data as the file was not found.")
 }
 
-test_that("ValidationRule helper methods work correctly", {
+test_that("UniqueSUValidationRule identifies correct errors (generated data, CSV)", {
   # Arrange
-  rule <- DataTypeValidationRule$new()
+  invalid_excel_data_csv <- ExcelData$new(invalid_file_path_csv)
+  unique_su_rule <- UniqueSUValidationRule$new()
 
   # Act
-  empty_errors <- rule$create_empty_errors()
-  error_entry <- rule$create_error("Sheet1", 1, "Column1", "Test message")
+  errors <- unique_su_rule$check(invalid_excel_data_csv)
 
   # Assert
-  expect_true(is.data.frame(empty_errors))
-  expect_equal(nrow(empty_errors), 0)
-  expect_equal(colnames(empty_errors), c("Sheet", "Row", "Column", "Message"))
+  expect_true(nrow(errors) > 0)
+  expect_true(any(grepl("Duplicate SU value 1 found for Plot.code: Plot2", errors$Message)))
+  expect_equal(unique_su_rule$get_error_level(), "Error")
+})
 
-  expect_true(is.data.frame(error_entry))
-  expect_equal(nrow(error_entry), 1)
-  expect_equal(error_entry$Sheet, "Sheet1")
-  expect_equal(error_entry$Row, 1)
-  expect_equal(error_entry$Column, "Column1")
-  expect_equal(error_entry$Message, "Test message")
+test_that("NotesValidationRule identifies correct errors (generated data, CSV)", {
+  # Arrange
+  invalid_excel_data_csv <- ExcelData$new(invalid_file_path_csv)
+  notes_rule <- NotesValidationRule$new()
+
+  # Act
+  errors <- notes_rule$check(invalid_excel_data_csv)
+
+  # Assert
+  expect_true(nrow(errors) > 0)
+  expect_true(any(grepl(
+    "Missing data in Sheet2 for Plot.code: Plot2 and SU: 4 without a corresponding note in Sheet1",
+    errors$Message
+  )))
+  expect_equal(notes_rule$get_error_level(), "Warning")
+})
+
+test_that("Validator applies all rules correctly (generated data, CSV)", {
+  # Arrange
+  invalid_excel_data_csv <- ExcelData$new(invalid_file_path_csv)
+
+  # Act
+  errors <- validator$validate(invalid_excel_data_csv)
+
+  # Assert
+  expect_true(nrow(errors) > 0)
+  expect_true("Level" %in% colnames(errors))
+  expect_true(any(errors$Level == "Warning"))
+  expect_true(any(errors$Level == "Error"))
+  expect_true(any(grepl("Duplicate SU value", errors$Message)))
+  expect_true(any(grepl("Missing data in Sheet2", errors$Message)))
+})
+
+test_that("MaxRowsValidationRule identifies correct errors (generated data, CSV)", {
+  # Arrange - Create data with too many rows
+  invalid_sheet1_data_max_rows <- rbind(invalid_sheet1_data_gen, data.frame(
+    Plot.code = "Plot2",
+    SU = 5,
+    Sample.date = Sys.Date(),
+    Detector = "DetectorA",
+    Region = "RegionX",
+    X = 1,
+    Y = 1,
+    Elevation = 1,
+    Aspect = 1,
+    Slope = 1,
+    Cop.tot = 1,
+    Litter.cov = 1,
+    Bare.soil.cov = 1,
+    Tree.cov = 1,
+    Tree.h = 1,
+    Shrub.cov = 1,
+    Shrub.h = 1,
+    Herb.cov = 1,
+    Herb.h = 1,
+    Brioph.cov = 1,
+    notes = "Note 5"
+  ))
+  invalid_file_path_max_rows_csv <- file.path(tempdir(), "invalid_data_max_rows.csv")
+  create_dummy_csv(invalid_file_path_max_rows_csv, invalid_sheet1_data_max_rows, invalid_sheet2_data_gen)
+
+  # Act
+  invalid_excel_data_max_rows_csv <- ExcelData$new(invalid_file_path_max_rows_csv)
+  max_rows_rule <- MaxRowsValidationRule$new()
+  errors <- max_rows_rule$check(invalid_excel_data_max_rows_csv)
+
+  # Assert
+  expect_true(nrow(errors) > 0)
+  expect_true(any(grepl("More than 4 rows with Plot.code: Plot2", errors$Message)))
+  expect_equal(max_rows_rule$get_error_level(), "Error")
 })
 
 # Clean up generated files at the end of tests
@@ -402,18 +489,21 @@ on.exit({
   files_to_remove <- c(
     valid_file_path_gen,
     invalid_file_path_gen,
+    valid_file_path_csv,
+    invalid_file_path_csv,
     file.path(tempdir(), "invalid_data_max_rows.xlsx"),
-    file.path(tempdir(), "empty_data.xlsx")
+    file.path(tempdir(), "empty_data.xlsx"),
+    invalid_file_path_max_rows_csv
   )
 
   # Remove each file if it exists
   for (file in files_to_remove) {
-    if (file.exists(file)) {
-      tryCatch({
+    tryCatch({
+      if (file.exists(file)) {
         unlink(file)
-      }, error = function(e) {
-        message(paste("Warning: Could not remove file", file, "-", e$message))
-      })
-    }
+      }
+    }, error = function(e) {
+      message(paste("Warning: Could not remove file", file, "-", e$message))
+    })
   }
 })

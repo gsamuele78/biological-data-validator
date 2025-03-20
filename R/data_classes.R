@@ -311,13 +311,19 @@ Sheet2Data <- R6Class("Sheet2Data",
 ##############################################
 
 #' @title ExcelData Class
-#' @description Represents and loads data from an Excel file that contains two sheets.
+#' @description Represents and loads data from an Excel or CSV file that contains two sheets/dataframes.
 #'
 #' @details
-#' The Excel file is expected to have at least two sheets:
+#' For Excel files, the file is expected to have at least two sheets:
 #' \itemize{
 #'   \item Sheet 1: Contains columns matching the expectations of \code{Sheet1Data}.
 #'   \item Sheet 2: Contains columns matching the expectations of \code{Sheet2Data}.
+#' }
+#'
+#' For CSV files, the file is expected to contain two dataframes:
+#' \itemize{
+#'   \item df1: Contains columns matching the expectations of \code{Sheet1Data}.
+#'   \item df2: Contains columns matching the expectations of \code{Sheet2Data}.
 #' }
 #'
 #' @return A new instance of \code{ExcelData} with two lists:
@@ -352,7 +358,7 @@ ExcelData <- R6Class("ExcelData",
       self$load_data()
     },
     
-    #' @description Load data from the Excel file specified in \code{filepath}.
+    #' @description Load data from the Excel or CSV file specified in \code{filepath}.
     #' @details This method reads the first two sheets of the Excel file using the \code{openxlsx} package
     #' and creates lists of \code{Sheet1Data} and \code{Sheet2Data} objects.
     #' @return Invisibly returns \code{NULL} (its primary effect is populating the object fields).
@@ -360,14 +366,32 @@ ExcelData <- R6Class("ExcelData",
     #' excel_data <- ExcelData$new("data.xlsx")
     #' head(excel_data$sheet1_data[[1]]$to_data_frame())
     load_data = function() {
-      sheet1 <- openxlsx::read.xlsx(self$filepath, sheet = 1)
-      sheet2 <- openxlsx::read.xlsx(self$filepath, sheet = 2)
+      file_extension <- tolower(tools::file_ext(self$filepath))
       
-      for (i in seq_len(nrow(sheet1))) {  
-        self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
-      }
-      for (i in seq_len(nrow(sheet2))) {  
-        self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
+      if (file_extension %in% c("xlsx", "xls")) {
+        # Load data from Excel file
+        sheet1 <- openxlsx::read.xlsx(self$filepath, sheet = 1)
+        sheet2 <- openxlsx::read.xlsx(self$filepath, sheet = 2)
+        
+        for (i in seq_len(nrow(sheet1))) {  
+          self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
+        }
+        for (i in seq_len(nrow(sheet2))) {  
+          self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
+        }
+      } else if (file_extension == "csv") {
+        # Load data from CSV file
+        df1 <- read.csv(self$filepath, header = TRUE, stringsAsFactors = FALSE)
+        df2 <- read.csv(self$filepath, header = TRUE, stringsAsFactors = FALSE)
+        
+        for (i in seq_len(nrow(df1))) {  
+          self$sheet1_data[[i]] <- Sheet1Data$new(df1[i, ])
+        }
+        for (i in seq_len(nrow(df2))) {  
+          self$sheet2_data[[i]] <- Sheet2Data$new(df2[i, ])
+        }
+      } else {
+        stop("Unsupported file format. Only Excel (xlsx, xls) and CSV files are supported.")
       }
     }
   )

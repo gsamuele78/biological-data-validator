@@ -101,7 +101,7 @@ load_csv_data <- function(file_path, description = "CSV data") {
 #'
 #' @param file_path The path to the Excel file.
 #' @param description A brief description of the data being loaded. Used for logging.
-#' @return A data frame containing the data from the Excel file.  Stops execution if an error occurs.
+#' @return A data frame containing the data from the Excel file, or NULL if an error occurred.
 #' @examples
 #' \dontrun{
 #'   excel_data <- load_excel_data("path/to/your/data.xlsx", "Product catalog")
@@ -113,13 +113,13 @@ load_excel_data <- function(file_path, description = "Excel data") {
   # Check if file exists
   if (!file.exists(file_path)) {
     logger::log_error(paste("File does not exist:", file_path))
-    stop(paste("File does not exist:", file_path))
+    return(NULL)
   }
 
   # Check if file has a valid extension
   if (!grepl("\\.(xlsx|xls)$", file_path)) {
     logger::log_error(paste("Invalid file extension for:", file_path))
-    stop(paste("Invalid file extension for:", file_path))
+    return(NULL)
   }
 
   # Load Excel data using readxl package
@@ -131,7 +131,7 @@ load_excel_data <- function(file_path, description = "Excel data") {
     },
     error = function(e) {
       logger::log_error(paste("Failed to load", description, "from Excel file:", file_path, "\nError:", e$message))
-      stop(paste("Failed to load Excel file:", file_path, "\nError:", e$message)) # Stop execution on error
+      return(NULL) # Stop execution on error
     }
   )
 }
