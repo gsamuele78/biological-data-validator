@@ -4,21 +4,27 @@ library(lubridate)
 
 #' PathGenerator class for creating directory paths based on data values
 #' @description
-#' This class generates directory paths based on plot data and handles both Excel and CSV file formats.
-#' It creates organized folder structures for storing data files.
-PathGenerator <- R6Class("PathGenerator",
+#' This class generates directory paths based on plot data and handles both
+#' Excel and CSV file formats. It creates organized folder structures for
+#' storing data files.
+PathGenerator <- R6Class(
+  "PathGenerator",
   public = list(
     #' @field base_path Base path for generating directories
     base_path = NULL,
     
-    #' @field path_format Format for directory structure (default: "date/region/detector/plot")
+    #' @field path_format Format for directory structure (default:
+    #'   "date/region/detector/plot")
     path_format = NULL,
     
     #' @description
     #' Create a new PathGenerator object
     #' @param base_path The base path for directory structure
-    #' @param path_format Format for directory structure (options: "date/region/detector/plot", "region/date/detector/plot", "detector/region/date/plot")
-    initialize = function(base_path = getwd(), path_format = "date/region/detector/plot") {
+    #' @param path_format Format for directory structure (options:
+    #'   "date/region/detector/plot", "region/date/detector/plot",
+    #'   "detector/region/date/plot")
+    initialize = function(base_path = getwd(),
+                          path_format = "date/region/detector/plot") {
       if (!is.character(base_path) || length(base_path) != 1) {
         stop("Base path must be a single character string")
       }
@@ -26,7 +32,10 @@ PathGenerator <- R6Class("PathGenerator",
       self$base_path <- normalizePath(base_path, mustWork = FALSE)
       
       # Validate path format
-      valid_formats <- c("date/region/detector/plot", "region/date/detector/plot", "detector/region/date/plot")
+      valid_formats <- c(
+        "date/region/detector/plot", "region/date/detector/plot",
+        "detector/region/date/plot"
+      )
       if (!path_format %in% valid_formats) {
         warning("Invalid path format. Using default: 'date/region/detector/plot'")
         self$path_format <- "date/region/detector/plot"
@@ -36,9 +45,11 @@ PathGenerator <- R6Class("PathGenerator",
     },
     
     #' @description
-    #' Generate a directory path based on plot code, sample date, detector, and region
+    #' Generate a directory path based on plot code, sample date, detector, and
+    #' region
     #' @param plot_code Plot code
-    #' @param sample_date Sample date (Date object or character string in YYYY-MM-DD format)
+    #' @param sample_date Sample date (Date object or character string in
+    #'   YYYY-MM-DD format)
     #' @param detector Detector
     #' @param region Region
     #' @return Full path to the created directory
@@ -76,11 +87,20 @@ PathGenerator <- R6Class("PathGenerator",
       date_folder <- file.path(year, month, day)
       
       # Create path based on selected format
-      path <- switch(self$path_format,
-        "date/region/detector/plot" = file.path(self$base_path, date_folder, region, detector, plot_code),
-        "region/date/detector/plot" = file.path(self$base_path, region, date_folder, detector, plot_code),
-        "detector/region/date/plot" = file.path(self$base_path, detector, region, date_folder, plot_code),
-        file.path(self$base_path, date_folder, region, detector, plot_code) # Default fallback
+      path <- switch(
+        self$path_format,
+        "date/region/detector/plot" = file.path(
+          self$base_path, date_folder, region, detector, plot_code
+        ),
+        "region/date/detector/plot" = file.path(
+          self$base_path, region, date_folder, detector, plot_code
+        ),
+        "detector/region/date/plot" = file.path(
+          self$base_path, detector, region, date_folder, plot_code
+        ),
+        file.path(
+          self$base_path, date_folder, region, detector, plot_code
+        ) # Default fallback
       )
       
       # Create directory if it doesn't exist
@@ -97,7 +117,8 @@ PathGenerator <- R6Class("PathGenerator",
     #' @param file_type Type of file to create path for (excel or csv)
     #' @param file_name Optional custom file name (without extension)
     #' @return Full path to the file (including extension)
-    generate_file_path = function(sheet1_data, file_type = "excel", file_name = NULL) {
+    generate_file_path = function(sheet1_data, file_type = "excel",
+                                  file_name = NULL) {
       if (!inherits(sheet1_data, "Sheet1Data")) {
         stop("sheet1_data must be a Sheet1Data object")
       }
@@ -121,7 +142,8 @@ PathGenerator <- R6Class("PathGenerator",
       }
       
       # Add appropriate extension
-      file_extension <- switch(tolower(file_type),
+      file_extension <- switch(
+        tolower(file_type),
         "excel" = ".xlsx",
         "csv" = ".csv",
         ".xlsx" # Default fallback

@@ -11,9 +11,11 @@ library(readr)
 #' @title Sheet1Data Class
 #' @description Represents a single row in Sheet 1 of the data file.
 #'
-#' This class stores environmental and site information extracted from the first sheet.
+#' This class stores environmental and site information extracted from the first
+#' sheet.
 #'
-#' @param data_row A named list or one-row data frame containing the following fields:
+#' @param data_row A named list or one-row data frame containing the following
+#'   fields:
 #' \itemize{
 #'   \item \strong{Plot.code}: Plot code (alphanumeric string)
 #'   \item \strong{SU}: Sampling Unit (numeric, expected range 1-4)
@@ -48,7 +50,8 @@ library(readr)
 #'             Shrub.cov = 30, Shrub.h = 3, Herb.cov = 40, Herb.h = 1,
 #'             Brioph.cov = 5, notes = "Sample note")
 #' obj <- Sheet1Data$new(row)
-Sheet1Data <- R6Class("Sheet1Data",
+Sheet1Data <- R6Class(
+  "Sheet1Data",
   public = list(
     #' @field Plot.code Plot code (alphanumeric string)
     Plot.code = NULL,
@@ -156,9 +159,11 @@ Sheet1Data <- R6Class("Sheet1Data",
 #' @title Sheet2Data Class
 #' @description Represents a single row in Sheet 2 of the data file.
 #'
-#' This class stores species and cover information extracted from the second sheet.
+#' This class stores species and cover information extracted from the second
+#' sheet.
 #'
-#' @param data_row A named list or one-row data frame containing the following fields:
+#' @param data_row A named list or one-row data frame containing the following
+#'   fields:
 #' \itemize{
 #'   \item \strong{Plot.code}: Plot code (alphanumeric string)
 #'   \item \strong{Subplot}: Subplot number (numeric, expected range 1-4)
@@ -173,9 +178,11 @@ Sheet1Data <- R6Class("Sheet1Data",
 #'
 #' @examples
 #' row2 <- list(Plot.code = "A1", Subplot = 2, Species = "Sp1",
-#'              species_abb = "S1", cover = 80, Layer = "Understory", Notes = "Healthy")
+#'              species_abb = "S1", cover = 80, Layer = "Understory",
+#'              Notes = "Healthy")
 #' obj2 <- Sheet2Data$new(row2)
-Sheet2Data <- R6Class("Sheet2Data",
+Sheet2Data <- R6Class(
+  "Sheet2Data",
   public = list(
     #' @field Plot.code Plot code (alphanumeric string)
     Plot.code = NULL,
@@ -225,21 +232,26 @@ Sheet2Data <- R6Class("Sheet2Data",
 ##############################################
 
 #' @title DataSource Class
-#' @description Represents and handles loading and exporting data from CSV or Excel files.
+#' @description Represents and handles loading and exporting data from CSV or
+#'   Excel files.
 #'
-#' This class provides methods to load data from a file (either Excel or CSV) and export the data to Excel or CSV.
+#' This class provides methods to load data from a file (either Excel or CSV)
+#' and export the data to Excel or CSV.
 #'
 #' @param filepath A string specifying the path to the data file.
-#' @param file_type Optional. Specify \"excel\" or \"csv\". If NULL, the file type is auto-detected based on the file extension.
+#' @param file_type Optional. Specify "excel" or "csv". If NULL, the file type
+#'   is auto-detected based on the file extension.
 #'
-#' @return A new instance of \code{DataSource} with the loaded data stored in \code{sheet1_data} and \code{sheet2_data}.
+#' @return A new instance of \code{DataSource} with the loaded data stored in
+#'   \code{sheet1_data} and \code{sheet2_data}.
 #'
 #' @examples
 #' # For an Excel file:
 #' ds_excel <- DataSource$new("data.xlsx")
 #' # For a CSV file (auto-detected):
 #' ds_csv <- DataSource$new("data.csv")
-DataSource <- R6Class("DataSource",
+DataSource <- R6Class(
+  "DataSource",
   public = list(
     #' @field sheet1_data A list of Sheet1Data objects.
     sheet1_data = list(),
@@ -247,7 +259,7 @@ DataSource <- R6Class("DataSource",
     sheet2_data = list(),
     #' @field filepath Path to the data file.
     filepath = NULL,
-    #' @field file_type Type of the data file (\"excel\" or \"csv\").
+    #' @field file_type Type of the data file ("excel" or "csv").
     file_type = NULL,
     
     initialize = function(filepath, file_type = NULL) {
@@ -274,10 +286,13 @@ DataSource <- R6Class("DataSource",
     },
     
     #' @description Loads data from the file specified by \code{filepath}.
-    #' @details This method calls the appropriate data loading function based on the file type.
-    #' @return No return value. The data is loaded into \code{sheet1_data} and \code{sheet2_data}.
+    #' @details This method calls the appropriate data loading function based on
+    #'   the file type.
+    #' @return No return value. The data is loaded into \code{sheet1_data} and
+    #'   \code{sheet2_data}.
     #' @examples
-    #' ds <- DataSource$new("data.xlsx")\n# Data is automatically loaded into ds$sheet1_data and ds$sheet2_data.
+    #' ds <- DataSource$new("data.xlsx")\n# Data is automatically loaded into
+    #' ds$sheet1_data and ds$sheet2_data.
     load_data = function() {
       if (self$file_type == "excel") {
         self$load_excel_data()
@@ -287,10 +302,13 @@ DataSource <- R6Class("DataSource",
     },
     
     #' @description Loads data from an Excel file.
-    #' @details Reads the first two sheets of the Excel file and creates \code{Sheet1Data} and \code{Sheet2Data} objects for each row.
-    #' @return No return value. Populates \code{sheet1_data} and \code{sheet2_data}.
+    #' @details Reads the first two sheets of the Excel file and creates
+    #'   \code{Sheet1Data} and \code{Sheet2Data} objects for each row.
+    #' @return No return value. Populates \code{sheet1_data} and
+    #'   \code{sheet2_data}.
     #' @examples
-    #' ds <- DataSource$new("data.xlsx")\n# ds$load_excel_data() is called automatically.
+    #' ds <- DataSource$new("data.xlsx")\n# ds$load_excel_data() is called
+    #' automatically.
     load_excel_data = function() {
       sheet1 <- openxlsx::read.xlsx(self$filepath, sheet = 1)
       sheet2 <- openxlsx::read.xlsx(self$filepath, sheet = 2)
@@ -305,10 +323,15 @@ DataSource <- R6Class("DataSource",
     },
     
     #' @description Loads data from CSV files.
-    #' @details For CSV data, this method expects two files: one main CSV file for Sheet1 data and a second CSV file for Sheet2 data. The second file is assumed to have a \"_species.csv\" suffix appended to the base name of the main file.
-    #' @return No return value. Populates \code{sheet1_data} and \code{sheet2_data}.
+    #' @details For CSV data, this method expects two files: one main CSV file
+    #'   for Sheet1 data and a second CSV file for Sheet2 data. The second file
+    #'   is assumed to have a "_species.csv" suffix appended to the base name
+    #'   of the main file.
+    #' @return No return value. Populates \code{sheet1_data} and
+    #'   \code{sheet2_data}.
     #' @examples
-    #' ds <- DataSource$new("data.csv")\n# ds$load_csv_data() is called automatically.
+    #' ds <- DataSource$new("data.csv")\n# ds$load_csv_data() is called
+    #' automatically.
     load_csv_data = function() {
       # For CSV, we expect two files: main_file.csv and main_file_species.csv
       base_name <- tools::file_path_sans_ext(self$filepath)
@@ -345,14 +368,23 @@ DataSource <- R6Class("DataSource",
     },
     
     #' @description Exports the loaded data to an Excel file.
-    #' @param output_path A string specifying the path where the Excel file will be saved.
+    #' @param output_path A string specifying the path where the Excel file will
+    #'   be saved.
     #' @return Returns TRUE if the export is successful.
     #' @examples
-    #' ds <- DataSource$new("data.xlsx")\n# Export to Excel file:\n# ds$export_to_excel(\"output.xlsx\")\nresult <- ds$export_to_excel(\"output.xlsx\")\nprint(result)
+    #' ds <- DataSource$new("data.xlsx")\n# Export to Excel file:\n#
+    #' ds$export_to_excel(\"output.xlsx\")\nresult <-
+    #' ds$export_to_excel(\"output.xlsx\")\nprint(result)
     export_to_excel = function(output_path) {
       # Convert data to data frames
-      sheet1_df <- do.call(rbind, lapply(self$sheet1_data, function(x) x$to_data_frame()))
-      sheet2_df <- do.call(rbind, lapply(self$sheet2_data, function(x) x$to_data_frame()))
+      sheet1_df <- do.call(rbind, lapply(
+        self$sheet1_data,
+        function(x) x$to_data_frame()
+      ))
+      sheet2_df <- do.call(rbind, lapply(
+        self$sheet2_data,
+        function(x) x$to_data_frame()
+      ))
       
       # Create a new workbook
       wb <- openxlsx::createWorkbook()
@@ -374,13 +406,23 @@ DataSource <- R6Class("DataSource",
     #' @description Exports the loaded data to CSV files.
     #' @param output_path A string specifying the path to save the main CSV file.
     #' @return Returns TRUE if the export is successful.
-    #' @details This method writes the main CSV file for Sheet1 data and a separate CSV file for Sheet2 data with a \"_species.csv\" suffix appended to the base name.
+    #' @details This method writes the main CSV file for Sheet1 data and a
+    #'   separate CSV file for Sheet2 data with a "_species.csv" suffix
+    #'   appended to the base name.
     #' @examples
-    #' ds <- DataSource$new("data.csv")\n# Export to CSV files:\n# ds$export_to_csv(\"output.csv\")\nresult <- ds$export_to_csv(\"output.csv\")\nprint(result)
+    #' ds <- DataSource$new("data.csv")\n# Export to CSV files:\n#
+    #' ds$export_to_csv(\"output.csv\")\nresult <-
+    #' ds$export_to_csv(\"output.csv\")\nprint(result)
     export_to_csv = function(output_path) {
       # Convert data to data frames
-      sheet1_df <- do.call(rbind, lapply(self$sheet1_data, function(x) x$to_data_frame()))
-      sheet2_df <- do.call(rbind, lapply(self$sheet2_data, function(x) x$to_data_frame()))
+      sheet1_df <- do.call(rbind, lapply(
+        self$sheet1_data,
+        function(x) x$to_data_frame()
+      ))
+      sheet2_df <- do.call(rbind, lapply(
+        self$sheet2_data,
+        function(x) x$to_data_frame()
+      ))
       
       # Get base name for species file
       base_name <- tools::file_path_sans_ext(output_path)

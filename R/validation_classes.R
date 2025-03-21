@@ -1,7 +1,8 @@
 library(R6)
 
 #' Base class for validation rules
-#' @description A base class that provides common functionality for all validation rules
+#' @description A base class that provides common functionality for all
+#'   validation rules
 ValidationRule <- R6Class(
   "ValidationRule",
   private = list(
@@ -11,7 +12,8 @@ ValidationRule <- R6Class(
   public = list(
     #' @description
     #' Create a new ValidationRule object
-    #' @param error_level Character string indicating the severity of rule violations
+    #' @param error_level Character string indicating the severity of rule
+    #'   violations
     initialize = function(error_level = "Error") {
       private$error_level <- error_level
     },
@@ -83,7 +85,8 @@ DataTypeValidationRule <- R6Class(
     #' Create a new DataTypeValidationRule object
     #' @param min_su Minimum allowed SU value
     #' @param max_su Maximum allowed SU value
-    #' @param error_level Character string indicating the severity of rule violations
+    #' @param error_level Character string indicating the severity of rule
+    #'   violations
     initialize = function(min_su = 1, max_su = 4, error_level = "Warning") {
       super$initialize(error_level)
       private$min_su <- min_su
@@ -101,7 +104,8 @@ DataTypeValidationRule <- R6Class(
       for (i in seq_along(excel_data$sheet1_data)) {
         data_row <- excel_data$sheet1_data[[i]]
         
-        # Row offset to match Excel row numbers (assuming 1 header row + data starts at row 2)
+        # Row offset to match Excel row numbers (assuming 1 header row + data
+        # starts at row 2)
         excel_row <- i + 1
         
         # Check Plot.code is character/string
@@ -141,7 +145,8 @@ DataTypeValidationRule <- R6Class(
             # Attempt to parse the date in MM/DD/YYYY format
             parsed_date <- as.Date(data_row$Sample.date, format = "%m/%d/%Y")
             
-            # If parsing is successful, but the original value was not a Date object, it's a format issue
+            # If parsing is successful, but the original value was not a Date
+            # object, it's a format issue
             if (!is.na(parsed_date)) {
               errors <- rbind(
                 errors,
@@ -149,7 +154,10 @@ DataTypeValidationRule <- R6Class(
                   "Sheet1",
                   excel_row,
                   "Sample.date",
-                  "Sample.date should be in MM/DD/YYYY format (e.g., 01/16/2024)."
+                  paste(
+                    "Sample.date should be in MM/DD/YYYY format",
+                    "(e.g., 01/16/2024)."
+                  )
                 )
               )
             } else {
@@ -202,7 +210,10 @@ DataTypeValidationRule <- R6Class(
                 "Sheet1",
                 excel_row,
                 "X",
-                "X should be numeric with 15 decimal places and conform to EPSG:32632."
+                paste(
+                  "X should be numeric with 15 decimal places and conform",
+                  "to EPSG:32632."
+                )
               )
             )
           }
@@ -213,7 +224,10 @@ DataTypeValidationRule <- R6Class(
               "Sheet1",
               excel_row,
               "X",
-              "X should be numeric with 15 decimal places and conform to EPSG:32632."
+              paste(
+                "X should be numeric with 15 decimal places and conform",
+                "to EPSG:32632."
+              )
             )
           )
         }
@@ -229,7 +243,10 @@ DataTypeValidationRule <- R6Class(
                 "Sheet1",
                 excel_row,
                 "Y",
-                "Y should be numeric with 15 decimal places and conform to EPSG:32632."
+                paste(
+                  "Y should be numeric with 15 decimal places and conform",
+                  "to EPSG:32632."
+                )
               )
             )
           }
@@ -240,7 +257,10 @@ DataTypeValidationRule <- R6Class(
               "Sheet1",
               excel_row,
               "Y",
-              "Y should be numeric with 15 decimal places and conform to EPSG:32632."
+              paste(
+                "Y should be numeric with 15 decimal places and conform",
+                "to EPSG:32632."
+              )
             )
           )
         }
@@ -441,7 +461,8 @@ DataTypeValidationRule <- R6Class(
           )
         }
         
-        # Additional column validations can be added here following the same pattern
+        # Additional column validations can be added here following the same
+        # pattern
       }
       
       # Sheet 2 validation
@@ -556,7 +577,8 @@ DataTypeValidationRule <- R6Class(
 )
 
 #' Maximum rows validation rule
-#' @description Rule for validating maximum number of rows with the same Plot.code
+#' @description Rule for validating maximum number of rows with the same
+#'   Plot.code
 MaxRowsValidationRule <- R6Class(
   "MaxRowsValidationRule",
   inherit = ValidationRule,
@@ -568,7 +590,8 @@ MaxRowsValidationRule <- R6Class(
     #' @description
     #' Create a new MaxRowsValidationRule object
     #' @param max_rows Maximum number of rows allowed per Plot.code
-    #' @param error_level Character string indicating the severity of rule violations
+    #' @param error_level Character string indicating the severity of rule
+    #'   violations
     initialize = function(max_rows = 4, error_level = "Error") {
       super$initialize(error_level)
       private$max_rows <- max_rows
@@ -621,7 +644,8 @@ MaxRowsValidationRule <- R6Class(
 )
 
 #' Unique SU values validation rule
-#' @description Rule for validating that SU values are unique within each Plot.code
+#' @description Rule for validating that SU values are unique within each
+#'   Plot.code
 UniqueSUValidationRule <- R6Class(
   "UniqueSUValidationRule",
   inherit = ValidationRule,
@@ -636,7 +660,8 @@ UniqueSUValidationRule <- R6Class(
     #' Create a new UniqueSUValidationRule object
     #' @param min_su Minimum allowed SU value
     #' @param max_su Maximum allowed SU value
-    #' @param error_level Character string indicating the severity of rule violations
+    #' @param error_level Character string indicating the severity of rule
+    #'   violations
     initialize = function(min_su = 1, max_su = 4, error_level = "Error") {
       super$initialize(error_level)
       private$min_su <- min_su
@@ -661,7 +686,8 @@ UniqueSUValidationRule <- R6Class(
         
         if (length(plot_indices) > 0) {
           # Extract SU values for this plot
-          su_values <- sapply(excel_data$sheet1_data[plot_indices], function(x) x$SU)
+          su_values <- sapply(excel_data$sheet1_data[plot_indices],
+                              function(x) x$SU)
           
           # Find duplicates
           dup_su_values <- su_values[duplicated(su_values)]
@@ -699,14 +725,16 @@ UniqueSUValidationRule <- R6Class(
 )
 
 #' Notes validation rule
-#' @description Rule for checking if notes are present when SU rows are empty in Sheet 2
+#' @description Rule for checking if notes are present when SU rows are empty
+#'   in Sheet 2
 NotesValidationRule <- R6Class(
   "NotesValidationRule",
   inherit = ValidationRule,
   public = list(
     #' @description
     #' Create a new NotesValidationRule object
-    #' @param error_level Character string indicating the severity of rule violations
+    #' @param error_level Character string indicating the severity of rule
+    #'   violations
     initialize = function(error_level = "Warning") {
       super$initialize(error_level)
     },
@@ -784,7 +812,8 @@ NotesValidationRule <- R6Class(
 )
 
 #' Validator class that applies all validation rules
-#' @description A class that orchestrates the application of all validation rules
+#' @description A class that orchestrates the application of all validation
+#'   rules
 Validator <- R6Class(
   "Validator",
   public = list(
