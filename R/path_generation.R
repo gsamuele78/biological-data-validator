@@ -167,6 +167,43 @@ PathGenerator <- R6Class(
       species_path <- paste0(base_name, "_species.csv")
       
       return(species_path)
+    },
+    
+    #' @description
+    #' Generate file paths for a CSV dataset
+    #' @param sheet1_data Sheet1Data object
+    #' @param create_dirs Whether to create directories
+    #' @return A list containing main_path and species_path
+    generate_csv_paths = function(sheet1_data, create_dirs = TRUE) {
+      # Generate base directory path
+      dir_path <- self$generate(
+        plot_code = sheet1_data$Plot.code,
+        sample_date = sheet1_data$Sample.date,
+        detector = sheet1_data$Detector,
+        region = sheet1_data$Region
+      )
+      
+      # Create base filename
+      base_name <- paste0(
+        "data_",
+        sheet1_data$Plot.code,
+        "_",
+        format(sheet1_data$Sample.date, "%Y%m%d")
+      )
+      
+      # Generate paths
+      main_path <- file.path(dir_path, paste0(base_name, ".csv"))
+      species_path <- file.path(dir_path, paste0(base_name, "_species.csv"))
+      
+      # Create directories if requested
+      if (create_dirs && !dir.exists(dir_path)) {
+        dir.create(dir_path, recursive = TRUE)
+      }
+      
+      return(list(
+        main_path = main_path,
+        species_path = species_path
+      ))
     }
   )
 )

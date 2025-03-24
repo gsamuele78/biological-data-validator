@@ -1,137 +1,65 @@
-#' @title Data Classes for Biological Data Validation
-#' @description
-#' This file contains R6 classes for representing and processing rows of data from an Excel file
-#' used in biological environment field studies. It includes classes for:
-#' \itemize{
-#'   \item \code{Sheet1Data}: Represents a single row from Sheet 1.
-#'   \item \code{Sheet2Data}: Represents a single row from Sheet 2.
-#'   \item \code{ExcelData}: Loads and holds data from both sheets.
-#' }
-#'
-#' @details
-#' Each class uses R6 for object-oriented programming and includes methods to convert the stored data into a data frame.
-#'
-#' @examples
-#' # Example for Sheet1Data:
-#' row1 <- data.frame(
-#'   Plot.code = "P001",
-#'   SU = 1,
-#'   Sample.date = "2025-03-15",
-#'   Detector = "Detector1",
-#'   X = 12.345,
-#'   Y = 67.890,
-#'   Region = "North",
-#'   Elevation = 250,
-#'   Aspect = 180,
-#'   Slope = 15,
-#'   Cop.tot = 80,
-#'   Litter.cov = 20,
-#'   Bare.soil.cov = 10,
-#'   Tree.cov = 60,
-#'   Tree.h = 10,
-#'   Shrub.cov = 30,
-#'   Shrub.h = 2,
-#'   Herb.cov = 40,
-#'   Herb.h = 0.5,
-#'   Brioph.cov = 5,
-#'   notes = "Sample note",
-#'   stringsAsFactors = FALSE
-#' )
-#' sheet1_obj <- Sheet1Data$new(row1)
-#' df1 <- sheet1_obj$to_data_frame()
-#' print(df1)
-#'
-#' # Example for Sheet2Data:
-#' row2 <- data.frame(
-#'   Plot.code = "P001",
-#'   Subplot = 2,
-#'   Species = "SpeciesA",
-#'   species_abb = "SpA",
-#'   cover = 75,
-#'   Layer = "Understory",
-#'   Notes = "Healthy specimen",
-#'   stringsAsFactors = FALSE
-#' )
-#' sheet2_obj <- Sheet2Data$new(row2)
-#' df2 <- sheet2_obj$to_data_frame()
-#' print(df2)
-#'
-#' # Example for ExcelData:
-#' # Assuming an Excel file \"data.xlsx\" with two sheets matching the required structure:
-#' # excel_data <- ExcelData$new("data.xlsx")
-#' # Access the loaded data:
-#' # head(excel_data$sheet1_data[[1]]$to_data_frame())
-#'
-#' @import R6 openxlsx readxl
-NULL
+# R/data_classes.R
+library(R6)
+library(openxlsx)
+library(readxl)
+library(readr)
+library(tools)
+
+# Load CSV mapping configuration
+source("R/csv_mapping.R")
 
 ##############################################
 # Sheet1Data Class
 ##############################################
 
 #' @title Sheet1Data Class
-#' @description
-#' Represents a single row from Sheet 1 of the Excel file.
+#' @description Represents a single row in Sheet 1 of the data file.
 #'
-#' @details
-#' The expected input is a named vector or one-row data frame containing the following columns:
+#' This class stores environmental and site information extracted from the first
+#' sheet.
+#'
+#' @param data_row A named list or one-row data frame containing the following
+#'   fields:
 #' \itemize{
-#'   \item \code{Plot.code}: Plot code (alphanumeric string)
-#'   \item \code{SU}: Sampling Unit (numeric, expected range 1-4)
-#'   \item \code{Sample.date}: Sample date (date in a recognizable format)
-#'   \item \code{Detector}: Detector name (string)
-#'   \item \code{X}: Longitude (numeric, WGS84)
-#'   \item \code{Y}: Latitude (numeric, WGS84)
-#'   \item \code{Region}: Region name (string)
-#'   \item \code{Elevation}: Elevation in meters (numeric)
-#'   \item \code{Aspect}: Sun exposition in degrees (numeric)
-#'   \item \code{Slope}: Soil inclination in degrees (numeric)
-#'   \item \code{Cop.tot}: Total cover percentage (numeric, 0-100)
-#'   \item \code{Litter.cov}: Litter cover percentage (numeric, 0-100)
-#'   \item \code{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
-#'   \item \code{Tree.cov}: Tree cover percentage (numeric, 0-100)
-#'   \item \code{Tree.h}: Tree height in meters (numeric)
-#'   \item \code{Shrub.cov}: Shrub cover percentage (numeric, 0-100)
-#'   \item \code{Shrub.h}: Shrub height in meters (numeric)
-#'   \item \code{Herb.cov}: Herb cover percentage (numeric, 0-100)
-#'   \item \code{Herb.h}: Herb height in meters (numeric)
-#'   \item \code{Brioph.cov}: Bryophyte cover percentage (numeric, 0-100)
-#'   \item \code{notes}: Additional notes (string)
+#'   \item \strong{Plot.code}: Plot code (alphanumeric string)
+#'   \item \strong{SU}: Sampling Unit (numeric, expected range 1-4)
+#'   \item \strong{Sample.date}: Sample date (in a recognizable date format)
+#'   \item \strong{Detector}: Detector name (string)
+#'   \item \strong{X}: Longitude (numeric, WGS84)
+#'   \item \strong{Y}: Latitude (numeric, WGS84)
+#'   \item \strong{Region}: Region name (string)
+#'   \item \strong{Elevation}: Elevation in meters (numeric)
+#'   \item \strong{Aspect}: Sun exposition in degrees (numeric)
+#'   \item \strong{Slope}: Soil inclination in degrees (numeric)
+#'   \item \strong{Cop.tot}: Total cover percentage (numeric, 0-100)
+#'   \item \strong{Litter.cov}: Litter cover percentage (numeric, 0-100)
+#'   \item \strong{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
+#'   \item \strong{Tree.cov}: Tree cover percentage (numeric, 0-100)
+#'   \item \strong{Tree.h}: Tree height in meters (numeric)
+#'   \item \strong{Shrub.cov}: Shrub cover percentage (numeric, 0-100)
+#'   \item \strong{Shrub.h}: Shrub height in meters (numeric)
+#'   \item \strong{Herb.cov}: Herb cover percentage (numeric, 0-100)
+#'   \item \strong{Herb.h}: Herb height in meters (numeric)
+#'   \item \strong{Brioph.cov}: Bryophyte cover percentage (numeric, 0-100)
+#'   \item \strong{notes}: Additional notes (string)
 #' }
 #'
 #' @return A new instance of \code{Sheet1Data}.
 #'
 #' @examples
-#' row1 <- data.frame(
-#'   Plot.code = "P001",
-#'   SU = 1,
-#'   Sample.date = "2025-03-15",
-#'   Detector = "Detector1",
-#'   X = 12.345,
-#'   Y = 67.890,
-#'   Region = "North",
-#'   Elevation = 250,
-#'   Aspect = 180,
-#'   Slope = 15,
-#'   Cop.tot = 80,
-#'   Litter.cov = 20,
-#'   Bare.soil.cov = 10,
-#'   Tree.cov = 60,
-#'   Tree.h = 10,
-#'   Shrub.cov = 30,
-#'   Shrub.h = 2,
-#'   Herb.cov = 40,
-#'   Herb.h = 0.5,
-#'   Brioph.cov = 5,
-#'   notes = "Sample note",
-#'   stringsAsFactors = FALSE
-#' )
-#' sheet1_obj <- Sheet1Data$new(row1)
-Sheet1Data <- R6Class("Sheet1Data",
+#' row <- list(Plot.code = "A1", SU = 1, Sample.date = "2023-05-10",
+#'             Detector = "ABC", X = 12.34, Y = 56.78, Region = "North",
+#'             Elevation = 100, Aspect = 180, Slope = 15, Cop.tot = 90,
+#'             Litter.cov = 20, Bare.soil.cov = 10, Tree.cov = 70, Tree.h = 12,
+#'             Shrub.cov = 30, Shrub.h = 3, Herb.cov = 40, Herb.h = 1,
+#'             Brioph.cov = 5, notes = "Sample note")
+#' obj <- Sheet1Data$new(row)
+Sheet1Data <- R6Class(
+  "Sheet1Data",
   public = list(
     #' @field Plot.code Plot code (alphanumeric string)
     Plot.code = NULL,
-    #' @field SU Sampling Unit (numeric, expected range 1-4)
+    #' @field SU Sampling Unit (numeric, range 1-4)
     SU = NULL,
     #' @field Sample.date Sample date (Date object)
     Sample.date = NULL,
@@ -157,15 +85,15 @@ Sheet1Data <- R6Class("Sheet1Data",
     Bare.soil.cov = NULL,
     #' @field Tree.cov Tree cover percentage (numeric, 0-100)
     Tree.cov = NULL,
-    #' @field Tree.h Tree height in meters (numeric)
+    #' @field Tree.h Tree height (numeric, in meters)
     Tree.h = NULL,
     #' @field Shrub.cov Shrub cover percentage (numeric, 0-100)
     Shrub.cov = NULL,
-    #' @field Shrub.h Shrub height in meters (numeric)
+    #' @field Shrub.h Shrub height (numeric, in meters)
     Shrub.h = NULL,
     #' @field Herb.cov Herb cover percentage (numeric, 0-100)
     Herb.cov = NULL,
-    #' @field Herb.h Herb height in meters (numeric)
+    #' @field Herb.h Herb height (numeric, in meters)
     Herb.h = NULL,
     #' @field Brioph.cov Bryophyte cover percentage (numeric, 0-100)
     Brioph.cov = NULL,
@@ -196,9 +124,9 @@ Sheet1Data <- R6Class("Sheet1Data",
       self$notes <- as.character(data_row[["notes"]])
     },
     #' @description Convert the Sheet1Data object to a data frame.
-    #' @return A \code{data.frame} containing the data from this object.
+    #' @return A data frame containing a single row with the object's data.
     #' @examples
-    #' df <- sheet1_obj$to_data_frame()\n# View structure of the data frame:\n# str(df)
+    #' df <- obj$to_data_frame()\nprint(df)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
@@ -233,39 +161,36 @@ Sheet1Data <- R6Class("Sheet1Data",
 ##############################################
 
 #' @title Sheet2Data Class
-#' @description Represents a single row from Sheet 2 of the Excel file.
+#' @description Represents a single row in Sheet 2 of the data file.
 #'
-#' @details
-#' The expected input is a named vector or one-row data frame containing the following columns:
+#' This class stores species and cover information extracted from the second
+#' sheet.
+#'
+#' @param data_row A named list or one-row data frame containing the following
+#'   fields:
 #' \itemize{
-#'   \item \code{Plot.code}: Plot code (alphanumeric string)
-#'   \item \code{Subplot}: Subplot number (numeric, expected range 1-4)
-#'   \item \code{Species}: Species name (string)
-#'   \item \code{species_abb}: Species abbreviation (string)
-#'   \item \code{cover}: Cover percentage (numeric, 0-100)
-#'   \item \code{Layer}: Layer (string)
-#'   \item \code{Notes}: Notes (string)
+#'   \item \strong{Plot.code}: Plot code (alphanumeric string)
+#'   \item \strong{Subplot}: Subplot number (numeric, expected range 1-4)
+#'   \item \strong{Species}: Species name (string)
+#'   \item \strong{species_abb}: Species abbreviation (string)
+#'   \item \strong{cover}: Cover percentage (numeric, 0-100)
+#'   \item \strong{Layer}: Layer (string)
+#'   \item \strong{Notes}: Notes (string)
 #' }
 #'
 #' @return A new instance of \code{Sheet2Data}.
 #'
 #' @examples
-#' row2 <- data.frame(
-#'   Plot.code = "P001",
-#'   Subplot = 2,
-#'   Species = "SpeciesA",
-#'   species_abb = "SpA",
-#'   cover = 75,
-#'   Layer = "Understory",
-#'   Notes = "Healthy specimen",
-#'   stringsAsFactors = FALSE
-#' )
-#' sheet2_obj <- Sheet2Data$new(row2)
-Sheet2Data <- R6Class("Sheet2Data",
+#' row2 <- list(Plot.code = "A1", Subplot = 2, Species = "Sp1",
+#'              species_abb = "S1", cover = 80, Layer = "Understory",
+#'              Notes = "Healthy")
+#' obj2 <- Sheet2Data$new(row2)
+Sheet2Data <- R6Class(
+  "Sheet2Data",
   public = list(
     #' @field Plot.code Plot code (alphanumeric string)
     Plot.code = NULL,
-    #' @field Subplot Subplot number (numeric, expected range 1-4)
+    #' @field Subplot Subplot number (numeric, range 1-4)
     Subplot = NULL,
     #' @field Species Species name (string)
     Species = NULL,
@@ -288,9 +213,9 @@ Sheet2Data <- R6Class("Sheet2Data",
       self$Notes <- as.character(data_row[["Notes"]])
     },
     #' @description Convert the Sheet2Data object to a data frame.
-    #' @return A \code{data.frame} containing the data from this object.
+    #' @return A data frame containing a single row with the object's data.
     #' @examples
-    #' df2 <- sheet2_obj$to_data_frame()\n# Display the first few rows:\n# head(df2)
+    #' df2 <- obj2$to_data_frame()\nhead(df2)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
@@ -307,92 +232,89 @@ Sheet2Data <- R6Class("Sheet2Data",
 )
 
 ##############################################
-# ExcelData Class
+# DataSource Class
 ##############################################
 
-#' @title ExcelData Class
-#' @description Represents and loads data from an Excel or CSV file that contains two sheets/dataframes.
-#'
-#' @details
-#' For Excel files, the file is expected to have at least two sheets:
-#' \itemize{
-#'   \item Sheet 1: Contains columns matching the expectations of \code{Sheet1Data}.
-#'   \item Sheet 2: Contains columns matching the expectations of \code{Sheet2Data}.
-#' }
-#'
-#' For CSV files, the file is expected to contain two dataframes:
-#' \itemize{
-#'   \item df1: Contains columns matching the expectations of \code{Sheet1Data}.
-#'   \item df2: Contains columns matching the expectations of \code{Sheet2Data}.
-#' }
-#'
-#' @return A new instance of \code{ExcelData} with two lists:
-#' \itemize{
-#'   \item \code{sheet1_data}: A list of \code{Sheet1Data} objects.
-#'   \item \code{sheet2_data}: A list of \code{Sheet2Data} objects.
-#' }
-#'
-#' @examples
-#' # Given an Excel file \"data.xlsx\" with the appropriate structure:
-#' excel_data <- ExcelData$new("data.xlsx")
-#' # Access the data from Sheet 1:
-#' df1 <- excel_data$sheet1_data[[1]]$to_data_frame()
-#' print(df1)
-ExcelData <- R6Class("ExcelData",
+#' @title DataSource Class
+#' @description Represents and handles loading and exporting CSV data files.
+DataSource <- R6Class(
+  "DataSource",
   public = list(
-    #' @field sheet1_data List of \code{Sheet1Data} objects.
+    #' @field sheet1_data A list of Sheet1Data objects.
     sheet1_data = list(),
-    #' @field sheet2_data List of \code{Sheet2Data} objects.
+    #' @field sheet2_data A list of Sheet2Data objects.
     sheet2_data = list(),
-    #' @field filepath Path to the Excel file.
+    #' @field filepath Path to the data file.
     filepath = NULL,
+    #' @field file_type Type of the data file (always "csv").
+    file_type = "csv",
     
-    #' @description Initialize a new \code{ExcelData} object and load data from the specified Excel file.
-    #'
-    #' @param filepath A string representing the path to the Excel file.
-    #' @return A new \code{ExcelData} object with data loaded from both sheets.
-    #' @examples
-    #' excel_data <- ExcelData$new("data.xlsx")
     initialize = function(filepath) {
       self$filepath <- filepath
       self$load_data()
     },
     
-    #' @description Load data from the Excel or CSV file specified in \code{filepath}.
-    #' @details This method reads the first two sheets of the Excel file using the \code{openxlsx} package
-    #' and creates lists of \code{Sheet1Data} and \code{Sheet2Data} objects.
-    #' @return Invisibly returns \code{NULL} (its primary effect is populating the object fields).
-    #' @examples
-    #' excel_data <- ExcelData$new("data.xlsx")
-    #' head(excel_data$sheet1_data[[1]]$to_data_frame())
     load_data = function() {
-      file_extension <- tolower(tools::file_ext(self$filepath))
-      
-      if (file_extension %in% c("xlsx", "xls")) {
-        # Load data from Excel file
-        sheet1 <- openxlsx::read.xlsx(self$filepath, sheet = 1)
-        sheet2 <- openxlsx::read.xlsx(self$filepath, sheet = 2)
-        
-        for (i in seq_len(nrow(sheet1))) {  
-          self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
-        }
-        for (i in seq_len(nrow(sheet2))) {  
-          self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
-        }
-      } else if (file_extension == "csv") {
-        # Load data from CSV file
-        df1 <- read.csv(self$filepath, header = TRUE, stringsAsFactors = FALSE)
-        df2 <- read.csv(self$filepath, header = TRUE, stringsAsFactors = FALSE)
-        
-        for (i in seq_len(nrow(df1))) {  
-          self$sheet1_data[[i]] <- Sheet1Data$new(df1[i, ])
-        }
-        for (i in seq_len(nrow(df2))) {  
-          self$sheet2_data[[i]] <- Sheet2Data$new(df2[i, ])
-        }
-      } else {
-        stop("Unsupported file format. Only Excel (xlsx, xls) and CSV files are supported.")
+      # Check if main file exists
+      if (!file.exists(self$filepath)) {
+        stop("Main CSV file not found:", self$filepath)
       }
+      
+      # Check for species file
+      species_path <- paste0(tools::file_path_sans_ext(self$filepath), "_species.csv")
+      if (!file.exists(species_path)) {
+        stop("Species CSV file not found:", species_path)
+      }
+      
+      # Read CSV files
+      sheet1 <- readr::read_csv(self$filepath, col_types = readr::cols())
+      sheet2 <- readr::read_csv(species_path, col_types = readr::cols())
+      
+      # Map CSV field names to internal names using csv_mapping.R
+      for (internal_name in names(SHEET1_CSV_MAPPING)) {
+        csv_name <- SHEET1_CSV_MAPPING[[internal_name]]
+        if (csv_name %in% names(sheet1)) {
+          names(sheet1)[names(sheet1) == csv_name] <- internal_name
+        }
+      }
+      
+      for (internal_name in names(SHEET2_CSV_MAPPING)) {
+        csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
+        if (csv_name %in% names(sheet2)) {
+          names(sheet2)[names(sheet2) == csv_name] <- internal_name
+        }
+      }
+      
+      # Create data objects
+      for (i in seq_len(nrow(sheet1))) {
+        self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
+      }
+      
+      for (i in seq_len(nrow(sheet2))) {
+        self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
+      }
+    },
+    
+    export_data = function(output_path) {
+      # Convert data to data frames
+      sheet1_df <- do.call(rbind, lapply(self$sheet1_data, function(x) x$to_data_frame()))
+      sheet2_df <- do.call(rbind, lapply(self$sheet2_data, function(x) x$to_data_frame()))
+      
+      # Map internal names back to CSV names
+      for (internal_name in names(SHEET1_CSV_MAPPING)) {
+        csv_name <- SHEET1_CSV_MAPPING[[internal_name]]
+        names(sheet1_df)[names(sheet1_df) == internal_name] <- csv_name
+      }
+      
+      for (internal_name in names(SHEET2_CSV_MAPPING)) {
+        csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
+        names(sheet2_df)[names(sheet2_df) == internal_name] <- csv_name
+      }
+      
+      # Write CSV files
+      species_path <- paste0(tools::file_path_sans_ext(output_path), "_species.csv")
+      readr::write_csv(sheet1_df, output_path)
+      readr::write_csv(sheet2_df, species_path)
     }
   )
 )

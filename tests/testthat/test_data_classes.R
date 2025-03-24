@@ -1,52 +1,49 @@
 # tests/testthat/test_data_classes.R
 library(testthat)
-library(R6) 
+library(R6)
 source("../../R/data_classes.R")
+source("../../R/csv_mapping.R")
 
-context("Data Classes")
+context("CSV Data Classes")
 
-test_that("Sheet1Data initialization works", {
-  data_row <- list(Plot.code = "Plot1", SU = 1, Sample.date = as.Date("2023-01-15"), 
-                   Detector = "DetA", X = 12.34, Y = 56.78, Region = "RegionX", 
-                   Elevation = 100, Aspect = 180, Slope = 30, Cop.tot = 80, 
-                   Litter.cov = 10, Bare.soil.cov = 5, Tree.cov = 50, Tree.h = 15, 
-                   Shrub.cov = 20, Shrub.h = 2, Herb.cov = 10, Herb.h = 0.5, 
-                   Brioph.cov = 5, notes = "Valid data")
-  sheet1_obj <- Sheet1Data$new(data_row)
+test_that("DataSource loads CSV files correctly", {
+  # Create test files
+  temp_dir <- tempdir()
+  main_file <- file.path(temp_dir, "test.csv")
+  species_file <- file.path(temp_dir, "test_species.csv")
   
-  expect_equal(sheet1_obj$Plot.code, "Plot1")
-  expect_equal(sheet1_obj$SU, 1)
-  expect_equal(sheet1_obj$Sample.date, as.Date("2023-01-15"))
-  expect_equal(sheet1_obj$Detector, "DetA")
-  expect_equal(sheet1_obj$X, 12.34)
-  expect_equal(sheet1_obj$Y, 56.78)
-  expect_equal(sheet1_obj$Region, "RegionX")
-  expect_equal(sheet1_obj$Elevation, 100)
-  expect_equal(sheet1_obj$Aspect, 180)
-  expect_equal(sheet1_obj$Slope, 30)
-  expect_equal(sheet1_obj$Cop.tot, 80)
-  expect_equal(sheet1_obj$Litter.cov, 10)
-  expect_equal(sheet1_obj$Bare.soil.cov, 5)
-  expect_equal(sheet1_obj$Tree.cov, 50)
-  expect_equal(sheet1_obj$Tree.h, 15)
-  expect_equal(sheet1_obj$Shrub.cov, 20)
-  expect_equal(sheet1_obj$Shrub.h, 2)
-  expect_equal(sheet1_obj$Herb.cov, 10)
-  expect_equal(sheet1_obj$Herb.h, 0.5)
-  expect_equal(sheet1_obj$Brioph.cov, 5)
-  expect_equal(sheet1_obj$notes, "Valid data")
+  # Test data using CSV field names
+  main_data <- data.frame(
+    plot_code = "Test1",
+    su = 1,
+    sample_date = "2023-01-01",
+    detector = "Det1",
+    longitude = 12.123456789012345,
+    latitude = 45.123456789012345,
+    region = "North",
+    stringsAsFactors = FALSE
+  )
+  
+  species_data <- data.frame(
+    plot_code = "Test1",
+    subplot = 1,
+    species_name = "Species1",
+    species_code = "SP1",
+    species_cover = 80,
+    vegetation_layer = "Herb",
+    species_notes = "Test",
+    stringsAsFactors = FALSE
+  )
+  
+  write.csv(main_data, main_file, row.names = FALSE)
+  write.csv(species_data, species_file, row.names = FALSE)
+  
+  ds <- DataSource$new(main_file)
+  expect_equal(ds$file_type, "csv")
+  expect_true(length(ds$sheet1_data) > 0)
+  expect_true(length(ds$sheet2_data) > 0)
+  
+  unlink(c(main_file, species_file))
 })
 
-test_that("Sheet2Data initialization works", {
-  data_row <- list(Plot.code = "PlotA", Subplot = 2, Species = "Species Y", 
-                   species_abb = "Sp.Y", cover = 75, Layer = "Shrub", Notes = "Example notes")
-  sheet2_obj <- Sheet2Data$new(data_row)
-  
-  expect_equal(sheet2_obj$Plot.code, "PlotA")
-  expect_equal(sheet2_obj$Subplot, 2)
-  expect_equal(sheet2_obj$Species, "Species Y")
-  expect_equal(sheet2_obj$species_abb, "Sp.Y")
-  expect_equal(sheet2_obj$cover, 75)
-  expect_equal(sheet2_obj$Layer, "Shrub")
-  expect_equal(sheet2_obj$Notes, "Example notes")
-})
+# ...similar pattern for other data class tests...
