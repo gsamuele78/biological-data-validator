@@ -143,7 +143,6 @@ jobs:
       run: |
         set -e
         R -e '
-          library(here)
           setwd(here::here())
           testthat::test_dir("tests/testthat", reporter = "progress")
         '
