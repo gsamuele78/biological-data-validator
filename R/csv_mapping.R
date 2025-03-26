@@ -36,3 +36,27 @@ SHEET2_CSV_MAPPING <- list(
   Layer = "vegetation_layer",
   Notes = "species_notes"
 )
+
+#' CSV Mapping Class
+#'
+#' @description Handles CSV data mapping and validation rules
+#' @export
+CSVMapping <- R6::R6Class("CSVMapping",
+  public = list(
+    #' @field mapping_rules List of mapping rules
+    mapping_rules = NULL,
+    
+    #' @description Initialize a new CSV mapping instance
+    #' @return A new `CSVMapping` object
+    initialize = function() {
+      self$mapping_rules <- list()
+    },
+    
+    #' @description Add a mapping rule
+    #' @param column_name Name of the column
+    #' @param validation_rule Rule to validate the column
+    add_rule = function(column_name, validation_rule) {
+      self$mapping_rules[[column_name]] <- validation_rule
+    }
+  )
+)

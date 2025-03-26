@@ -8,6 +8,33 @@ library(tools)
 # Load CSV mapping configuration
 source("R/csv_mapping.R")
 
+#' @import R6
+NULL
+
+source("R/csv_mapping.R")
+
+#' Data Validator Class
+#'
+#' @description Base class for data validation
+#' @export
+DataValidator <- R6::R6Class("DataValidator",
+  public = list(
+    #' @field data The data to validate
+    data = NULL,
+    
+    #' @description Initialize a new data validator
+    #' @param data Data to validate
+    initialize = function(data = NULL) {
+      self$data <- data
+    },
+    
+    #' @description Validate the data
+    validate = function() {
+      stop("Method validate() must be implemented by subclass")
+    }
+  )
+)
+
 ##############################################
 # Sheet1Data Class
 ##############################################
