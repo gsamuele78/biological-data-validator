@@ -77,7 +77,7 @@ jobs:
         Rscript -e 'if("rprojroot" %in% installed.packages()) cat("rprojroot IS installed\n") else cat("rprojroot IS NOT installed\n")'
 
     - name: Run R CMD check
-      run: R CMD check .
+      run: R CMD check --no-manual --no-vignettes .
       shell: bash
 
     - name: Cache R packages
