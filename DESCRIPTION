@@ -1,8 +1,10 @@
-Package: biologicaldatavalidator
+Package: biological.data.validator
 Title: Biological Data Validator
 Version: 0.1.0
 Authors@R: 
     person("Your", "Name", , "your.email@example.com", role = c("aut", "cre"))
+Author: Your Name [aut, cre]
+Maintainer: Your Name <your.email@example.com>
 Description: Validates biological data files for consistency and correctness.
 License: MIT + file LICENSE
 Encoding: UTF-8
