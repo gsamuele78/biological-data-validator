@@ -245,10 +245,10 @@ validator <- Validator$new(path_generator)
 # test_that("Validator applies all rules correctly (generated data)", { ... })
 
 # --- Add CSV-based tests ---
-library(testthat)
-library(R6)
-source("../../R/validation_classes.R")
-source("../../R/csv_mapping.R")
+#library(testthat)
+#library(R6)
+#source("../../R/validation_classes.R")
+#source("../../R/csv_mapping.R")
 
 context("Validation Classes - CSV")
 
@@ -429,10 +429,10 @@ on.exit({
   }
 })
 
-library(testthat)
-library(R6)
-source("../../R/validation_classes.R")
-source("../../R/csv_mapping.R")
+#library(testthat)
+#library(R6)
+#source("../../R/validation_classes.R")
+#source("../../R/csv_mapping.R")
 
 context("CSV Validation Rules")
 
