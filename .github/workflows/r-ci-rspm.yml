@@ -108,10 +108,21 @@ jobs:
       shell: bash
 
     - name: Run tests (testthat - already done by R CMD check but kept for specific test runs if needed)
+#      run: |
+#        set -e
+#        R -e 'testthat::test_dir("tests/testthat", reporter = "progress")'
       run: |
         set -e
-        R -e 'testthat::test_dir("tests/testthat", reporter = "progress")'
+        R -e '
+          library(testthat)
+          library(here)
+          setwd(here::here())
+          test_dir("tests/testthat", reporter = "progress")
+        '
       shell: bash
+      env:
+        R_LIBS_USER: ${{ github.workspace }}/R/library
+    
 
     - name: Style code
       run: |

@@ -66,15 +66,38 @@ jobs:
         R -e 'bspm::disable(); install.packages("remotes", repos = "https://cran.r-project.org", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
 
-    - name: Install additional dependencies
-      run: |
-        Rscript -e 'install.packages(c("here", "logger", "rmarkdown", "DBI", "RSQLite", "lubridate"))'
-
     - name: Create required directories and files
       run: |
-        mkdir -p R inst/extdata
+        mkdir -p R/
+        mkdir -p tests/testthat
+        mkdir -p inst/extdata
+        
+        # Create necessary R source files
+        touch R/csv_mapping.R
+        touch R/data_classes.R
+        touch R/db_interaction.R
+        touch R/validation_classes.R
+        touch R/utils.R
+        
+        # Create test data files
         touch inst/extdata/sample_data_valid.xlsx
         touch inst/extdata/sample_data_no_valid.xlsx
+        touch inst/extdata/test.csv
+
+    - name: Install additional dependencies
+      run: |
+        Rscript -e 'install.packages(c(
+          "here",
+          "logger",
+          "rmarkdown",
+          "DBI",
+          "RSQLite",
+          "lubridate",
+          "R6",
+          "readr",
+          "testthat",
+          "rprojroot"
+        ))'
 
     - name: Install R package dependencies # Using r-lib action to install dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
@@ -119,8 +142,15 @@ jobs:
     - name: Run tests # keep run tests step
       run: |
         set -e
-        R -e 'testthat::test_dir("tests/testthat", reporter = "progress")'
+        R -e '
+          library(testthat)
+          library(here)
+          setwd(here::here())
+          test_dir("tests/testthat", reporter = "progress")
+        '
       shell: bash
+      env:
+        R_LIBS_USER: ${{ github.workspace }}/.Rlibs
 
     - name: Style code # keep style code step
       if: false
