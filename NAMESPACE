@@ -17,4 +17,4 @@ import(shiny)
 import(shinyFiles)
 import(styler)
 import(testthat)
-import(logger) # Add import for logger as well
+import(logger)
