@@ -428,7 +428,7 @@ on.exit({
 
 library(testthat)
 library(R6)
-source("../../R/validation_classes_csv_excel.R")
+source("../../R/validation_classes.R")
 source("../../R/csv_mapping.R")
 
 context("CSV Validation Rules")
