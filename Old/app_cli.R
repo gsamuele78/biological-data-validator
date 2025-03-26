@@ -1,4 +1,6 @@
+# Removed first row for error wirh linting
 # app_cli.R (Main CLI Script)
+
 
 # Install and load necessary packages using renv
 if (!require("renv")) install.packages("renv")
@@ -7,21 +9,23 @@ renv::restore()
 library(optparse)
 library(logger)
 
-# Source R functions and classes - Update imports
+# Source R functions and classes
 source("R/data_classes.R")
 source("R/validation_classes.R")
 source("R/report_class.R")
-source("R/path_generation.R")
+source("R/path_generation_class.R")
 source("R/email_class.R")
 source("R/db_interaction_class.R")
-source("R/utils.R")
-source("R/csv_mapping.R")
+source("R/utils.R")  # For logging and other utilities
 
 # --- Command Line Options ---
 
 option_list <- list(
   make_option(c("-f", "--file"), type = "character", default = NULL,
-              help = "Path to the main CSV data file", metavar = "character"),
+              help = "Path to the data file (Excel or CSV)", metavar = "character"),
+  make_option(c("--file_type"), type = "character", default = NULL,
+              help = "Type of data file ('excel' or 'csv'). If not specified, it will be auto-detected.", 
+              metavar = "character"),
   make_option(c("-i", "--images"), type = "character", default = NULL,
               help = "Comma-separated paths to image files (optional)", metavar = "character"),
   make_option(c("-b", "--base_path"), type = "character", default = getwd(),
@@ -55,7 +59,7 @@ opt <- parse_args(opt_parser)
 
 main <- function(opt) {
   # Start logging
-  setup_logging() # Function defined in R/utils_csv_excel.R
+  setup_logging() # Function defined in R/utils.R
 
   # Initialize DatabaseHandler
   db_handler <- DatabaseHandler$new(opt$database)
@@ -107,7 +111,7 @@ main <- function(opt) {
 
   } else if (!is.null(opt$file)) {
     # --- Validate Data ---
-    log_info("Starting CSV data validation...")
+    log_info("Starting data validation...")
     log_info("Loading data from: {opt$file}")
 
     # Initialize PathGenerator with the base path
@@ -116,26 +120,31 @@ main <- function(opt) {
     # Initialize Validator with the PathGenerator instance
     validator <- Validator$new(path_generator)
 
-    # Load CSV data
-    data_source <- DataSource$new(opt$file)
+    # Load data using DataSource class (supports both Excel and CSV)
+    data_source <- DataSource$new(opt$file, opt$file_type)
     
     # Validate data
     errors <- validator$validate(data_source)
 
-    # Generate paths for CSV files
+    # Generate report path
     sample_row <- data_source$sheet1_data[[1]]
-    data_paths <- path_generator$generate_csv_paths(sample_row)
-    report_path <- file.path(dirname(data_paths$main_path), "report-validation.html")
+    data_path <- path_generator$generate(
+      sample_row$Plot.code,
+      sample_row$Sample.date,
+      sample_row$Detector,
+      sample_row$Region
+    )
+    report_path <- file.path(data_path, "report-validation.html")
 
     # Generate report using the Report class
-    report <- Report$new(data_source, errors)
-    report$generate(dirname(data_paths$main_path), project_root)
+    report <- Report$new(opt$file, errors, data_source$sheet1_data, data_source$sheet2_data)
+    report$generate(data_path, project_root)
         
     if (nrow(errors) > 0) {
-      log_error("CSV validation failed with {nrow(errors)} errors.")
+      log_error("Data validation failed with {nrow(errors)} errors.")
       print(errors)  # Print errors to console
     } else {
-      log_info("CSV validation successful.")
+      log_info("Data validation successful.")
         
       # Add data to database
       plot_data_id <- db_handler$add_plot_data(
@@ -155,9 +164,6 @@ main <- function(opt) {
           db_handler$add_image_data(plot_data_id, image_path)
         }
       }
-
-      # Export CSV data to destination
-      data_source$export_data(data_paths$main_path)
     }
 
     # Send email (if provided)

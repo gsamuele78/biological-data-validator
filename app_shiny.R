@@ -6,23 +6,28 @@ renv::restore()
 
 library(shiny)
 library(DT)
+library(tools) # For file_ext function
 
 # Source R functions and classes
 source("R/data_classes.R")
 source("R/validation_classes.R")
 source("R/report_class.R")
-source("R/path_generation_class.R")
+source("R/path_generation.R")
 source("R/email_class.R")
 source("R/db_interaction_class.R")
 source("R/utils.R")
+source("R/csv_mapping.R")
 
 # UI
 ui <- fluidPage(
   titlePanel("Biological Environment Data Validation"),
   sidebarLayout(
     sidebarPanel(
-      fileInput("excel_file", "Choose Excel File", accept = c(".xlsx", ".xls")),
-      fileInput("image_files", "Choose Image Files (Max 4)", multiple = TRUE, accept = c("image/jpeg", "image/png")),
+      fileInput("data_file", "Choose CSV Data File", 
+                accept = c(".csv")),
+      fileInput("image_files", "Choose Image Files (Max 4)", 
+                multiple = TRUE, 
+                accept = c("image/jpeg", "image/png")),
       textInput("base_path", "Customizable Path", value = "/default/path"),
       actionButton("validate_button", "Validate Data"),
       downloadButton("download_report", "Download Report"),
@@ -75,7 +80,7 @@ ui <- fluidPage(
 
 # Server
 server <- function(input, output, session) {
-  # Initialize DatabaseHandler
+  # Initialize DatabaseHandler 
   db_handler <- DatabaseHandler$new()
     
   # Initialize PathGenerator with the default base path
@@ -88,22 +93,38 @@ server <- function(input, output, session) {
   email_sender <- EmailSender$new()
     
   # Reactive values to store data and errors
-  data <- reactiveValues(excel_data = NULL, errors = NULL)
+  data <- reactiveValues(data_source = NULL, errors = NULL)
     
-  # Load Excel data when a file is selected
-  observeEvent(input$excel_file, {
-    req(input$excel_file)
-    data$excel_data <- ExcelData$new(input$excel_file$datapath)
-    # Since we don't have separate sheet1 and sheet2 reactive values, 
-    # you can directly use data$excel_data$sheet1_data and data$excel_data$sheet2_data
+  # Load data when a file is selected
+  observeEvent(input$data_file, {
+    req(input$data_file)
+        
+    # Create DataSource object
+    tryCatch({
+      data$data_source <- DataSource$new(input$data_file$datapath)
+      showNotification("Loaded CSV file successfully.", type = "message")
+    }, error = function(e) {
+      showNotification(paste("Error loading CSV file:", e$message), type = "error")
+    })
   })
     
   # Validate data when the button is clicked
   observeEvent(input$validate_button, {
-    req(data$excel_data)
+    req(data$data_source)
+        
+    # Extract sheet1 and sheet2 data from the DataSource object
+    sheet1_data <- data$data_source$sheet1_data
+    sheet2_data <- data$data_source$sheet2_data
+        
+    # Create temporary data object with the format expected by the validator
+    validation_data <- list(
+      sheet1_data = sheet1_data,
+      sheet2_data = sheet2_data
+    )
+    class(validation_data) <- "DataForValidation" # Assuming the validator checks for this class
         
     # Perform validation
-    data$errors <- validator$validate(data$excel_data)
+    data$errors <- validator$validate(validation_data)
         
     # Display validation results
     output$validation_output <- renderPrint({
@@ -116,38 +137,32 @@ server <- function(input, output, session) {
         
     # Generate paths for saving data and report
     if (nrow(data$errors) == 0) {
-      # Assuming validation is successful, generate paths
-      sample_row <- data$excel_data$sheet1_data[[1]] # Example: Use the first row for path generation
-      data_path <- path_generator$generate(
-        sample_row$Plot.code,
-        sample_row$Sample.date,
-        sample_row$Detector,
-        sample_row$Region
-      )
-      report_path <- file.path(data_path, "report-validation.html")
+      # Use the first row for path generation
+      sample_row <- sheet1_data[[1]] 
+      data_paths <- path_generator$generate_csv_paths(sample_row)
+      report_path <- file.path(dirname(data_paths$main_path), "report-validation.html")
             
-      # Save data, images, and generate report (replace with your actual logic)
+      # Create directory if it doesn't exist
+      if (!dir.exists(dirname(data_paths$main_path))) {
+        dir.create(dirname(data_paths$main_path), recursive = TRUE)
+      }
             
-      # Save the Excel file
-      file.copy(input$excel_file$datapath, file.path(data_path, input$excel_file$name))
+      # Save the original data file
+      data$data_source$export_data(data_paths$main_path)
             
       # Handle image uploads
       if (!is.null(input$image_files)) {
-        handle_image_uploads(input$image_files, data_path)
+        handle_image_uploads(input$image_files, dirname(data_paths$main_path))
       }
             
       # Generate report using the Report class
-      report <- Report$new(input$excel_file$datapath, data$errors, data$excel_data$sheet1_data, data$excel_data$sheet2_data) # nolint: line_length_linter.
-      
+      report <- Report$new(input$data_file$datapath, data$errors, sheet1_data, sheet2_data)
       project_root <- rprojroot::find_root(rprojroot::has_file(".Rprofile"))
-      report$generate(data_path, project_root)
-            
-      # Send email (optional)
-      email_sender$send(report_path)
+      report$generate(dirname(data_paths$main_path), project_root)
             
       # Add data to database
       plot_data_id <- db_handler$add_plot_data(
-        input$excel_file$datapath, 
+        input$data_file$datapath, 
         sample_row$Plot.code, 
         as.character(sample_row$Sample.date), 
         sample_row$Detector, 
@@ -159,13 +174,18 @@ server <- function(input, output, session) {
       # If images were uploaded, add them to the database as well
       if (!is.null(input$image_files)) {
         for (i in seq_len(nrow(input$image_files))) {
-          db_handler$add_image_data(plot_data_id, file.path(data_path, input$image_files$name[i]))
+          db_handler$add_image_data(plot_data_id, file.path(dirname(data_paths$main_path), input$image_files$name[i]))
         }
       }
             
       # Update plot history table
       output$plot_history_table <- renderTable({
         db_handler$get_plot_history()
+      })
+            
+      # Provide a link to the generated report
+      output$report_link <- renderUI({
+        tags$a(href = report_path, "View Generated Report", target = "_blank")
       })
     }
   })
@@ -175,18 +195,16 @@ server <- function(input, output, session) {
     filename = "report-validation.html",
     content = function(file) {
       # Determine the correct report path
-      # This could be stored in a reactive variable or determined from data$excel_data
-      # For example, using the first row of sheet1 data for path generation
-      sample_row <- data$excel_data$sheet1_data[[1]]
-      data_path <- path_generator$generate(
-        sample_row$Plot.code,
-        sample_row$Sample.date,
-        sample_row$Detector,
-        sample_row$Region
-      )
-      report_path <- file.path(data_path, "report-validation.html")
+      req(data$data_source)
+      sample_row <- data$data_source$sheet1_data[[1]]
+      data_paths <- path_generator$generate_csv_paths(sample_row)
+      report_path <- file.path(dirname(data_paths$main_path), "report-validation.html")
             
-      file.copy(report_path, file)
+      if (file.exists(report_path)) {
+        file.copy(report_path, file)
+      } else {
+        showNotification("Report file not found.", type = "error")
+      }
     }
   )
     
@@ -297,61 +315,121 @@ server <- function(input, output, session) {
     DT::datatable(db_handler$get_plot_history(), options = list(pageLength = 10, scrollX = TRUE))
   })
     
+  # Helper function to handle image uploads
+  handle_image_uploads <- function(image_files, destination_path) {
+    if (!dir.exists(destination_path)) {
+      dir.create(destination_path, recursive = TRUE)
+    }
+        
+    for (i in seq_len(nrow(image_files))) {
+      file.copy(
+        image_files$datapath[i],
+        file.path(destination_path, image_files$name[i]),
+        overwrite = TRUE
+      )
+    }
+  }
+    
   # Use Case Examples
   output$use_case_examples <- renderPrint({
     # Example with valid data
     valid_sheet1_data <- list(
-      Sheet1Data$new(list(Plot.code = "Plot1", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")), # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot1", SU = 2, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot1", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")), # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot1", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4")) # nolint: line_length_linter.
+      Sheet1Data$new(list(Plot.code = "Plot1", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")), # nolint
+      Sheet1Data$new(list(Plot.code = "Plot1", SU = 2, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # nolint
+      Sheet1Data$new(list(Plot.code = "Plot1", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")), # nolint
+      Sheet1Data$new(list(Plot.code = "Plot1", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4")) # nolint
     )
         
     valid_sheet2_data <- list(
-      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")), # nolint: line_length_linter.
-      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")), # nolint: line_length_linter.
-      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")), # nolint: line_length_linter.
-      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 4, Species = "Species D", species_abb = "Sp. D", cover = 80, Layer = "Moss", Notes = "Note D")) # nolint: line_length_linter.
+      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")), # nolint
+      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")), # nolint
+      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")), # nolint
+      Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 4, Species = "Species D", species_abb = "Sp. D", cover = 80, Layer = "Moss", Notes = "Note D")) # nolint
     )
         
-    valid_excel_data <- ExcelData$new("dummy_path")  # Provide a dummy path
-    valid_excel_data$sheet1_data <- valid_sheet1_data
-    valid_excel_data$sheet2_data <- valid_sheet2_data
+    # Create a valid DataSource-compatible object
+    #Use Case Examples (continued)
+    output$use_case_examples <- renderPrint({
+      # Example with valid data
+      valid_sheet1_data <- list(
+        Sheet1Data$new(list(Plot.code = "Plot1", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")), # nolint
+        Sheet1Data$new(list(Plot.code = "Plot1", SU = 2, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # nolint
+        Sheet1Data$new(list(Plot.code = "Plot1", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")), # nolint: line_length_linter.
+        Sheet1Data$new(list(Plot.code = "Plot1", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4")) # nolint: line_length_linter.
+      )
         
-    # Example with invalid data
-    invalid_sheet1_data <- list(
-      Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")), # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # Duplicate SU # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot2", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")), # nolint: line_length_linter.
-      Sheet1Data$new(list(Plot.code = "Plot2", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4")) # nolint: line_length_linter.
-    )
+      valid_sheet2_data <- list(
+        Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")), # nolint: line_length_linter.
+        Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")), # nolint: line_length_linter.
+        Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")), # nolint: line_length_linter.
+        Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 4, Species = "Species D", species_abb = "Sp. D", cover = 80, Layer = "Moss", Notes = "Note D")) # nolint: line_length_linter.
+      )
         
-    invalid_sheet2_data <- list(
-      Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")), # nolint: line_length_linter.
-      Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")), # nolint: line_length_linter.
-      Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")) # nolint: line_length_linter.
-      # Missing Subplot 4
-    )
+      # Create a mock DataSource object
+      valid_data_source <- list(
+        sheet1_data = valid_sheet1_data,
+        sheet2_data = valid_sheet2_data
+      )
+      class(valid_data_source) <- "DataForValidation"
         
-    invalid_excel_data <- ExcelData$new("dummy_path")  # Provide a dummy path
-    invalid_excel_data$sheet1_data <- invalid_sheet1_data
-    invalid_excel_data$sheet2_data <- invalid_sheet2_data
+      # Example with invalid data
+      invalid_sheet1_data <- list(
+        Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 1")), # nolint: line_length_linter.
+        Sheet1Data$new(list(Plot.code = "Plot2", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 2")), # Duplicate SU # nolint: line_length_linter.
+        Sheet1Data$new(list(Plot.code = "Plot2", SU = 3, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 3")), # nolint: line_length_linter.
+        Sheet1Data$new(list(Plot.code = "Plot2", SU = 4, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", notes = "Note 4")) # nolint: line_length_linter.
+      )
         
-    # Initialize PathGenerator with a default base path for the examples
-    example_path_generator <- PathGenerator$new("/example/path")
+      invalid_sheet2_data <- list(
+        Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")), # nolint: line_length_linter.
+        Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 2, Species = "Species B", species_abb = "Sp. B", cover = 60, Layer = "Herb", Notes = "Note B")), # nolint: line_length_linter.
+        Sheet2Data$new(list(Plot.code = "Plot2", Subplot = 3, Species = "Species C", species_abb = "Sp. C", cover = 70, Layer = "Shrub", Notes = "Note C")) # nolint: line_length_linter.
+        # Missing Subplot 4
+      )
         
-    # Initialize Validator with the PathGenerator
-    example_validator <- Validator$new(example_path_generator)
+      # Create a mock DataSource object for invalid data
+      invalid_data_source <- list(
+        sheet1_data = invalid_sheet1_data,
+        sheet2_data = invalid_sheet2_data
+      )
+      class(invalid_data_source) <- "DataForValidation"
         
-    # Perform validation and print results
-    cat("Use Case Example 1: Valid Data\n")
-    cat("Validation Errors:\n")
-    print(example_validator$validate(valid_excel_data))
+      # Initialize PathGenerator with a default base path for the examples
+      example_path_generator <- PathGenerator$new("/example/path")
         
-    cat("\n\nUse Case Example 2: Invalid Data\n")
-    cat("Validation Errors:\n")
-    print(example_validator$validate(invalid_excel_data))
+      # Initialize Validator with the PathGenerator
+      example_validator <- Validator$new(example_path_generator)
+        
+      # Perform validation and print results
+      cat("Use Case Example 1: Valid Data\n")
+      cat("Validation Errors:\n")
+      print(example_validator$validate(valid_data_source))
+        
+      cat("\n\nUse Case Example 2: Invalid Data\n")
+      cat("Validation Errors:\n")
+      print(example_validator$validate(invalid_data_source))
+        
+      # Example of how to use the DataSource class
+      cat("\n\nExample of DataSource Class Usage:\n")
+      cat("1. Loading an Excel file:\n")
+      cat("   data_source <- DataSource$new('path/to/file.xlsx')\n")
+      cat("   # Access data:\n")
+      cat("   sheet1_data <- data_source$sheet1_data\n")
+      cat("   sheet2_data <- data_source$sheet2_data\n\n")
+        
+      cat("2. Loading a CSV file:\n")
+      cat("   data_source <- DataSource$new('path/to/file.csv')\n")
+      cat("   # For CSV, it will automatically look for a second file named 'path/to/file_species.csv'\n\n")
+        
+      cat("3. Exporting data:\n")
+      cat("   # To Excel:\n")
+      cat("   data_source$export_to_excel('path/to/output.xlsx')\n\n")
+      cat("   # To CSV:\n")
+      cat("   data_source$export_to_csv('path/to/output.csv')\n")
+      cat("   # This will create two files: output.csv and output_species.csv\n")
+    })
   })
 }
 
+# Run the Shiny app
 shinyApp(ui, server)
