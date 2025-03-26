@@ -12,10 +12,11 @@ library(tools) # For file_ext function
 source("R/data_classes.R")
 source("R/validation_classes.R")
 source("R/report_class.R")
-source("R/path_generation_class.R")
+source("R/path_generation.R")
 source("R/email_class.R")
 source("R/db_interaction_class.R")
 source("R/utils.R")
+source("R/csv_mapping.R")
 
 # UI
 ui <- fluidPage(

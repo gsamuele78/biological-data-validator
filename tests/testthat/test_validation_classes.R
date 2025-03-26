@@ -512,3 +512,56 @@ on.exit({
     })
   }
 })
+
+library(testthat)
+library(R6)
+source("../../R/validation_classes_csv_excel.R")
+source("../../R/csv_mapping.R")
+
+context("CSV Validation Rules")
+
+# Helper function to create test CSV files
+create_test_csvs <- function(main_data, species_data) {
+  temp_dir <- tempdir()
+  main_file <- file.path(temp_dir, "test.csv")
+  species_file <- file.path(temp_dir, "test_species.csv")
+  
+  write.csv(main_data, main_file, row.names = FALSE)
+  write.csv(species_data, species_file, row.names = FALSE)
+  
+  return(main_file)
+}
+
+test_that("DataTypeValidationRule works with CSV data", {
+  # Create test data with CSV field names
+  main_data <- data.frame(
+    plot_code = "Test1",
+    su = 1:4,
+    sample_date = rep("2023-01-15", 4),
+    detector = "Det1",
+    longitude = rep(12.123456789012345, 4),
+    latitude = rep(45.123456789012345, 4),
+    region = "North"
+  )
+  
+  species_data <- data.frame(
+    plot_code = "Test1",
+    subplot = 1:4,
+    species_name = paste("Species", 1:4),
+    species_code = paste0("SP", 1:4),
+    species_cover = seq(50, 80, 10),
+    vegetation_layer = c("Tree", "Shrub", "Herb", "Moss"),
+    species_notes = paste("Note", 1:4)
+  )
+  
+  csv_file <- create_test_csvs(main_data, species_data)
+  data_source <- DataSource$new(csv_file)
+  
+  rule <- DataTypeValidationRule$new()
+  errors <- rule$check(data_source)
+  
+  expect_equal(nrow(errors), 0)
+  unlink(c(csv_file, sub("\\.csv$", "_species.csv", csv_file)))
+})
+
+# ...Add similar tests for other validation rules...

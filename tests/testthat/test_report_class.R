@@ -1,43 +1,110 @@
-# tests/testthat/test_report_class.R
 library(testthat)
 library(rprojroot)
+library(readr)
 source("../../R/report_class.R")
+source("../../R/csv_mapping.R")
 source("../../R/data_classes.R")
 
-context("Report Generation")
+context("CSV Report Generation")
 
-
-test_that("Report generates an HTML file", {
-  # Create dummy data for the report
-  dummy_errors <- data.frame(
-    Sheet = c("Sheet1", "Sheet2"),
-    Row = c(1, 2),
-    Column = c("Plot.code", "Species"),
-    Message = c("Invalid plot code", "Invalid species name"),
-    Level = c("Error", "Warning")
+# Helper function to create test CSV files
+create_test_csv_files <- function() {
+  temp_dir <- tempdir()
+  main_file <- file.path(temp_dir, "test.csv")
+  species_file <- file.path(temp_dir, "test_species.csv")
+  
+  # Create test data with CSV field names
+  main_data <- data.frame(
+    plot_code = "Test1",
+    su = 1,
+    sample_date = "2023-01-15",
+    detector = "Det1",
+    longitude = 12.123456789012345,
+    latitude = 45.123456789012345,
+    region = "North",
+    elevation_m = 100,
+    stringsAsFactors = FALSE
   )
-  dummy_sheet1_data <- list(Sheet1Data$new(list(Plot.code = "Plot1", SU = 1, Sample.date = Sys.Date(), Detector = "DetectorA", Region = "RegionX", X = 1, Y = 1, Elevation = 1, Aspect = 1, Slope = 1, Cop.tot = 1, Litter.cov = 1, Bare.soil.cov = 1, Tree.cov = 1, Tree.h = 1, Shrub.cov = 1, Shrub.h = 1, Herb.cov = 1, Herb.h = 1, Brioph.cov = 1, notes = "Note 1")))
-  dummy_sheet2_data <- list(Sheet2Data$new(list(Plot.code = "Plot1", Subplot = 1, Species = "Species A", species_abb = "Sp. A", cover = 50, Layer = "Tree", Notes = "Note A")))
+  
+  species_data <- data.frame(
+    plot_code = "Test1",
+    subplot = 1,
+    species_name = "Species1",
+    species_code = "SP1",
+    species_cover = 80,
+    vegetation_layer = "Herb",
+    species_notes = "Test",
+    stringsAsFactors = FALSE
+  )
+  
+  write.csv(main_data, main_file, row.names = FALSE)
+  write.csv(species_data, species_file, row.names = FALSE)
+  
+  list(
+    main_path = main_file,
+    species_path = species_file
+  )
+}
 
-  # Find project root
+test_that("Report generates from CSV data", {
+  # Create test files
+  csv_files <- create_test_csv_files()
+  
+  # Create test data source
+  data_source <- DataSource$new(csv_files$main_path)
+  
+  # Create test errors
+  errors <- data.frame(
+    Sheet = c("Main", "Species"),
+    Row = c(1, 1),
+    Column = c("plot_code", "species_name"),
+    Message = c("Test error 1", "Test error 2"),
+    Level = c("Error", "Warning"),
+    stringsAsFactors = FALSE
+  )
+  
+  # Create and test report
+  report <- Report$new(data_source, errors)
+  
+  # Create temp directory for report output
+  report_dir <- file.path(tempdir(), "report_test")
+  dir.create(report_dir, showWarnings = FALSE)
+  
+  # Generate report
   project_root <- find_root(has_file(".Rprofile"))
+  result <- report$generate(report_dir, project_root)
+  
+  # Verify report generation
+  expect_true(result)
+  expect_true(file.exists(file.path(report_dir, "report-validation.html")))
+  
+  # Test error export
+  error_file <- file.path(report_dir, "validation_errors.csv")
+  expect_true(report$export_errors_to_csv(error_file))
+  expect_true(file.exists(error_file))
+  
+  # Clean up
+  unlink(c(csv_files$main_path, csv_files$species_path, report_dir), recursive = TRUE)
+})
 
-  # Create a Report object
-  report <- Report$new(
-    filepath = "dummy_path",
-    errors = dummy_errors,
-    sheet1 = dummy_sheet1_data,
-    sheet2 = dummy_sheet2_data
-  )
-
-  # Generate the report in a temporary directory
-  temp_report_dir <- file.path(tempdir(), "report_test")
-  dir.create(temp_report_dir, showWarnings = FALSE)
-
-  # Pass project_root to generate()
-  report$generate(temp_report_dir, project_root)
-
-  # Check if the report file exists
-  report_file <- file.path(temp_report_dir, "report-validation.html")
-  expect_true(file.exists(report_file))
+test_that("Report handles missing data gracefully", {
+  # Create test files with minimal data
+  csv_files <- create_test_csv_files()
+  data_source <- DataSource$new(csv_files$main_path)
+  
+  # Create report with no errors
+  report <- Report$new(data_source, data.frame())
+  
+  # Test report generation
+  report_dir <- file.path(tempdir(), "empty_report_test")
+  dir.create(report_dir, showWarnings = FALSE)
+  
+  project_root <- find_root(has_file(".Rprofile"))
+  result <- report$generate(report_dir, project_root)
+  
+  expect_true(result)
+  expect_true(file.exists(file.path(report_dir, "report-validation.html")))
+  
+  # Clean up
+  unlink(c(csv_files$main_path, csv_files$species_path, report_dir), recursive = TRUE)
 })

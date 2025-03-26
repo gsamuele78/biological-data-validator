@@ -1,11 +1,6 @@
 # R/utils.R
 
-# Utility functions for logging and other common tasks
-
-# Import necessary libraries (if not already imported)
-library(logger)
-library(readxl)
-
+# Utility functions for logging and data loading
 
 #' @description
 #' Set up logging for the application
@@ -52,6 +47,32 @@ log_info <- function(msg) {
 }
 
 #' @description
+#' Log a success message
+#' @param msg The message to log
+log_success <- function(msg) {
+  # Check if logger package is installed
+  if (!requireNamespace("logger", quietly = TRUE)) {
+    stop("The 'logger' package is required for logging. Please install it.")
+  }
+  
+  # Log the message
+  logger::log_success(msg)
+}
+
+#' @description
+#' Log an error message
+#' @param msg The message to log
+log_error <- function(msg) {
+  # Check if logger package is installed
+  if (!requireNamespace("logger", quietly = TRUE)) {
+    stop("The 'logger' package is required for logging. Please install it.")
+  }
+  
+  # Log the message
+  logger::log_error(msg)
+}
+
+#' @description
 #' Handle image uploads and saving (used in Shiny app)
 #' @param image_files List of uploaded image files
 #' @param base_path Base path for saving images
@@ -63,102 +84,118 @@ handle_image_uploads <- function(image_files, base_path) {
   }
 }
 
+# Import necessary libraries
+library(logger)
+library(readr)
+library(tools)
 
-
-#' Load data from a CSV file.
+#' Load data from CSV files.
 #'
-#' This function loads data from a CSV file into a data frame. It handles potential errors
-#' during file reading and logs the outcome using the logger package.
+#' This function loads data from a CSV file pair (main and species) into data frames.
 #'
-#' @param file_path The path to the CSV file.
-#' @param description A brief description of the data being loaded. Used for logging.
-#' @return A data frame containing the data from the CSV file, or NULL if an error occurred.
-#' @examples
-#' \dontrun{
-#'   data <- load_csv_data("path/to/your/data.csv", "Customer data")
-#'   if (!is.null(data)) {
-#'     print(head(data))
-#'   }
-#' }
+#' @param file_path The path to the main CSV file.
+#' @param description A brief description of the data being loaded.
+#' @return A list containing two data frames (main and species), or NULL if error.
 load_csv_data <- function(file_path, description = "CSV data") {
-  logger::log_info(paste("Loading", description, "from CSV file:", file_path))
-  tryCatch({
-    data <- read.csv(file_path)
-    logger::log_success(paste("Successfully loaded", description, "from CSV file:", file_path))
-    return(data)
-  }, error = function(e) {
-    logger::log_error(paste("Failed to load", description, "from CSV file:", file_path, "Error:", e$message))
-    return(NULL)
-  })
-}
-
-
-#' Load data from an Excel file (xlsx or xls).
-#'
-#' This function loads data from an Excel file (either .xlsx or .xls) into a data frame.
-#' It uses the `readxl` package and handles potential errors during file reading.
-#' The outcome is logged using the `logger` package.
-#'
-#' @param file_path The path to the Excel file.
-#' @param description A brief description of the data being loaded. Used for logging.
-#' @return A data frame containing the data from the Excel file, or NULL if an error occurred.
-#' @examples
-#' \dontrun{
-#'   excel_data <- load_excel_data("path/to/your/data.xlsx", "Product catalog")
-#'   print(head(excel_data))
-#' }
-load_excel_data <- function(file_path, description = "Excel data") {
-  logger::log_info(paste("Loading", description, "from Excel file:", file_path))
-
-  # Check if file exists
+  logger::log_info(sprintf("Loading %s from: %s", description, file_path))
+  
+  # Check if main file exists
   if (!file.exists(file_path)) {
-    logger::log_error(paste("File does not exist:", file_path))
+    logger::log_error(sprintf("Main CSV file not found: %s", file_path))
     return(NULL)
   }
-
-  # Check if file has a valid extension
-  if (!grepl("\\.(xlsx|xls)$", file_path)) {
-    logger::log_error(paste("Invalid file extension for:", file_path))
+  
+  # Get species file path
+  species_path <- paste0(tools::file_path_sans_ext(file_path), "_species.csv")
+  if (!file.exists(species_path)) {
+    logger::log_error(sprintf("Species CSV file not found: %s", species_path))
     return(NULL)
   }
-
-  # Load Excel data using readxl package
-  tryCatch(
-    expr = {
-      data <- readxl::read_excel(file_path) # Qualify with readxl:: to avoid potential conflicts
-      logger::log_success(paste("Successfully loaded", description, "from Excel file:", file_path))
-      return(data)
-    },
-    error = function(e) {
-      logger::log_error(paste("Failed to load", description, "from Excel file:", file_path, "\nError:", e$message))
-      return(NULL) # Stop execution on error
-    }
-  )
-}
-
-
-#' Load a list of valid values from a text file.
-#'
-#' This function reads a text file, where each line represents a valid value,
-#' and returns a vector of these values. The function handles potential errors
-#' during file reading and logs the outcome using the logger package.
-#'
-#' @param file_path The path to the text file containing valid values.
-#' @param description A brief description of the data being loaded. Used for logging.
-#' @return A character vector containing the valid values, or NULL if an error occurred.
-#' @examples
-#' \dontrun{
-#'   valid_values <- load_valid_values("path/to/valid_values.txt", "Valid species names")
-#'   print(head(valid_values))
-#' }
-load_valid_values <- function(file_path, description = "Valid values") {
-  logger::log_info(paste("Loading", description, "from text file:", file_path))
+  
   tryCatch({
-    valid_values <- readLines(file_path)
-    logger::log_success(paste("Successfully loaded", description, "from text file:", file_path))
-    return(valid_values)
+    # Load both CSV files
+    main_data <- readr::read_csv(file_path, col_types = readr::cols())
+    species_data <- readr::read_csv(species_path, col_types = readr::cols())
+    
+    # Load field mappings
+    source("R/csv_mapping.R")
+    
+    # Map CSV field names to internal names
+    for (internal_name in names(SHEET1_CSV_MAPPING)) {
+      csv_name <- SHEET1_CSV_MAPPING[[internal_name]]
+      if (csv_name %in% names(main_data)) {
+        names(main_data)[names(main_data) == csv_name] <- internal_name
+      }
+    }
+    
+    for (internal_name in names(SHEET2_CSV_MAPPING)) {
+      csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
+      if (csv_name %in% names(species_data)) {
+        names(species_data)[names(species_data) == csv_name] <- internal_name
+      }
+    }
+    
+    logger::log_success(sprintf("Successfully loaded %s", description))
+    return(list(
+      main_data = as.data.frame(main_data),
+      species_data = as.data.frame(species_data)
+    ))
   }, error = function(e) {
-    logger::log_error(paste("Failed to load", description, "from text file:", file_path, "Error:", e$message))
+    logger::log_error(sprintf("Failed to load %s: %s", description, e$message))
     return(NULL)
   })
+}
+
+#' Create a DataSource object from CSV files.
+#'
+#' This function creates a DataSource object from a pair of CSV files.
+#'
+#' @param file_path The path to the main CSV file.
+#' @return A DataSource object, or NULL if an error occurred.
+create_data_source <- function(file_path) {
+  logger::log_info(sprintf("Creating DataSource from: %s", file_path))
+  
+  tryCatch({
+    data_source <- DataSource$new(file_path, "csv")
+    logger::log_success("Successfully created DataSource")
+    return(data_source)
+  }, error = function(e) {
+    logger::log_error(sprintf("Failed to create DataSource: %s", e$message))
+    return(NULL)
+  })
+}
+
+# Remove Excel-specific functions
+load_excel_data <- NULL
+
+#' Validate CSV data files and generate a report.
+#'
+#' This function validates CSV data files using the Validator class.
+#'
+#' @param file_path The path to the main CSV file.
+#' @param output_path Optional path to save the validation report.
+#' @param validator A Validator object. If NULL, a new one will be created.
+#' @return A data frame containing the validation results.
+validate_csv_files <- function(file_path, output_path = NULL, validator = NULL) {
+  logger::log_info(sprintf("Validating CSV files: %s", file_path))
+  
+  data_source <- create_data_source(file_path)
+  if (is.null(data_source)) {
+    return(NULL)
+  }
+  
+  if (is.null(validator)) {
+    validator <- Validator$new(NULL)
+  }
+  
+  validation_results <- validator$generate_validation_report(data_source, output_path)
+  
+  num_errors <- nrow(validation_results)
+  if (num_errors > 0) {
+    logger::log_info(sprintf("Found %d validation issues", num_errors))
+  } else {
+    logger::log_success("No validation issues found")
+  }
+  
+  return(validation_results)
 }
