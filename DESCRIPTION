@@ -1,12 +1,14 @@
 Package: biological.data.validator
 Title: Biological Data Validator
 Version: 0.1.0
-Authors@R: 
-    person("Your", "Name", , "your.email@example.com", role = c("aut", "cre"))
-Author: Your Name [aut, cre]
-Maintainer: Your Name <your.email@example.com>
+Authors@R: person("Gianfranco", "Samuele",
+     email = "gianfranco.samuele2@unibo.it",
+     role = c("aut", "cre"),
+     comment = c(ORCID = "YOUR-ORCID-ID"))
+Author: Gianfranco Samuele [aut, cre]
+Maintainer: Gianfranco Samuele <gianfranco.samuele2@unibo.it>
 Description: Validates biological data files for consistency and correctness.
-License: MIT + file LICENSE
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
@@ -25,3 +27,4 @@ Imports:
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+
