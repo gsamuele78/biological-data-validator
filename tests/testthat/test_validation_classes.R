@@ -5,11 +5,14 @@
 
 library(testthat)
 library(openxlsx)
-source("../../R/data_classes.R")
-source("../../R/report_class.R")
-source("../../R/path_generation_class.R")
-source("../../R/validation_classes.R")
-source("../../R/utils.R")
+
+# Fix source paths to use package-relative paths
+source(file.path(here::here(), "R", "data_classes.R"))
+source(file.path(here::here(), "R", "report_class.R"))
+source(file.path(here::here(), "R", "path_generation_class.R"))
+source(file.path(here::here(), "R", "validation_classes.R"))
+source(file.path(here::here(), "R", "utils.R"))
+source(file.path(here::here(), "R", "csv_mapping.R"))
 
 context("Validation Classes")
 

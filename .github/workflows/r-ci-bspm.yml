@@ -66,6 +66,16 @@ jobs:
         R -e 'bspm::disable(); install.packages("remotes", repos = "https://cran.r-project.org", verbose = TRUE)'
       working-directory: ${{ github.workspace }}
 
+    - name: Install additional dependencies
+      run: |
+        Rscript -e 'install.packages(c("here", "logger", "rmarkdown", "DBI", "RSQLite", "lubridate"))'
+
+    - name: Create required directories and files
+      run: |
+        mkdir -p R inst/extdata
+        touch inst/extdata/sample_data_valid.xlsx
+        touch inst/extdata/sample_data_no_valid.xlsx
+
     - name: Install R package dependencies # Using r-lib action to install dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
