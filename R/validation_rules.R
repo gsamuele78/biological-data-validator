@@ -15,8 +15,6 @@ ValidationRule <- R6Class("ValidationRule",
 #' Data type validation rule
 DataTypeValidationRule <- R6Class("DataTypeValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for DataTypeValidationRule...
-#' Data type validation rule
   public = list(
     #' @description
     #' Check the data source for data type errors
@@ -62,14 +60,11 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
       "Warning"  # Data type issues are often warnings
     }
   )
-
-
 )
 
 #' Maximum rows validation rule
 MaxRowsValidationRule <- R6Class("MaxRowsValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for MaxRowsValidationRule...
   public = list(
     #' @description
     #' Check the data source for maximum rows errors
@@ -91,14 +86,11 @@ MaxRowsValidationRule <- R6Class("MaxRowsValidationRule",
       return(errors)
     }
   )
-
 )
 
 #' Unique SU values validation rule
 UniqueSUValidationRule <- R6Class("UniqueSUValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for UniqueSUValidationRule...
-#' Unique SU values validation rule
   public = list(
     #' @description
     #' Check the data source for unique SU errors
@@ -123,12 +115,9 @@ UniqueSUValidationRule <- R6Class("UniqueSUValidationRule",
   )
 )
 
-
 #' Notes validation rule
 NotesValidationRule <- R6Class("NotesValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for NotesValidationRule...
-#' Notes validation rule (checks if notes are present when SU rows are empty in Sheet 2)
   public = list(
     #' @description
     #' Check the data source for missing notes errors
@@ -164,35 +153,47 @@ NotesValidationRule <- R6Class("NotesValidationRule",
       return(errors)
     }
   )
-
 )
 
-#' CSV-specific validation rule
-CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
+#' Common CSV filename patterns
+CSVFilenamePatterns <- list(
+  plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",
+  species_pattern = "^Species_Template_INFI(\\d{4})\\.csv$"
+)
+
+#' CSV filename validation rule
+CSVFilenameValidationRule <- R6Class("CSVFilenameValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for CSVFileStructureValidationRule...
-#' CSV-specific validation rule
   public = list(
-    #' @description
-    #' Check if the CSV files have the correct structure
-    #' @param data_source A DataSource object
     check = function(data_source) {
       errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                           Message = character(), stringsAsFactors = FALSE)
+                          Message = character(), stringsAsFactors = FALSE)
       
-      # Only run this validation for CSV data sources
-      if (data_source$file_type != "csv") {
-        return(errors)
+      main_file <- basename(data_source$filepath)
+      plot_pattern <- CSVFilenamePatterns$plot_pattern
+      species_pattern <- CSVFilenamePatterns$species_pattern
+      
+      # Validate main file format
+      if (!grepl(paste0("^", plot_pattern, "$"), main_file, ignore.case = TRUE)) {
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = paste("Invalid main file name format. Expected: Plot_Template_INFIYYYY.csv, Got:", main_file)
+        ))
       }
       
-      # Check if both files exist
-      base_name <- tools::file_path_sans_ext(data_source$filepath)
-      species_path <- paste0(base_name, "_species.csv")
+      # Extract year from main file
+      year <- gsub(plot_pattern, "\\1", main_file)
       
+      # Derive species file name
+      expected_species_file <- paste0("Species_Template_INFI", year, ".csv")
+      species_path <- file.path(dirname(data_source$filepath), expected_species_file)
+      
+      # Validate species file format
       if (!file.exists(species_path)) {
-        errors <- rbind(errors, data.frame(Source = "FileSystem", Row = NA, 
-                                        Column = NA, 
-                                        Message = paste("Species data file not found:", species_path)))
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = paste("Species file not found or invalid format. Expected:", expected_species_file)
+        ))
       }
       
       return(errors)
@@ -203,24 +204,93 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
 #' CSV-specific validation rule
 CSVFileValidationRule <- R6Class("CSVFileValidationRule",
   inherit = ValidationRule,
-  # ...existing code from validation_classes.R for CSVFileValidationRule...
   public = list(
     check = function(data_source) {
-      errors <- self$create_empty_errors()
+      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
+                          Message = character(), stringsAsFactors = FALSE)
       
-      # Check if both CSV files exist
-      base_name <- tools::file_path_sans_ext(data_source$filepath)
-      species_path <- paste0(base_name, "_species.csv")
+      main_file <- basename(data_source$filepath)
+      species_file <- basename(gsub(
+        CSVFilenamePatterns$plot_pattern,
+        "Species_Template_INFI\\1.csv",
+        main_file,
+        ignore.case = TRUE
+      ))
+      
+      # Check if both files exist
+      species_path <- file.path(dirname(data_source$filepath), species_file)
       
       if (!file.exists(species_path)) {
-        errors <- rbind(errors, 
-          self$create_error(
-            "FileSystem", NA, NA, 
-            paste("Missing species CSV file:", species_path)
-          )
-        )
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = paste("Missing species CSV file:", species_path),
+          stringsAsFactors = FALSE
+        ))
       }
       
+      return(errors)
+    }
+  )
+)
+
+#' CSV-specific structure validation rule
+CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    check = function(data_source) {
+      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
+                          Message = character(), stringsAsFactors = FALSE)
+      
+      # Only run this validation for CSV data sources
+      if (data_source$file_type != "csv") {
+        return(errors)
+      }
+      
+      # Get filenames using patterns
+      main_file <- basename(data_source$filepath)
+      species_file <- basename(gsub(
+        CSVFilenamePatterns$plot_pattern,
+        "Species_Template_INFI\\1.csv",
+        main_file,
+        ignore.case = TRUE
+      ))
+      
+      # Check if both files exist with correct structure
+      species_path <- file.path(dirname(data_source$filepath), species_file)
+      
+      if (!file.exists(species_path)) {
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = paste("Species data file not found:", species_path),
+          stringsAsFactors = FALSE
+        ))
+      }
+      
+      # Check if the file is in UTF-8 encoding
+      if (!isTRUE(all.equal(fileEncoding(data_source$filepath), "UTF-8"))) {
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = "CSV file is not in UTF-8 encoding."
+        ))
+      }
+
+      # Check if the CSV uses ',' as column separator and '.' for decimals
+      csv_content <- readLines(data_source$filepath, n = 1)
+      if (!grepl(",", csv_content)) {
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = "CSV file does not use ',' as column separator."
+        ))
+      }
+      
+      sample_data <- read.csv(data_source$filepath, nrows = 10, sep = ",", dec = ".")
+      if (any(is.na(as.numeric(gsub(",", "", unlist(sample_data), fixed = TRUE))))) {
+        errors <- rbind(errors, data.frame(
+          Source = "FileSystem", Row = NA, Column = NA,
+          Message = "CSV file does not use '.' as decimal separator."
+        ))
+      }
+
       return(errors)
     }
   )

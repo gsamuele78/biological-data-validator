@@ -25,7 +25,7 @@ Validator <- R6Class("Validator",
     #' @description
     #' Add default validation rules
     add_default_rules = function() {
-      self$add_rule(CSVFileValidationRule$new())
+      self$add_rule(CSVFilenameValidationRule$new())
       self$add_rule(CSVFileStructureValidationRule$new())
       self$add_rule(DataTypeValidationRule$new())
       self$add_rule(MaxRowsValidationRule$new())

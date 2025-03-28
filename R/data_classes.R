@@ -255,28 +255,72 @@ DataSource <- R6Class(
     filepath = NULL,
     #' @field file_type Type of the data file (always "csv").
     file_type = "csv",
+    #' @field species_filepath Path to the species data file.
+    species_filepath = NULL,
     
     initialize = function(filepath) {
       self$filepath <- filepath
+      self$validate_filenames()
       self$load_data()
+    },
+    
+    validate_filenames = function() {
+      main_file <- basename(self$filepath)
+      plot_pattern <- CSVFilenamePatterns$plot_pattern
+      species_pattern <- CSVFilenamePatterns$species_pattern
+
+      # Validate main file format
+      if (!grepl(paste0("^", plot_pattern, "$"), main_file, ignore.case = TRUE)) {
+        stop(
+          paste(
+            "Invalid main file name format. Expected: Plot_Template_INFIYYYY.csv, Got:",
+            main_file
+          )
+        )
+      }
+
+      # Extract year from main file
+      year <- gsub(plot_pattern, "\\1", main_file)
+
+      # Derive species file name
+      expected_species_file <- paste0("Species_Template_INFI", year, ".csv")
+      species_path <- file.path(dirname(self$filepath), expected_species_file)
+
+      # Validate species file format
+      if (!file.exists(species_path)) {
+        stop(
+          paste(
+            "Species file not found or invalid format. Expected:",
+            expected_species_file
+          )
+        )
+      }
+
+      self$species_filepath <- species_path
     },
     
     load_data = function() {
       # Check if main file exists
       if (!file.exists(self$filepath)) {
-        stop("Main CSV file not found:", self$filepath)
+        stop(paste("Main CSV file not found:", self$filepath))
       }
-      
-      # Check for species file
-      species_path <- paste0(tools::file_path_sans_ext(self$filepath), "_species.csv")
-      if (!file.exists(species_path)) {
-        stop("Species CSV file not found:", species_path)
-      }
-      
+
       # Read CSV files
-      sheet1 <- readr::read_csv(self$filepath, col_types = readr::cols())
-      sheet2 <- readr::read_csv(species_path, col_types = readr::cols())
-      
+      sheet1 <- tryCatch(
+        readr::read_csv(self$filepath, col_types = readr::cols()),
+        error = function(e) stop("Error reading main CSV file:", e$message)
+      )
+
+      sheet2 <- tryCatch(
+        readr::read_csv(self$species_filepath, col_types = readr::cols()),
+        error = function(e) stop("Error reading species CSV file:", e$message)
+      )
+
+      # Ensure mappings exist before using them
+      if (!exists("SHEET1_CSV_MAPPING") || !exists("SHEET2_CSV_MAPPING")) {
+        stop("CSV mappings (SHEET1_CSV_MAPPING or SHEET2_CSV_MAPPING) are not defined.")
+      }
+
       # Map CSV field names to internal names using csv_mapping.R
       for (internal_name in names(SHEET1_CSV_MAPPING)) {
         csv_name <- SHEET1_CSV_MAPPING[[internal_name]]
@@ -284,19 +328,19 @@ DataSource <- R6Class(
           names(sheet1)[names(sheet1) == csv_name] <- internal_name
         }
       }
-      
+
       for (internal_name in names(SHEET2_CSV_MAPPING)) {
         csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
         if (csv_name %in% names(sheet2)) {
           names(sheet2)[names(sheet2) == csv_name] <- internal_name
         }
       }
-      
+
       # Create data objects
       for (i in seq_len(nrow(sheet1))) {
         self$sheet1_data[[i]] <- Sheet1Data$new(sheet1[i, ])
       }
-      
+
       for (i in seq_len(nrow(sheet2))) {
         self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
       }
@@ -304,20 +348,26 @@ DataSource <- R6Class(
     
     export_data = function(output_path) {
       # Convert data to data frames
-      sheet1_df <- do.call(rbind, lapply(self$sheet1_data, function(x) x$to_data_frame()))
-      sheet2_df <- do.call(rbind, lapply(self$sheet2_data, function(x) x$to_data_frame()))
-      
+      sheet1_df <- do.call(
+        rbind,
+        lapply(self$sheet1_data, function(x) x$to_data_frame())
+      )
+      sheet2_df <- do.call(
+        rbind,
+        lapply(self$sheet2_data, function(x) x$to_data_frame())
+      )
+
       # Map internal names back to CSV names
       for (internal_name in names(SHEET1_CSV_MAPPING)) {
         csv_name <- SHEET1_CSV_MAPPING[[internal_name]]
         names(sheet1_df)[names(sheet1_df) == internal_name] <- csv_name
       }
-      
+
       for (internal_name in names(SHEET2_CSV_MAPPING)) {
         csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
-        names(sheet2_df)[names(sheet2_df) == csv_name] <- csv_name
+        names(sheet2_df)[names(sheet2_df) == csv_name]
       }
-      
+
       # Write CSV files
       species_path <- paste0(tools::file_path_sans_ext(output_path), "_species.csv")
       readr::write_csv(sheet1_df, output_path)
