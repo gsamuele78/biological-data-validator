@@ -63,10 +63,10 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
                                              Column = "Region", 
                                              Message = "Region should be a string."))
         }
-        if (!is.numeric(data_row$Elevation)) {
+        if (!is.numeric(data_row$Elevation) || data_row$Elevation < 0 || data_row$Elevation > 6000) {
           errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
                                              Column = "Elevation", 
-                                             Message = "Elevation should be numeric."))
+                                             Message = "Elevation should be numeric (0-6000 meters)."))
         }
         if (!is.numeric(data_row$Aspect) || data_row$Aspect < 0 || data_row$Aspect > 360) {
           errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
@@ -134,10 +134,10 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
                                              Column = "Subplot", 
                                              Message = "Subplot should be a number between 1 and 4."))
         }
-        if (!is.character(data_row$Layer)) {
+        if (!is.character(data_row$Layer) || !data_row$Layer %in% c("T", "S", "H")) {
           errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
                                              Column = "Layer", 
-                                             Message = "Layer should be a string."))
+                                             Message = "Layer should be one of: T, S, H"))
         }
         if (!is.character(data_row$Species)) {
           errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
