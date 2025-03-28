@@ -59,15 +59,12 @@ DataValidator <- R6::R6Class("DataValidator",
 #'   \item \strong{Aspect}: Sun exposition in degrees (numeric)
 #'   \item \strong{Slope}: Soil inclination in degrees (numeric)
 #'   \item \strong{Cop.tot}: Total cover percentage (numeric, 0-100)
-#'   \item \strong{Litter.cov}: Litter cover percentage (numeric, 0-100)
-#'   \item \strong{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
 #'   \item \strong{Tree.cov}: Tree cover percentage (numeric, 0-100)
-#' removed  \item \strong{Tree.h}: Tree height in meters (numeric)
 #'   \item \strong{Shrub.cov}: Shrub cover percentage (numeric, 0-100)
-#' removed  \item \strong{Shrub.h}: Shrub height in meters (numeric)
 #'   \item \strong{Herb.cov}: Herb cover percentage (numeric, 0-100)
-#' removed  \item \strong{Herb.h}: Herb height in meters (numeric)
 #'   \item \strong{Brioph.cov}: Bryophyte cover percentage (numeric, 0-100)
+#'   \item \strong{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
+#'   \item \strong{Litter.cov}: Litter cover percentage (numeric, 0-100)
 #'   \item \strong{notes}: Additional notes (string)
 #' }
 #'
@@ -77,9 +74,9 @@ DataValidator <- R6::R6Class("DataValidator",
 #' row <- list(Plot.code = "A1", SU = 1, Sample.date = "2023-05-10",
 #'             Detector = "ABC", X = 12.34, Y = 56.78, Region = "North",
 #'             Elevation = 100, Aspect = 180, Slope = 15, Cop.tot = 90,
-#'             Litter.cov = 20, Bare.soil.cov = 10, Tree.cov = 70, Tree.h = 12,
-#'             Shrub.cov = 30, Shrub.h = 3, Herb.cov = 40, Herb.h = 1,
-#'             Brioph.cov = 5, notes = "Sample note")
+#'             Tree.cov = 70, Shrub.cov = 30, Herb.cov = 40,
+#'             Brioph.cov = 5, Bare.soil.cov = 10, Litter.cov = 20,
+#'             notes = "Sample note")
 #' obj <- Sheet1Data$new(row)
 Sheet1Data <- R6Class(
   "Sheet1Data",
@@ -106,24 +103,18 @@ Sheet1Data <- R6Class(
     Slope = NULL,
     #' @field Cop.tot Total cover percentage (numeric, 0-100)
     Cop.tot = NULL,
-    #' @field Litter.cov Litter cover percentage (numeric, 0-100)
-    Litter.cov = NULL,
-    #' @field Bare.soil.cov Bare soil cover percentage (numeric, 0-100)
-    Bare.soil.cov = NULL,
     #' @field Tree.cov Tree cover percentage (numeric, 0-100)
-    Tree.cov = NULL,
-    #' @field Tree.h Tree height (numeric, in meters)
-    #Tree.h = NULL,
+    Tree.cov = NULL,    
     #' @field Shrub.cov Shrub cover percentage (numeric, 0-100)
     Shrub.cov = NULL,
-    #' @field Shrub.h Shrub height (numeric, in meters)
-    #Shrub.h = NULL,
     #' @field Herb.cov Herb cover percentage (numeric, 0-100)
     Herb.cov = NULL,
-    #' @field Herb.h Herb height (numeric, in meters)
-    #Herb.h = NULL,
     #' @field Brioph.cov Bryophyte cover percentage (numeric, 0-100)
     Brioph.cov = NULL,
+    #' @field Bare.soil.cov Bare soil cover percentage (numeric, 0-100)
+    Bare.soil.cov = NULL,
+    #' @field Litter.cov Litter cover percentage (numeric, 0-100)
+    Litter.cov = NULL,
     #' @field notes Additional notes (string)
     notes = NULL,
 
@@ -139,15 +130,12 @@ Sheet1Data <- R6Class(
       self$Aspect <- as.numeric(data_row[["Aspect"]])
       self$Slope <- as.numeric(data_row[["Slope"]])
       self$Cop.tot <- as.numeric(data_row[["Cop.tot"]])
-      self$Litter.cov <- as.numeric(data_row[["Litter.cov"]])
-      self$Bare.soil.cov <- as.numeric(data_row[["Bare.soil.cov"]])
       self$Tree.cov <- as.numeric(data_row[["Tree.cov"]])
-      #self$Tree.h <- as.numeric(data_row[["Tree.h"]])
       self$Shrub.cov <- as.numeric(data_row[["Shrub.cov"]])
-      #self$Shrub.h <- as.numeric(data_row[["Shrub.h"]])
       self$Herb.cov <- as.numeric(data_row[["Herb.cov"]])
-      #self$Herb.h <- as.numeric(data_row[["Herb.h"]])
       self$Brioph.cov <- as.numeric(data_row[["Brioph.cov"]])
+      self$Bare.soil.cov <- as.numeric(data_row[["Bare.soil.cov"]])
+      self$Litter.cov <- as.numeric(data_row[["Litter.cov"]])
       self$notes <- as.character(data_row[["notes"]])
     },
     #' @description Convert the Sheet1Data object to a data frame.
@@ -167,15 +155,12 @@ Sheet1Data <- R6Class(
         Aspect = self$Aspect,
         Slope = self$Slope,
         Cop.tot = self$Cop.tot,
-        Litter.cov = self$Litter.cov,
-        Bare.soil.cov = self$Bare.soil.cov,
         Tree.cov = self$Tree.cov,
-        #Tree.h = self$Tree.h,
         Shrub.cov = self$Shrub.cov,
-        #Shrub.h = self$Shrub.h,
         Herb.cov = self$Herb.cov,
-        #Herb.h = self$Herb.h,
         Brioph.cov = self$Brioph.cov,
+        Bare.soil.cov = self$Bare.soil.cov,
+        Litter.cov = self$Litter.cov,
         notes = self$notes,
         stringsAsFactors = FALSE
       )
@@ -198,19 +183,18 @@ Sheet1Data <- R6Class(
 #' \itemize{
 #'   \item \strong{Plot.code}: Plot code (alphanumeric string)
 #'   \item \strong{Subplot}: Subplot number (numeric, expected range 1-4)
-#'   \item \strong{Species}: Species name (string)
-#'   \item \strong{species_abb}: Species abbreviation (string)
-#'   \item \strong{cover}: Cover percentage (numeric, 0-100)
 #'   \item \strong{Layer}: Layer (string)
+#'   \item \strong{Species}: Species name (string)
+#'   \item \strong{cover}: Cover percentage (numeric, 0-100)
 #'   \item \strong{Notes}: Notes (string)
 #' }
 #'
 #' @return A new instance of \code{Sheet2Data}.
 #'
 #' @examples
-#' row2 <- list(Plot.code = "A1", Subplot = 2, Species = "Sp1",
-#'              species_abb = "S1", cover = 80, Layer = "Understory",
-#'              Notes = "Healthy")
+#' row2 <- list(Plot.code = "A1", Subplot = 2, Layer = "Tree",
+#'              Species = "Quercus ilex", cover = 80,
+#'              Notes = "Healthy specimen")
 #' obj2 <- Sheet2Data$new(row2)
 Sheet2Data <- R6Class(
   "Sheet2Data",
@@ -219,24 +203,21 @@ Sheet2Data <- R6Class(
     Plot.code = NULL,
     #' @field Subplot Subplot number (numeric, range 1-4)
     Subplot = NULL,
-    #' @field Species Species name (string)
-    Species = NULL,
-    #' @field species_abb Species abbreviation (string)
-    species_abb = NULL,
-    #' @field cover Cover percentage (numeric, 0-100)
-    cover = NULL,
     #' @field Layer Layer (string)
     Layer = NULL,
+    #' @field Species Species name (string)
+    Species = NULL,
+    #' @field cover Cover percentage (numeric, 0-100)
+    cover = NULL,
     #' @field Notes Notes (string)
     Notes = NULL,
     
     initialize = function(data_row) {
       self$Plot.code <- as.character(data_row[["Plot.code"]])
       self$Subplot <- as.numeric(data_row[["Subplot"]])
-      self$Species <- as.character(data_row[["Species"]])
-      self$species_abb <- as.character(data_row[["species_abb"]])
-      self$cover <- as.numeric(data_row[["cover"]])
       self$Layer <- as.character(data_row[["Layer"]])
+      self$Species <- as.character(data_row[["Species"]])
+      self$cover <- as.numeric(data_row[["cover"]])
       self$Notes <- as.character(data_row[["Notes"]])
     },
     #' @description Convert the Sheet2Data object to a data frame.
@@ -247,10 +228,9 @@ Sheet2Data <- R6Class(
       data.frame(
         Plot.code = self$Plot.code,
         Subplot = self$Subplot,
-        Species = self$Species,
-        species_abb = self$species_abb,
-        cover = self$cover,
         Layer = self$Layer,
+        Species = self$Species,
+        cover = self$cover,
         Notes = self$Notes,
         stringsAsFactors = FALSE
       )
@@ -335,7 +315,7 @@ DataSource <- R6Class(
       
       for (internal_name in names(SHEET2_CSV_MAPPING)) {
         csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
-        names(sheet2_df)[names(sheet2_df) == internal_name] <- csv_name
+        names(sheet2_df)[names(sheet2_df) == csv_name] <- csv_name
       }
       
       # Write CSV files

@@ -3,38 +3,40 @@
 
 #' Mapping for Sheet1 CSV fields
 SHEET1_CSV_MAPPING <- list(
-  Plot.code = "plot_code",
-  SU = "su",
-  Sample.date = "sample_date",
-  Detector = "detector",
-  X = "longitude",
-  Y = "latitude",
-  Region = "region",
-  Elevation = "elevation_m",
-  Aspect = "aspect_deg",
-  Slope = "slope_deg",
-  Cop.tot = "cover_total",
-  Litter.cov = "litter_cover",
-  Bare.soil.cov = "bare_soil_cover",
-  Tree.cov = "tree_cover",
+  Plot.code = "Plot.code",
+  SU = "SU",
+  Sample.date = "Sample.date",
+  Detector = "Detector",
+  X = "X",                                    #"longitude"
+  Y = "Y",                                    #"latitude"
+  Region = "Region",
+  Elevation = "Elevation",                    #"elevation_m"
+  Aspect = "Aspect",                          #"aspect_deg"
+  Slope = "Slope",                            #" slope_deg"
+  Cop.tot = "Tot.cov",                        #"cover_total"
+  Tree.cov = "Tree.cov",                      #"tree_cover"
+  Shrub.cov = "Shrub.cov",                    #"shrub_cover"
+  Herb.cov = "Herb.cov",                      #"herbaceous_cover"
+  Brioph.cov = "Brioph.cov",                  #"bryophyte_cover"
+  Bare.soil.cov = "Bare.soil.cov",            #"bare_soil_cover"
+  Litter.cov = "Litter.cov",                  #"litter_cover"
+  notes = "Notes"
+  
   #Tree.h = "tree_height",
-  Shrub.cov = "shrub_cover",
   #Shrub.h = "shrub_height",
-  Herb.cov = "herb_cover",
   #Herb.h = "herb_height",
-  Brioph.cov = "bryophyte_cover",
-  notes = "notes"
+  
 )
 
 #' Mapping for Sheet2 CSV fields
 SHEET2_CSV_MAPPING <- list(
-  Plot.code = "plot_code",
-  Subplot = "subplot",
-  Species = "species_name",
-  species_abb = "species_code",
-  cover = "species_cover",
-  Layer = "vegetation_layer",
-  Notes = "species_notes"
+  Plot.code = "Plot.code",
+  Subplot = "SU",                        #"subplot_number"
+  Layer = "Layer",                            #"vegetation_layer T-S-H"
+  Species = "species (Genus + species)",                   #"species (Genus + species)"
+  #species_abb = "species_code",
+  cover = "Cover(perc.)",                  #"species_cover Cover(perc.)",
+  Notes = "Notes"
 )
 
 #' CSV Mapping Class
