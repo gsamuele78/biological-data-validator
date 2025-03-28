@@ -4,6 +4,9 @@ library(R6)
 # Source validation rules
 source("R/validation_rules.R")
 
+# Source the ValidationError class
+source("R/validation_error.R")
+
 #' @title Validator
 #' @description Main class that applies validation rules
 Validator <- R6Class("Validator",
