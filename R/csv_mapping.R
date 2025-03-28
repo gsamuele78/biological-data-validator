@@ -17,11 +17,11 @@ SHEET1_CSV_MAPPING <- list(
   Litter.cov = "litter_cover",
   Bare.soil.cov = "bare_soil_cover",
   Tree.cov = "tree_cover",
-  Tree.h = "tree_height",
+  #Tree.h = "tree_height",
   Shrub.cov = "shrub_cover",
-  Shrub.h = "shrub_height",
+  #Shrub.h = "shrub_height",
   Herb.cov = "herb_cover",
-  Herb.h = "herb_height",
+  #Herb.h = "herb_height",
   Brioph.cov = "bryophyte_cover",
   notes = "notes"
 )

@@ -62,11 +62,11 @@ DataValidator <- R6::R6Class("DataValidator",
 #'   \item \strong{Litter.cov}: Litter cover percentage (numeric, 0-100)
 #'   \item \strong{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
 #'   \item \strong{Tree.cov}: Tree cover percentage (numeric, 0-100)
-#'   \item \strong{Tree.h}: Tree height in meters (numeric)
+#' removed  \item \strong{Tree.h}: Tree height in meters (numeric)
 #'   \item \strong{Shrub.cov}: Shrub cover percentage (numeric, 0-100)
-#'   \item \strong{Shrub.h}: Shrub height in meters (numeric)
+#' removed  \item \strong{Shrub.h}: Shrub height in meters (numeric)
 #'   \item \strong{Herb.cov}: Herb cover percentage (numeric, 0-100)
-#'   \item \strong{Herb.h}: Herb height in meters (numeric)
+#' removed  \item \strong{Herb.h}: Herb height in meters (numeric)
 #'   \item \strong{Brioph.cov}: Bryophyte cover percentage (numeric, 0-100)
 #'   \item \strong{notes}: Additional notes (string)
 #' }
@@ -113,15 +113,15 @@ Sheet1Data <- R6Class(
     #' @field Tree.cov Tree cover percentage (numeric, 0-100)
     Tree.cov = NULL,
     #' @field Tree.h Tree height (numeric, in meters)
-    Tree.h = NULL,
+    #Tree.h = NULL,
     #' @field Shrub.cov Shrub cover percentage (numeric, 0-100)
     Shrub.cov = NULL,
     #' @field Shrub.h Shrub height (numeric, in meters)
-    Shrub.h = NULL,
+    #Shrub.h = NULL,
     #' @field Herb.cov Herb cover percentage (numeric, 0-100)
     Herb.cov = NULL,
     #' @field Herb.h Herb height (numeric, in meters)
-    Herb.h = NULL,
+    #Herb.h = NULL,
     #' @field Brioph.cov Bryophyte cover percentage (numeric, 0-100)
     Brioph.cov = NULL,
     #' @field notes Additional notes (string)
@@ -142,11 +142,11 @@ Sheet1Data <- R6Class(
       self$Litter.cov <- as.numeric(data_row[["Litter.cov"]])
       self$Bare.soil.cov <- as.numeric(data_row[["Bare.soil.cov"]])
       self$Tree.cov <- as.numeric(data_row[["Tree.cov"]])
-      self$Tree.h <- as.numeric(data_row[["Tree.h"]])
+      #self$Tree.h <- as.numeric(data_row[["Tree.h"]])
       self$Shrub.cov <- as.numeric(data_row[["Shrub.cov"]])
-      self$Shrub.h <- as.numeric(data_row[["Shrub.h"]])
+      #self$Shrub.h <- as.numeric(data_row[["Shrub.h"]])
       self$Herb.cov <- as.numeric(data_row[["Herb.cov"]])
-      self$Herb.h <- as.numeric(data_row[["Herb.h"]])
+      #self$Herb.h <- as.numeric(data_row[["Herb.h"]])
       self$Brioph.cov <- as.numeric(data_row[["Brioph.cov"]])
       self$notes <- as.character(data_row[["notes"]])
     },
@@ -170,11 +170,11 @@ Sheet1Data <- R6Class(
         Litter.cov = self$Litter.cov,
         Bare.soil.cov = self$Bare.soil.cov,
         Tree.cov = self$Tree.cov,
-        Tree.h = self$Tree.h,
+        #Tree.h = self$Tree.h,
         Shrub.cov = self$Shrub.cov,
-        Shrub.h = self$Shrub.h,
+        #Shrub.h = self$Shrub.h,
         Herb.cov = self$Herb.cov,
-        Herb.h = self$Herb.h,
+        #Herb.h = self$Herb.h,
         Brioph.cov = self$Brioph.cov,
         notes = self$notes,
         stringsAsFactors = FALSE
