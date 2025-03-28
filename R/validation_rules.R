@@ -129,7 +129,31 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
                                              Column = "Plot.code", 
                                              Message = "Plot.code should be alphanumeric."))
         }
-        # ... (Add validation for other columns in Sheet2 with specific row numbers)
+        if (!is.numeric(data_row$Subplot) || data_row$Subplot < 1 || data_row$Subplot > 4) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "Subplot", 
+                                             Message = "Subplot should be a number between 1 and 4."))
+        }
+        if (!is.character(data_row$Layer)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "Layer", 
+                                             Message = "Layer should be a string."))
+        }
+        if (!is.character(data_row$Species)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "Species", 
+                                             Message = "Species should be a string."))
+        }
+        if (!is.numeric(data_row$cover) || data_row$cover < 0 || data_row$cover > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "cover", 
+                                             Message = "cover should be numeric (0-100%)."))
+        }
+        if (!is.character(data_row$Notes)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
+                                             Column = "Notes", 
+                                             Message = "Notes should be a string."))
+        }
       }
 
       return(errors)
