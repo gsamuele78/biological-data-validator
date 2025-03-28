@@ -37,7 +37,87 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
                                              Column = "SU", 
                                              Message = "SU should be a number between 1 and 4."))
         }
-        # ... (Add validation for other columns in Sheet1 with specific row numbers)
+        if (!inherits(data_row$Sample.date, "Date") || 
+            !grepl("^\\d{4}-\\d{2}-\\d{2}$", as.character(data_row$Sample.date))) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Sample.date", 
+                                             Message = "Sample.date should be a valid date in the format YYYY-MM-DD."))
+        }
+        if (!is.character(data_row$Detector)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Detector", 
+                                             Message = "Detector should be a string."))
+        }
+        if (!is.numeric(data_row$X)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "X", 
+                                             Message = "X should be numeric (longitude)."))
+        }
+        if (!is.numeric(data_row$Y)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Y", 
+                                             Message = "Y should be numeric (latitude)."))
+        }
+        if (!is.character(data_row$Region)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Region", 
+                                             Message = "Region should be a string."))
+        }
+        if (!is.numeric(data_row$Elevation)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Elevation", 
+                                             Message = "Elevation should be numeric."))
+        }
+        if (!is.numeric(data_row$Aspect) || data_row$Aspect < 0 || data_row$Aspect > 360) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Aspect", 
+                                             Message = "Aspect should be numeric (0-360 degrees)."))
+        }
+        if (!is.numeric(data_row$Slope) || data_row$Slope < 0 || data_row$Slope > 90) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Slope", 
+                                             Message = "Slope should be numeric (0-90 degrees)."))
+        }
+        if (!is.numeric(data_row$Cop.tot) || data_row$Cop.tot < 0 || data_row$Cop.tot > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Cop.tot", 
+                                             Message = "Cop.tot should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Tree.cov) || data_row$Tree.cov < 0 || data_row$Tree.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Tree.cov", 
+                                             Message = "Tree.cov should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Shrub.cov) || data_row$Shrub.cov < 0 || data_row$Shrub.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Shrub.cov", 
+                                             Message = "Shrub.cov should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Herb.cov) || data_row$Herb.cov < 0 || data_row$Herb.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Herb.cov", 
+                                             Message = "Herb.cov should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Brioph.cov) || data_row$Brioph.cov < 0 || data_row$Brioph.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Brioph.cov", 
+                                             Message = "Brioph.cov should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Bare.soil.cov) || data_row$Bare.soil.cov < 0 || data_row$Bare.soil.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Bare.soil.cov", 
+                                             Message = "Bare.soil.cov should be numeric (0-100%)."))
+        }
+        if (!is.numeric(data_row$Litter.cov) || data_row$Litter.cov < 0 || data_row$Litter.cov > 100) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "Litter.cov", 
+                                             Message = "Litter.cov should be numeric (0-100%)."))
+        }
+        if (!is.character(data_row$notes)) {
+          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
+                                             Column = "notes", 
+                                             Message = "notes should be a string."))
+        }
       }
 
       # Sheet 2 validation
