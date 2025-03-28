@@ -27,10 +27,12 @@ Validator <- R6Class("Validator",
     add_default_rules = function() {
       self$add_rule(CSVFilenameValidationRule$new())
       self$add_rule(CSVFileStructureValidationRule$new())
+      self$add_rule(NotNullValidationRule$new()) # Register the new validation rule
       self$add_rule(DataTypeValidationRule$new())
       self$add_rule(MaxRowsValidationRule$new())
       self$add_rule(UniqueSUValidationRule$new())
       self$add_rule(NotesValidationRule$new())
+      
     },
     
     #' @description
@@ -99,5 +101,14 @@ Validator <- R6Class("Validator",
       
       return(validation_results)
     }
+  )
+)
+
+#' Not Null Validation Rule
+#' Ensures that all fields (except notes) in sheet1_data and sheet2_data are not empty
+NotNullValidationRule <- R6Class("NotNullValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    # ...existing code from NotNullValidationRule in validation_rules.R...
   )
 )

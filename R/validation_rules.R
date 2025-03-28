@@ -20,103 +20,153 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
     #' Check the data source for data type errors
     #' @param data_source A DataSource object
     check = function(data_source) {
-      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                           Message = character(), stringsAsFactors = FALSE)
+      errors <- data.frame(
+        Source = character(), Row = integer(), Column = character(), 
+        `Error-code` = integer(), Type = character(), Error = character(), 
+        Message = character(), stringsAsFactors = FALSE
+      )
 
       # Sheet 1 validation
       for (i in seq_along(data_source$sheet1_data)) {
         data_row <- data_source$sheet1_data[[i]]
 
         if (!is.character(data_row$Plot.code)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Plot.code", 
-                                             Message = "Plot.code should be alphanumeric."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Plot.code",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Plot.code",
+            Message = "Plot.code should be alphanumeric."
+          ))
         }
         if (!is.numeric(data_row$SU) || data_row$SU < 1 || data_row$SU > 4) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "SU", 
-                                             Message = "SU should be a number between 1 and 4."))
+          error_type <- if (!is.numeric(data_row$SU)) "Data Type Violation - SU" else "Out of range - SU"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "SU",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "SU should be a number between 1 and 4."
+          ))
         }
         if (!inherits(data_row$Sample.date, "Date") || 
             !grepl("^\\d{4}-\\d{2}-\\d{2}$", as.character(data_row$Sample.date))) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Sample.date", 
-                                             Message = "Sample.date should be a valid date in the format YYYY-MM-DD."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Sample.date",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Sample.date",
+            Message = "Sample.date should be a valid date in the format YYYY-MM-DD."
+          ))
         }
         if (!is.character(data_row$Detector)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Detector", 
-                                             Message = "Detector should be a string."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Detector",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Detector",
+            Message = "Detector should be a string."
+          ))
         }
         if (!is.numeric(data_row$X)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "X", 
-                                             Message = "X should be numeric (longitude)."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "X",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - X",
+            Message = "X should be numeric (longitude)."
+          ))
         }
         if (!is.numeric(data_row$Y)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Y", 
-                                             Message = "Y should be numeric (latitude)."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Y",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Y",
+            Message = "Y should be numeric (latitude)."
+          ))
         }
         if (!is.character(data_row$Region)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Region", 
-                                             Message = "Region should be a string."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Region",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Region",
+            Message = "Region should be a string."
+          ))
         }
         if (!is.numeric(data_row$Elevation) || data_row$Elevation < 0 || data_row$Elevation > 6000) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Elevation", 
-                                             Message = "Elevation should be numeric (0-6000 meters)."))
+          error_type <- if (!is.numeric(data_row$Elevation)) "Data Type Violation - Elevation" else "Out of range - Elevation"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Elevation",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Elevation should be numeric (0-6000 meters)."
+          ))
         }
         if (!is.numeric(data_row$Aspect) || data_row$Aspect < 0 || data_row$Aspect > 360) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Aspect", 
-                                             Message = "Aspect should be numeric (0-360 degrees)."))
+          error_type <- if (!is.numeric(data_row$Aspect)) "Data Type Violation - Aspect" else "Out of range - Aspect"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Aspect",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Aspect should be numeric (0-360 degrees)."
+          ))
         }
         if (!is.numeric(data_row$Slope) || data_row$Slope < 0 || data_row$Slope > 90) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Slope", 
-                                             Message = "Slope should be numeric (0-90 degrees)."))
+          error_type <- if (!is.numeric(data_row$Slope)) "Data Type Violation - Slope" else "Out of range - Slope"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Slope",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Slope should be numeric (0-90 degrees)."
+          ))
         }
         if (!is.numeric(data_row$Cop.tot) || data_row$Cop.tot < 0 || data_row$Cop.tot > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Cop.tot", 
-                                             Message = "Cop.tot should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Cop.tot)) "Data Type Violation - Cop.tot" else "Out of range - Cop.tot"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Cop.tot",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Cop.tot should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Tree.cov) || data_row$Tree.cov < 0 || data_row$Tree.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Tree.cov", 
-                                             Message = "Tree.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Tree.cov)) "Data Type Violation - Tree.cov" else "Out of range - Tree.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Tree.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Tree.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Shrub.cov) || data_row$Shrub.cov < 0 || data_row$Shrub.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Shrub.cov", 
-                                             Message = "Shrub.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Shrub.cov)) "Data Type Violation - Shrub.cov" else "Out of range - Shrub.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Shrub.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Shrub.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Herb.cov) || data_row$Herb.cov < 0 || data_row$Herb.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Herb.cov", 
-                                             Message = "Herb.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Herb.cov)) "Data Type Violation - Herb.cov" else "Out of range - Herb.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Herb.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Herb.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Brioph.cov) || data_row$Brioph.cov < 0 || data_row$Brioph.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Brioph.cov", 
-                                             Message = "Brioph.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Brioph.cov)) "Data Type Violation - Brioph.cov" else "Out of range - Brioph.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Brioph.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Brioph.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Bare.soil.cov) || data_row$Bare.soil.cov < 0 || data_row$Bare.soil.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Bare.soil.cov", 
-                                             Message = "Bare.soil.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Bare.soil.cov)) "Data Type Violation - Bare.soil.cov" else "Out of range - Bare.soil.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Bare.soil.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Bare.soil.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.numeric(data_row$Litter.cov) || data_row$Litter.cov < 0 || data_row$Litter.cov > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "Litter.cov", 
-                                             Message = "Litter.cov should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$Litter.cov)) "Data Type Violation - Litter.cov" else "Out of range - Litter.cov"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "Litter.cov",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Litter.cov should be numeric (0-100%)."
+          ))
         }
         if (!is.character(data_row$notes)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet1", Row = i, 
-                                             Column = "notes", 
-                                             Message = "notes should be a string."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet1", Row = i, Column = "notes",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - notes",
+            Message = "notes should be a string."
+          ))
         }
       }
 
@@ -125,34 +175,49 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         data_row <- data_source$sheet2_data[[i]]
 
         if (!is.character(data_row$Plot.code)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "Plot.code", 
-                                             Message = "Plot.code should be alphanumeric."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "Plot.code",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Plot.code",
+            Message = "Plot.code should be alphanumeric."
+          ))
         }
         if (!is.numeric(data_row$Subplot) || data_row$Subplot < 1 || data_row$Subplot > 4) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "Subplot", 
-                                             Message = "Subplot should be a number between 1 and 4."))
+          error_type <- if (!is.numeric(data_row$Subplot)) "Data Type Violation - Subplot" else "Out of range - Subplot"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "Subplot",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Subplot should be a number between 1 and 4."
+          ))
         }
         if (!is.character(data_row$Layer) || !data_row$Layer %in% c("T", "S", "H")) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "Layer", 
-                                             Message = "Layer should be one of: T, S, H"))
+          error_type <- if (!is.character(data_row$Layer)) "Data Type Violation - Layer" else "Out of range - Layer"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "Layer",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "Layer should be one of: T, S, H."
+          ))
         }
         if (!is.character(data_row$Species)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "Species", 
-                                             Message = "Species should be a string."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "Species",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Species",
+            Message = "Species should be a string."
+          ))
         }
         if (!is.numeric(data_row$cover) || data_row$cover < 0 || data_row$cover > 100) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "cover", 
-                                             Message = "cover should be numeric (0-100%)."))
+          error_type <- if (!is.numeric(data_row$cover)) "Data Type Violation - cover" else "Out of range - cover"
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "cover",
+            `Error-code` = 1, Type = "Generic", Error = error_type,
+            Message = "cover should be numeric (0-100%)."
+          ))
         }
         if (!is.character(data_row$Notes)) {
-          errors <- rbind(errors, data.frame(Source = "Sheet2", Row = i, 
-                                             Column = "Notes", 
-                                             Message = "Notes should be a string."))
+          errors <- rbind(errors, data.frame(
+            Source = "Sheet2", Row = i, Column = "Notes",
+            `Error-code` = 1, Type = "Generic", Error = "Data Type Violation - Notes",
+            Message = "Notes should be a string."
+          ))
         }
       }
 
@@ -342,8 +407,11 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
   inherit = ValidationRule,
   public = list(
     check = function(data_source) {
-      errors <- data.frame(Source = character(), Row = integer(), Column = character(), 
-                          Message = character(), stringsAsFactors = FALSE)
+      errors <- data.frame(
+        Source = character(), Row = integer(), Column = character(), 
+        `Error-code` = integer(), Type = character(), Error = character(), 
+        Message = character(), stringsAsFactors = FALSE
+      )
       
       # Only run this validation for CSV data sources
       if (data_source$file_type != "csv") {
@@ -365,8 +433,8 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
       if (!file.exists(species_path)) {
         errors <- rbind(errors, data.frame(
           Source = "FileSystem", Row = NA, Column = NA,
-          Message = paste("Species data file not found:", species_path),
-          stringsAsFactors = FALSE
+          `Error-code` = 1, Type = "File Type Violation", Error = "Missing File",
+          Message = paste("Species data file not found:", species_path)
         ))
       }
       
@@ -374,6 +442,7 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
       if (!isTRUE(all.equal(fileEncoding(data_source$filepath), "UTF-8"))) {
         errors <- rbind(errors, data.frame(
           Source = "FileSystem", Row = NA, Column = NA,
+          `Error-code` = 1, Type = "Generic", Error = "Encoding Issue",
           Message = "CSV file is not in UTF-8 encoding."
         ))
       }
@@ -383,6 +452,7 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
       if (!grepl(",", csv_content)) {
         errors <- rbind(errors, data.frame(
           Source = "FileSystem", Row = NA, Column = NA,
+          `Error-code` = 1, Type = "File Type Violation", Error = "Invalid Separator",
           Message = "CSV file does not use ',' as column separator."
         ))
       }
@@ -391,11 +461,64 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
       if (any(is.na(as.numeric(gsub(",", "", unlist(sample_data), fixed = TRUE))))) {
         errors <- rbind(errors, data.frame(
           Source = "FileSystem", Row = NA, Column = NA,
+          `Error-code` = 1, Type = "File Type Violation", Error = "Invalid Decimal Format",
           Message = "CSV file does not use '.' as decimal separator."
         ))
       }
 
       return(errors)
+    }
+  )
+)
+
+#' Not null validation rule
+NotNullValidationRule <- R6Class("NotNullValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check the data source for not null violations
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- data.frame(
+        Source = character(), Row = integer(), Column = character(), 
+        `Error-code` = integer(), Type = character(), Error = character(), 
+        Message = character(), stringsAsFactors = FALSE
+      )
+      
+      # Sheet 1 validation
+      for (i in seq_along(data_source$sheet1_data)) {
+        data_row <- data_source$sheet1_data[[i]]
+        for (field in names(data_row)) {
+          if (field != "notes" && (is.null(data_row[[field]]) || is.na(data_row[[field]]) || data_row[[field]] == "")) {
+            errors <- rbind(errors, data.frame(
+              Source = "Sheet1", Row = i, Column = field,
+              `Error-code` = 1, Type = "Generic", Error = paste("Not Null Violation -", field),
+              Message = paste(field, "should not be empty.")
+            ))
+          }
+        }
+      }
+      
+      # Sheet 2 validation
+      for (i in seq_along(data_source$sheet2_data)) {
+        data_row <- data_source$sheet2_data[[i]]
+        for (field in names(data_row)) {
+          if (field != "Notes" && (is.null(data_row[[field]]) || is.na(data_row[[field]]) || data_row[[field]] == "")) {
+            errors <- rbind(errors, data.frame(
+              Source = "Sheet2", Row = i, Column = field,
+              `Error-code` = 1, Type = "Generic", Error = paste("Not Null Violation -", field),
+              Message = paste(field, "should not be empty.")
+            ))
+          }
+        }
+      }
+      
+      return(errors)
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Not null violations are critical errors
     }
   )
 )
