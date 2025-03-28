@@ -379,4 +379,53 @@ NotNullValidationRule <- R6Class("NotNullValidationRule",
   )
 )
 
+#' Duplicate row validation rule
+DuplicateRowValidationRule <- R6Class("DuplicateRowValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check the data source for duplicate rows
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- list()  # Use a list to collect ValidationError objects
+      
+      # Check for duplicates in Sheet 1
+      if (!is.null(data_source$sheet1_data)) {
+        sheet1_df <- do.call(rbind, lapply(data_source$sheet1_data, as.data.frame))
+        duplicated_rows <- which(duplicated(sheet1_df))
+        for (row in duplicated_rows) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet1", row = row, column = NA,
+            error_code = 1, type = "Generic", 
+            error = paste("Duplicate row - Sheet: 1, Row:", row),
+            message = paste("Duplicate row found in Sheet1 at row:", row)
+          ))
+        }
+      }
+      
+      # Check for duplicates in Sheet 2
+      if (!is.null(data_source$sheet2_data)) {
+        sheet2_df <- do.call(rbind, lapply(data_source$sheet2_data, as.data.frame))
+        duplicated_rows <- which(duplicated(sheet2_df))
+        for (row in duplicated_rows) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet2", row = row, column = NA,
+            error_code = 1, type = "Generic", 
+            error = paste("Duplicate row - Sheet: 2, Row:", row),
+            message = paste("Duplicate row found in Sheet2 at row:", row)
+          ))
+        }
+      }
+
+      # Convert ValidationError objects to a data frame
+      do.call(rbind, lapply(errors, function(e) e$to_dataframe_row()))
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Duplicate rows are critical errors
+    }
+  )
+)
+
 

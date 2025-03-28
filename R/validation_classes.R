@@ -37,6 +37,7 @@ Validator <- R6Class("Validator",
       self$add_rule(MaxRowsValidationRule$new())
       self$add_rule(UniqueSUValidationRule$new())
       self$add_rule(NotesValidationRule$new())
+      self$add_rule(DuplicateRowValidationRule$new())  # Register the new validation rule
     },
     
     #' @description
