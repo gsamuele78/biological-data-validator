@@ -11,7 +11,7 @@ source("R/csv_mapping.R")
 #' @import R6
 NULL
 
-source("R/csv_mapping.R")
+
 
 #' Data Validator Class
 #'
