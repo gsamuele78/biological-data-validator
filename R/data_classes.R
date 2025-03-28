@@ -11,23 +11,22 @@ source("R/csv_mapping.R")
 #' @import R6
 NULL
 
-
-
 #' Data Validator Class
 #'
 #' @description Base class for data validation
 #' @export
-DataValidator <- R6::R6Class("DataValidator",
+DataValidator <- R6::R6Class(
+  "DataValidator",
   public = list(
     #' @field data The data to validate
     data = NULL,
-    
+
     #' @description Initialize a new data validator
     #' @param data Data to validate
     initialize = function(data = NULL) {
       self$data <- data
     },
-    
+
     #' @description Validate the data
     validate = function() {
       stop("Method validate() must be implemented by subclass")
@@ -104,7 +103,7 @@ Sheet1Data <- R6Class(
     #' @field Cop.tot Total cover percentage (numeric, 0-100)
     Cop.tot = NULL,
     #' @field Tree.cov Tree cover percentage (numeric, 0-100)
-    Tree.cov = NULL,    
+    Tree.cov = NULL,
     #' @field Shrub.cov Shrub cover percentage (numeric, 0-100)
     Shrub.cov = NULL,
     #' @field Herb.cov Herb cover percentage (numeric, 0-100)
@@ -138,10 +137,12 @@ Sheet1Data <- R6Class(
       self$Litter.cov <- as.numeric(data_row[["Litter.cov"]])
       self$notes <- as.character(data_row[["notes"]])
     },
+
     #' @description Convert the Sheet1Data object to a data frame.
     #' @return A data frame containing a single row with the object's data.
     #' @examples
-    #' df <- obj$to_data_frame()\nprint(df)
+    #' df <- obj$to_data_frame()
+    #' print(df)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
@@ -211,7 +212,7 @@ Sheet2Data <- R6Class(
     cover = NULL,
     #' @field Notes Notes (string)
     Notes = NULL,
-    
+
     initialize = function(data_row) {
       self$Plot.code <- as.character(data_row[["Plot.code"]])
       self$Subplot <- as.numeric(data_row[["Subplot"]])
@@ -220,10 +221,12 @@ Sheet2Data <- R6Class(
       self$cover <- as.numeric(data_row[["cover"]])
       self$Notes <- as.character(data_row[["Notes"]])
     },
+
     #' @description Convert the Sheet2Data object to a data frame.
     #' @return A data frame containing a single row with the object's data.
     #' @examples
-    #' df2 <- obj2$to_data_frame()\nhead(df2)
+    #' df2 <- obj2$to_data_frame()
+    #' head(df2)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
@@ -257,13 +260,13 @@ DataSource <- R6Class(
     file_type = "csv",
     #' @field species_filepath Path to the species data file.
     species_filepath = NULL,
-    
+
     initialize = function(filepath) {
       self$filepath <- filepath
       self$validate_filenames()
       self$load_data()
     },
-    
+
     validate_filenames = function() {
       main_file <- basename(self$filepath)
       plot_pattern <- CSVFilenamePatterns$plot_pattern
@@ -298,7 +301,7 @@ DataSource <- R6Class(
 
       self$species_filepath <- species_path
     },
-    
+
     load_data = function() {
       # Check if main file exists
       if (!file.exists(self$filepath)) {
@@ -345,7 +348,7 @@ DataSource <- R6Class(
         self$sheet2_data[[i]] <- Sheet2Data$new(sheet2[i, ])
       }
     },
-    
+
     export_data = function(output_path) {
       # Convert data to data frames
       sheet1_df <- do.call(

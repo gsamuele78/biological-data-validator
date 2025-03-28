@@ -7,35 +7,29 @@ SHEET1_CSV_MAPPING <- list(
   SU = "SU",
   Sample.date = "Sample.date",
   Detector = "Detector",
-  X = "X",                                    #"longitude"
-  Y = "Y",                                    #"latitude"
+  X = "X",                                    # "longitude"
+  Y = "Y",                                    # "latitude"
   Region = "Region",
-  Elevation = "Elevation",                    #"elevation_m"
-  Aspect = "Aspect",                          #"aspect_deg"
-  Slope = "Slope",                            #" slope_deg"
-  Cop.tot = "Tot.cov",                        #"cover_total"
-  Tree.cov = "Tree.cov",                      #"tree_cover"
-  Shrub.cov = "Shrub.cov",                    #"shrub_cover"
-  Herb.cov = "Herb.cov",                      #"herbaceous_cover"
-  Brioph.cov = "Brioph.cov",                  #"bryophyte_cover"
-  Bare.soil.cov = "Bare.soil.cov",            #"bare_soil_cover"
-  Litter.cov = "Litter.cov",                  #"litter_cover"
+  Elevation = "Elevation",                    # "elevation_m"
+  Aspect = "Aspect",                          # "aspect_deg"
+  Slope = "Slope",                            # "slope_deg"
+  Cop.tot = "Tot.cov",                        # "cover_total"
+  Tree.cov = "Tree.cov",                      # "tree_cover"
+  Shrub.cov = "Shrub.cov",                    # "shrub_cover"
+  Herb.cov = "Herb.cov",                      # "herbaceous_cover"
+  Brioph.cov = "Brioph.cov",                  # "bryophyte_cover"
+  Bare.soil.cov = "Bare.soil.cov",            # "bare_soil_cover"
+  Litter.cov = "Litter.cov",                  # "litter_cover"
   notes = "Notes"
-  
-  #Tree.h = "tree_height",
-  #Shrub.h = "shrub_height",
-  #Herb.h = "herb_height",
-  
 )
 
 #' Mapping for Sheet2 CSV fields
 SHEET2_CSV_MAPPING <- list(
   Plot.code = "Plot.code",
-  Subplot = "SU",                        #"subplot_number"
-  Layer = "Layer",                            #"vegetation_layer T-S-H"
-  Species = "species (Genus + species)",                   #"species (Genus + species)"
-  #species_abb = "species_code",
-  cover = "Cover(perc.)",                  #"species_cover Cover(perc.)",
+  Subplot = "SU",                             # "subplot_number"
+  Layer = "Layer",                            # "vegetation_layer T-S-H"
+  Species = "species (Genus + species)",      # "species (Genus + species)"
+  cover = "Cover(perc.)",                     # "species_cover Cover(perc.)"
   Notes = "Notes"
 )
 
