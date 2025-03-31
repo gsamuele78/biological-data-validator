@@ -368,7 +368,7 @@ DataSource <- R6Class(
 
       for (internal_name in names(SHEET2_CSV_MAPPING)) {
         csv_name <- SHEET2_CSV_MAPPING[[internal_name]]
-        names(sheet2_df)[names(sheet2_df) == csv_name]
+        names(sheet2_df)[names(sheet2_df) == internal_name] <- csv_name
       }
 
       # Write CSV files

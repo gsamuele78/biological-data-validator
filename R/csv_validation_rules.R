@@ -109,14 +109,27 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
         ))
       }
       
-      # Check if the file is in UTF-8 encoding
-      if (!isTRUE(all.equal(fileEncoding(data_source$filepath), "UTF-8"))) {
+      # Check if the file is in UTF-8 encoding using readr's guess_encoding
+      tryCatch({
+        # Use readr's guess_encoding function for more reliable encoding detection
+        file_encoding <- readr::guess_encoding(data_source$filepath)
+        if (nrow(file_encoding) > 0) {
+          top_encoding <- file_encoding$encoding[1]
+          if (tolower(top_encoding) != "utf-8" && tolower(top_encoding) != "ascii") {
+            errors <- append(errors, ValidationError$new(
+              source = "FileSystem", row = NA, column = NA,
+              error_code = 1, type = "Generic", error = "Encoding Issue",
+              message = paste0("CSV file is not in UTF-8 encoding. Detected: ", top_encoding)
+            ))
+          }
+        }
+      }, error = function(e) {
         errors <- append(errors, ValidationError$new(
           source = "FileSystem", row = NA, column = NA,
-          error_code = 1, type = "Generic", error = "Encoding Issue",
-          message = "CSV file is not in UTF-8 encoding."
+          error_code = 1, type = "Generic", error = "Encoding Detection Error",
+          message = paste("Could not determine file encoding:", e$message)
         ))
-      }
+      })
 
       # Check if the CSV uses ',' as column separator and '.' for decimals
       csv_content <- readLines(data_source$filepath, n = 1)

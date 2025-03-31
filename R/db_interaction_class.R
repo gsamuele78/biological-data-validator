@@ -5,8 +5,6 @@ library(RSQLite)
 
 
 
-
-
 #' DatabaseHandler class for interacting with the SQLite database
 DatabaseHandler <- R6Class(
   "DatabaseHandler",
@@ -107,11 +105,8 @@ DatabaseHandler <- R6Class(
 
       query <- paste(query, "ORDER BY timestamp DESC")
 
-      if (length(params) > 0) {
-        dbGetQuery(self$db, query, params = params)
-      } else {
-        dbGetQuery(self$db, query)
-      }
+      # Always use params parameter for consistency, even if empty
+      dbGetQuery(self$db, query, params = params)
     },
 
     #' @description
@@ -247,6 +242,12 @@ DatabaseHandler <- R6Class(
         return(TRUE)
       }
       return(FALSE)
+    },
+    
+    #' @description
+    #' Finalize method to ensure database connection is closed when object is garbage collected
+    finalize = function() {
+      self$close()
     }
   )
 )
