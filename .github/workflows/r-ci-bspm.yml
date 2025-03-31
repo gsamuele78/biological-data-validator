@@ -86,18 +86,38 @@ jobs:
 
     - name: Install additional dependencies
       run: |
-        Rscript -e 'install.packages(c(
-          "here",
-          "logger",
-          "rmarkdown",
-          "DBI",
-          "RSQLite",
-          "lubridate",
-          "R6",
-          "readr",
-          "testthat",
-          "rprojroot"
-        ))'
+        # Ensure packages are installed with explicit error handling
+        Rscript -e '
+          # Define required packages
+          required_packages <- c(
+            "here",
+            "logger",
+            "rmarkdown",
+            "DBI",
+            "RSQLite",
+            "lubridate",
+            "R6",
+            "readr",
+            "testthat",
+            "rprojroot"
+          )
+          
+          # Install packages with error handling
+          for (pkg in required_packages) {
+            if (!requireNamespace(pkg, quietly = TRUE)) {
+              message(paste("Installing package:", pkg))
+              install.packages(pkg, repos = "https://cran.r-project.org")
+            } else {
+              message(paste("Package already installed:", pkg))
+            }
+          }
+          
+          # Verify all packages can be loaded
+          for (pkg in required_packages) {
+            message(paste("Verifying package can be loaded:", pkg))
+            library(pkg, character.only = TRUE)
+          }
+        '
 
     - name: Install R package dependencies # Using r-lib action to install dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
@@ -143,7 +163,13 @@ jobs:
       run: |
         set -e
         R -e '
-          setwd(here::here())
+          # First ensure the here package is installed and loaded
+          if (!requireNamespace("here", quietly = TRUE)) {
+            install.packages("here", repos = "https://cran.r-project.org")
+          }
+          library(here)
+          # Now run the tests from the project root
+          setwd(getwd())
           testthat::test_dir("tests/testthat", reporter = "progress")
         '
       shell: bash
