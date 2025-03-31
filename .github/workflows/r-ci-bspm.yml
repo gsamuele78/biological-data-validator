@@ -167,7 +167,11 @@ jobs:
           if (!requireNamespace("here", quietly = TRUE)) {
             install.packages("here", repos = "https://cran.r-project.org")
           }
+          if (!requireNamespace("testthat", quietly = TRUE)) {
+            install.packages("testthat", repos = "https://cran.r-project.org")
+          }  
           library(here)
+          library(testthat)
           # Now run the tests from the project root
           setwd(getwd())
           testthat::test_dir("tests/testthat", reporter = "progress")
