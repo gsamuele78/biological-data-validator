@@ -3,34 +3,34 @@
 
 #' Mapping for Sheet1 CSV fields
 SHEET1_CSV_MAPPING <- list(
-  Plot.code = "Plot.code",
-  SU = "SU",
-  Sample.date = "Sample.date",
-  Detector = "Detector",
-  X = "X",                                    # "longitude"
-  Y = "Y",                                    # "latitude"
-  Region = "Region",
-  Elevation = "Elevation",                    # "elevation_m"
-  Aspect = "Aspect",                          # "aspect_deg"
-  Slope = "Slope",                            # "slope_deg"
-  Cop.tot = "Tot.cov",                        # "cover_total"
-  Tree.cov = "Tree.cov",                      # "tree_cover"
-  Shrub.cov = "Shrub.cov",                    # "shrub_cover"
-  Herb.cov = "Herb.cov",                      # "herbaceous_cover"
-  Brioph.cov = "Brioph.cov",                  # "bryophyte_cover"
-  Bare.soil.cov = "Bare.soil.cov",            # "bare_soil_cover"
-  Litter.cov = "Litter.cov",                  # "litter_cover"
-  notes = "Notes"
+  Plot.code = "codice",
+  SU = "su",
+  Sample.date = "sample_date",
+  Detector = "detector",
+  X = "x",                                    # "longitude"
+  Y = "y",                                    # "latitude"
+  Region = "region",
+  Elevation = "elevation",                    # "elevation_m"
+  Aspect = "aspect",                          # "aspect_deg"
+  Slope = "slope",                            # "slope_deg"
+  Cop.tot = "tot_cov",                        # "cover_total"
+  Tree.cov = "tree_cov",                      # "tree_cover"
+  Shrub.cov = "shrub_cov",                    # "shrub_cover"
+  Herb.cov = "herb_cov",                      # "herbaceous_cover"
+  Brioph.cov = "brioph_cov",                  # "bryophyte_cover"
+  Bare.soil.cov = "bare_soil_cov",            # "bare_soil_cover"
+  Litter.cov = "litter_cov",                  # "litter_cover"
+  notes = "notes"
 )
 
 #' Mapping for Sheet2 CSV fields
 SHEET2_CSV_MAPPING <- list(
-  Plot.code = "Plot.code",
-  Subplot = "SU",                             # "subplot_number"
-  Layer = "Layer",                            # "vegetation_layer T-S-H"
-  Species = "species (Genus + species)",      # "species (Genus + species)"
-  cover = "Cover(perc.)",                     # "species_cover Cover(perc.)"
-  Notes = "Notes"
+  Plot.code = "codice",
+  Subplot = "sU",                             # "subplot_number"
+  Layer = "layer",                            # "vegetation_layer T-S-H"
+  Species = "species(genus_species)",      # "species (Genus + species)"
+  cover = "cover_perc",                     # "species_cover Cover(perc.)"
+  Notes = "notes"
 )
 
 #' CSV Mapping Class
