@@ -21,6 +21,11 @@ Validator <- R6Class("Validator",
     #' Create a new Validator object
     #' @param path_generator A PathGenerator object
     initialize = function(path_generator) {
+      # Enhanced error handling for path_generator parameter
+      if (!is.null(path_generator) && !inherits(path_generator, "PathGenerator") && !is.function(path_generator)) {
+        stop("path_generator must be a PathGenerator object, a reactive function, or NULL")
+      }
+      
       self$path_generator <- path_generator
       # Add default validation rules
       self$add_default_rules()
@@ -108,5 +113,7 @@ Validator <- R6Class("Validator",
     }
   )
 )
+
+
 
 

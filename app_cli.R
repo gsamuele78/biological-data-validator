@@ -175,4 +175,4 @@ main <- function(opt) {
 # Run main function if script is executed
 if (!interactive()) {
   main(opt)
-}
+} 

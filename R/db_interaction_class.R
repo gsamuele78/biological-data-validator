@@ -85,22 +85,51 @@ DatabaseHandler <- R6Class(
     #' @param from_date Start date for filtering (optional)
     #' @param to_date End date for filtering (optional)
     get_plot_history = function(plot_code = NULL, from_date = NULL, to_date = NULL) {
+      # Standardized query building with consistent parameter handling
       query <- "SELECT * FROM plot_data WHERE 1=1"
       params <- list()
 
-      if (!is.null(plot_code) && plot_code != "") {
+      # Standardized parameter handling with proper type checking
+      if (!is.null(plot_code) && is.character(plot_code) && nchar(plot_code) > 0) {
         query <- paste(query, "AND plot_code LIKE ?")
         params <- c(params, paste0("%", plot_code, "%"))
       }
 
+      # Ensure dates are properly formatted
       if (!is.null(from_date)) {
-        query <- paste(query, "AND sample_date >= ?")
-        params <- c(params, as.character(from_date))
+        # Convert to Date object if it's not already
+        if (!inherits(from_date, "Date")) {
+          from_date <- tryCatch(
+            as.Date(from_date),
+            error = function(e) {
+              warning(paste("Invalid from_date format:", from_date))
+              return(NULL)
+            }
+          )
+        }
+        
+        if (!is.null(from_date)) {
+          query <- paste(query, "AND sample_date >= ?")
+          params <- c(params, as.character(from_date))
+        }
       }
 
       if (!is.null(to_date)) {
-        query <- paste(query, "AND sample_date <= ?")
-        params <- c(params, as.character(to_date))
+        # Convert to Date object if it's not already
+        if (!inherits(to_date, "Date")) {
+          to_date <- tryCatch(
+            as.Date(to_date),
+            error = function(e) {
+              warning(paste("Invalid to_date format:", to_date))
+              return(NULL)
+            }
+          )
+        }
+        
+        if (!is.null(to_date)) {
+          query <- paste(query, "AND sample_date <= ?")
+          params <- c(params, as.character(to_date))
+        }
       }
 
       query <- paste(query, "ORDER BY timestamp DESC")
@@ -210,7 +239,7 @@ DatabaseHandler <- R6Class(
     #' @param to_date Optional end date for filtering
     #' @return A list containing plot data and associated images
     get_plot_history_with_images = function(plot_code = NULL, from_date = NULL, to_date = NULL) {
-      # Get plot history
+      # Standardized parameter handling - reuse the improved get_plot_history method
       plot_history <- self$get_plot_history(plot_code, from_date, to_date)
 
       # If there's no history, return empty list
@@ -221,12 +250,16 @@ DatabaseHandler <- R6Class(
       # Get associated images for each plot data record
       image_data <- data.frame(plot_data_id = integer(), image_path = character(), stringsAsFactors = FALSE)
 
+      # Enhanced error handling for image retrieval
       for (id in plot_history$id) {
-        images <- self$get_images(id)
-
-        if (nrow(images) > 0) {
-          image_data <- rbind(image_data, images)
-        }
+        tryCatch({
+          images <- self$get_images(id)
+          if (nrow(images) > 0) {
+            image_data <- rbind(image_data, images)
+          }
+        }, error = function(e) {
+          warning(paste("Error retrieving images for plot data ID", id, ":", e$message))
+        })
       }
 
       return(list(plot_data = plot_history, images = image_data))
@@ -247,7 +280,13 @@ DatabaseHandler <- R6Class(
     #' @description
     #' Finalize method to ensure database connection is closed when object is garbage collected
     finalize = function() {
-      self$close()
+      # Enhanced resource cleanup
+      tryCatch({
+        self$close()
+        message("Database connection closed successfully")
+      }, error = function(e) {
+        warning(paste("Error closing database connection:", e$message))
+      })
     }
   )
 )

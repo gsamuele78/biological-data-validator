@@ -127,11 +127,21 @@ server <- function(input, output, session) {
     )
     class(validation_data) <- "DataForValidation" # Assuming the validator checks for this class
         
-    # Perform validation
-    data$errors <- validator()$validate(data$data_source)
+    # Perform validation - Fix: Ensure reactive values are accessed within reactive contexts
+    # Create a reactive expression for validation results
+    validation_results <- reactive({
+      req(data$data_source)
+      validator()$validate(data$data_source)
+    })
+    
+    # Store the results in the reactive values object
+    observe({
+      data$errors <- validation_results()
+    })
         
     # Display validation results
     output$validation_output <- renderPrint({
+      req(data$errors)
       if (nrow(data$errors) > 0) {
         paste(apply(data$errors, 1, function(x) paste(x, collapse = " | ")), collapse = "\n")
       } else {
