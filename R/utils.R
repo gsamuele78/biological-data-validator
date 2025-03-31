@@ -199,3 +199,56 @@ validate_csv_files <- function(file_path, output_path = NULL, validator = NULL) 
   
   return(validation_results)
 }
+
+#' @description
+#' Load the reference species list from the predefined path
+#' @return A vector of species names
+load_reference_species_list <- function() {
+  reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Species_Nomenclature.csv")
+  if (!file.exists(reference_file)) {
+    stop("Reference species list not found at: ", reference_file)
+  }
+  
+  reference_species <- read.csv(reference_file, stringsAsFactors = FALSE)$species
+  return(reference_species)
+}
+
+#' @description
+#' Load the reference detector list for the current year
+#' @return A vector of detector names
+load_reference_detector_list <- function() {
+  current_year <- format(Sys.Date(), "%Y")
+  reference_file <- file.path("inst", "extdata", "lists", paste0("Lista_Riferimento_Rilevatori", current_year, ".csv"))
+  if (!file.exists(reference_file)) {
+    stop("Reference detector list not found at: ", reference_file)
+  }
+  
+  reference_detectors <- read.csv(reference_file, stringsAsFactors = FALSE)$detector
+  return(reference_detectors)
+}
+
+#' @description
+#' Load the reference region list from the predefined path
+#' @return A vector of region names
+load_reference_region_list <- function() {
+  reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Regioni.csv")
+  if (!file.exists(reference_file)) {
+    stop("Reference region list not found at: ", reference_file)
+  }
+  
+  reference_regions <- read.csv(reference_file, stringsAsFactors = FALSE)$region
+  return(reference_regions)
+}
+
+#' @description
+#' Load the reference codice list from the predefined path
+#' @return A vector of codice values
+load_reference_codice_list <- function() {
+  reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Codice.csv")
+  if (!file.exists(reference_file)) {
+    stop("Reference codice list not found at: ", reference_file)
+  }
+  
+  reference_codice <- read.csv(reference_file, stringsAsFactors = FALSE)$codice
+  return(reference_codice)
+}

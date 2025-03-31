@@ -499,4 +499,173 @@ DuplicateRowValidationRule <- R6Class("DuplicateRowValidationRule",
   )
 )
 
+#' Species existence validation rule
+SpeciesExistenceValidationRule <- R6Class("SpeciesExistenceValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check if species in sheet2_data exist in the reference list
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- list()  # Use a list to collect ValidationError objects
+      
+      # Load the reference species list
+      reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Species_Nomenclature.csv")
+      if (!file.exists(reference_file)) {
+        stop("Reference species list not found at: ", reference_file)
+      }
+      
+      reference_species <- read.csv(reference_file, stringsAsFactors = FALSE)$species
+      
+      # Check species in sheet2_data
+      for (i in seq_along(data_source$sheet2_data)) {
+        data_row <- data_source$sheet2_data[[i]]
+        if (!data_row$Species %in% reference_species) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet2", row = i, column = "Species",
+            error_code = 1, type = "Generic",
+            error = paste("No existent species - Sheet: 2, Row:", i),
+            message = paste("Species", data_row$Species, "not found in the reference list.")
+          ))
+        }
+      }
+
+      # Convert ValidationError objects to a data frame
+      do.call(rbind, lapply(errors, function(e) e$to_dataframe_row()))
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Missing species are critical errors
+    }
+  )
+)
+
+#' Detector existence validation rule
+DetectorExistenceValidationRule <- R6Class("DetectorExistenceValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check if detectors in sheet1_data exist in the reference list
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- list()  # Use a list to collect ValidationError objects
+      
+      # Load the reference detector list
+      current_year <- format(Sys.Date(), "%Y")
+      reference_file <- file.path("inst", "extdata", "lists", paste0("Lista_Riferimento_Rilevatori", current_year, ".csv"))
+      if (!file.exists(reference_file)) {
+        stop("Reference detector list not found at: ", reference_file)
+      }
+      
+      reference_detectors <- read.csv(reference_file, stringsAsFactors = FALSE)$detector
+      
+      # Check detectors in sheet1_data
+      for (i in seq_along(data_source$sheet1_data)) {
+        data_row <- data_source$sheet1_data[[i]]
+        if (!data_row$Detector %in% reference_detectors) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet1", row = i, column = "Detector",
+            error_code = 1, type = "Generic",
+            error = paste("No existent detector - Sheet: 1, Row:", i),
+            message = paste("Detector", data_row$Detector, "not found in the reference list for the year", current_year, ".")
+          ))
+        }
+      }
+
+      # Convert ValidationError objects to a data frame
+      do.call(rbind, lapply(errors, function(e) e$to_dataframe_row()))
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Missing detectors are critical errors
+    }
+  )
+)
+
+#' Region existence validation rule
+RegionExistenceValidationRule <- R6Class("RegionExistenceValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check if regions in sheet1_data exist in the reference list
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- list()  # Use a list to collect ValidationError objects
+      
+      # Load the reference region list
+      reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Regioni.csv")
+      if (!file.exists(reference_file)) {
+        stop("Reference region list not found at: ", reference_file)
+      }
+      
+      reference_regions <- read.csv(reference_file, stringsAsFactors = FALSE)$region
+      
+      # Check regions in sheet1_data
+      for (i in seq_along(data_source$sheet1_data)) {
+        data_row <- data_source$sheet1_data[[i]]
+        if (!data_row$Region %in% reference_regions) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet1", row = i, column = "Region",
+            error_code = 1, type = "Generic",
+            error = paste("No existent Region - Sheet: 1, Row:", i),
+            message = paste("Region", data_row$Region, "not found in the reference list.")
+          ))
+        }
+      }
+
+      # Convert ValidationError objects to a data frame
+      do.call(rbind, lapply(errors, function(e) e$to_dataframe_row()))
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Missing regions are critical errors
+    }
+  )
+)
+
+#' Codice existence validation rule
+CodiceExistenceValidationRule <- R6Class("CodiceExistenceValidationRule",
+  inherit = ValidationRule,
+  public = list(
+    #' @description
+    #' Check if codice in sheet1_data exist in the reference list
+    #' @param data_source A DataSource object
+    check = function(data_source) {
+      errors <- list()  # Use a list to collect ValidationError objects
+      
+      # Load the reference codice list
+      reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Codice.csv")
+      if (!file.exists(reference_file)) {
+        stop("Reference codice list not found at: ", reference_file)
+      }
+      
+      reference_codice <- read.csv(reference_file, stringsAsFactors = FALSE)$codice
+      
+      # Check codice in sheet1_data
+      for (i in seq_along(data_source$sheet1_data)) {
+        data_row <- data_source$sheet1_data[[i]]
+        if (!data_row$codice %in% reference_codice) {
+          errors <- append(errors, ValidationError$new(
+            source = "Sheet1", row = i, column = "codice",
+            error_code = 1, type = "Generic",
+            error = paste("No existent Plot_Name - Sheet: 1, Row:", i),
+            message = paste("Codice", data_row$codice, "not found in the reference list.")
+          ))
+        }
+      }
+
+      # Convert ValidationError objects to a data frame
+      do.call(rbind, lapply(errors, function(e) e$to_dataframe_row()))
+    },
+    #' @description
+    #' Get the error level for this rule
+    get_error_level = function() {
+      "Error"  # Missing codice are critical errors
+    }
+  )
+)
+
 

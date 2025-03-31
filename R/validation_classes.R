@@ -42,7 +42,11 @@ Validator <- R6Class("Validator",
       self$add_rule(MaxRowsValidationRule$new())
       self$add_rule(UniqueSUValidationRule$new())
       self$add_rule(NotesValidationRule$new())
-      self$add_rule(DuplicateRowValidationRule$new())  # Register the new validation rule
+      self$add_rule(DuplicateRowValidationRule$new())
+      self$add_rule(SpeciesExistenceValidationRule$new())
+      self$add_rule(DetectorExistenceValidationRule$new())  # Register the new validation rule
+      self$add_rule(RegionExistenceValidationRule$new())  # Register the new validation rule
+      self$add_rule(CodiceExistenceValidationRule$new())  # Register the new validation rule
     },
     
     #' @description
