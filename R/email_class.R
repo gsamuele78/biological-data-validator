@@ -1,4 +1,4 @@
-# R/email_class.R
+#' R/email_class.R
 library(R6)
 library(mailR)
 

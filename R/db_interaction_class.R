@@ -1,4 +1,4 @@
-# R/db_interaction_class.R
+#' R/db_interaction_class.R
 library(R6)
 library(DBI)
 library(RSQLite)

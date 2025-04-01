@@ -1,3 +1,4 @@
+#' R/csv_mapping.R
 #' CSV field mapping configuration
 #' Defines the mappings between CSV columns and internal field names
 

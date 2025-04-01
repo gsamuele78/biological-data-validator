@@ -1,3 +1,4 @@
+#' R/csv_validation_rules.R
 #' Common CSV filename patterns
 CSVFilenamePatterns <- list(
   plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",

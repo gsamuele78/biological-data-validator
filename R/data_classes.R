@@ -1,4 +1,4 @@
-# R/data_classes.R
+#' R/data_classes.R
 library(R6)
 library(openxlsx)
 library(readxl)

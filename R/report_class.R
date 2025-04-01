@@ -1,4 +1,4 @@
-# R/report_class.R # nolint: commented_code_linter.
+#' R/report_class.R 
 library(R6)
 library(rmarkdown)
 library(logger)

@@ -1,4 +1,4 @@
-# R/utils.R
+#' R/utils.R
 
 # Utility functions for logging and data loading
 

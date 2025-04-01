@@ -1,3 +1,4 @@
+#' app_cli.R
 # app_cli.R (Main CLI Script)
 
 # Install and load necessary packages using renv

@@ -1,3 +1,6 @@
+#' R/validation_error.R
+library(R6)
+
 ValidationError <- R6Class("ValidationError",
   public = list(
     Source = NULL,

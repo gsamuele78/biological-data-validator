@@ -1,4 +1,4 @@
-# R/path_generation_class.R
+#' R/path_generation_class.R
 library(R6)
 library(lubridate)
 

@@ -1,3 +1,5 @@
+#' R/validation_rules.R
+#' Validation rules for data validation
 library(R6)
 
 # Source the ValidationError class

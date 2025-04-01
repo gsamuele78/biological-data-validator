@@ -1,4 +1,4 @@
-# R/validation_classes.R
+#' R/validation_classes.R
 library(R6)
 
 # Source validation rules
