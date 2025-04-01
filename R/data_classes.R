@@ -5,7 +5,7 @@ library(readxl)
 library(readr)
 library(tools)
 
-# Load CSV mapping configuration
+#' Load CSV mapping configuration
 source("R/csv_mapping.R")
 
 #' @import R6

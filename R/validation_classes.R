@@ -1,11 +1,11 @@
 #' R/validation_classes.R
 library(R6)
 
-# Source validation rules
+#' Source validation rules
 source("R/validation_rules.R")
 source("R/csv_validation_rules.R")  # Source the new CSV validation rules file
 
-# Source the ValidationError class
+#' Source the ValidationError class
 source("R/validation_error.R")
 
 #' @title Validator

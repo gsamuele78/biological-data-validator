@@ -2,7 +2,7 @@
 #' Validation rules for data validation
 library(R6)
 
-# Source the ValidationError class
+#' Source the ValidationError class
 source("R/validation_error.R")
 
 #' Base class for validation rules

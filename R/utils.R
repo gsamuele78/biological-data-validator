@@ -1,6 +1,6 @@
 #' R/utils.R
 
-# Utility functions for logging and data loading
+#' Utility functions for logging and data loading
 
 #' @description
 #' Set up logging for the application
