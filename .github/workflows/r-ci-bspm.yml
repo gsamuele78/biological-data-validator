@@ -181,8 +181,29 @@ jobs:
           if (!requireNamespace("openxlsx", quietly = TRUE)) {
             install.packages("openxlsx", repos = "https://cran.r-project.org")
           }
-          library(openxlsx)
+          if (!requireNamespace("shinytest", quietly = TRUE)) {
+            install.packages("shinytest", repos = "https://cran.r-project.org")
+          }
+          if (!requireNamespace("readxl", quietly = TRUE)) {
+            install.packages("readxl", repos = "https://cran.r-project.org")
+          }
+          if (!requireNamespace("DBI", quietly = TRUE)) {
+            install.packages("DBI", repos = "https://cran.r-project.org")
+          }
+          if (!requireNamespace("lubridate", quietly = TRUE)) {
+            install.packages("lubridate", repos = "https://cran.r-project.org")
+          }
+          if (!requireNamespace("readr", quietly = TRUE)) {
+            install.packages("readr", repos = "https://cran.r-project.org")
+          }
+
+          library(openxlsx)          
           library(shiny)
+          library(shinytest)
+          library(readxl)
+          library(DBI)
+          library(lubridate)
+          library(readr)
           library(logger)    
           library(here)
           library(testthat)
