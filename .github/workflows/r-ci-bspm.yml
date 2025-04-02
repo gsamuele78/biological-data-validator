@@ -182,7 +182,7 @@ jobs:
             install.packages("openxlsx", repos = "https://cran.r-project.org")
           }
           library(openxlsx)
-          library(shyny)
+          library(shiny)
           library(logger)    
           library(here)
           library(testthat)
