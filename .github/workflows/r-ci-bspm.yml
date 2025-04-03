@@ -166,6 +166,9 @@ jobs:
         set -e
         R -e '
           # First ensure the here package is installed and loaded
+          if (!requireNamespace("renv", quietly = TRUE)) {
+            install.packages("renv", repos = "https://cran.r-project.org")
+          # First ensure the here package is installed and loaded
           if (!requireNamespace("here", quietly = TRUE)) {
             install.packages("here", repos = "https://cran.r-project.org")
           }
@@ -196,8 +199,8 @@ jobs:
           if (!requireNamespace("readr", quietly = TRUE)) {
             install.packages("readr", repos = "https://cran.r-project.org")
           }
-
-          library(openxlsx)          
+          library(rprojroot)
+          library(renv)          
           library(shiny)
           library(shinytest)
           library(readxl)
