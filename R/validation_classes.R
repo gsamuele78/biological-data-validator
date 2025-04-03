@@ -98,20 +98,14 @@ Validator <- R6Class("Validator",
       
       # If output path is provided, save the report
       if (!is.null(output_path)) {
-        # Determine the format based on file extension
+        # Ensure the file extension is CSV
         file_ext <- tolower(tools::file_ext(output_path))
-        
-        if (file_ext == "csv") {
-          write.csv(validation_results, file = output_path, row.names = FALSE)
-        } else if (file_ext %in% c("xlsx", "xls")) {
-          # Create a workbook and write the results
-          wb <- openxlsx::createWorkbook()
-          openxlsx::addWorksheet(wb, "Validation Results")
-          openxlsx::writeData(wb, "Validation Results", validation_results)
-          openxlsx::saveWorkbook(wb, output_path, overwrite = TRUE)
-        } else {
-          warning("Unsupported output format. Report will not be saved.")
+        if (file_ext != "csv") {
+          stop("Only CSV format is supported for the validation report.")
         }
+        
+        # Save the report as a CSV file
+        write.csv(validation_results, file = output_path, row.names = FALSE)
       }
       
       return(validation_results)

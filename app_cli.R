@@ -36,9 +36,9 @@ option_list <- list(
   make_option(c("-p", "--plot_code"), type = "character", default = NULL,
               help = "Plot code to search for (use with --search)", metavar = "character"),
   make_option(c("--from_date"), type = "character", default = NULL,
-              help = "Start date for search (YYYY-MM-DD, use with --search)", metavar = "character"),
+              help = "Start date for search (YYYYMMDD, use with --search)", metavar = "character"),
   make_option(c("--to_date"), type = "character", default = NULL,
-              help = "End date for search (YYYY-MM-DD, use with --search)", metavar = "character"),
+              help = "End date for search (YYYYMMDD, use with --search)", metavar = "character"),
   make_option(c("-u", "--update"), action = "store_true", default = FALSE,
               help = "Update a database record"),
   make_option(c("--update_id"), type = "integer", default = NULL,
@@ -111,6 +111,11 @@ main <- function(opt) {
     log_info("Starting CSV data validation...")
     log_info("Loading data from: {opt$file}")
 
+    # Check if the file exists
+    if (!file.exists(opt$file)) {
+      stop("The specified file does not exist: ", opt$file)
+    }
+
     # Initialize PathGenerator with the base path
     path_generator <- PathGenerator$new(opt$base_path)
 
@@ -118,7 +123,11 @@ main <- function(opt) {
     validator <- Validator$new(path_generator)
 
     # Load CSV data
-    data_source <- DataSource$new(opt$file)
+    data_source <- tryCatch({
+      DataSource$new(opt$file)
+    }, error = function(e) {
+      stop("Failed to initialize DataSource. Error: ", e$message)
+    })
     
     # Validate data
     errors <- validator$validate(data_source)
@@ -176,4 +185,4 @@ main <- function(opt) {
 # Run main function if script is executed
 if (!interactive()) {
   main(opt)
-} 
+}
