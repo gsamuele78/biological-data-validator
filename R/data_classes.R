@@ -51,8 +51,8 @@ DataValidator <- R6::R6Class(
 #'   \item \strong{SU}: Sampling Unit (numeric, expected range 1-4)
 #'   \item \strong{Sample.date}: Sample date (in a recognizable date format)
 #'   \item \strong{Detector}: Detector name (string)
-#'   \item \strong{X}: Longitude (numeric, WGS84)
-#'   \item \strong{Y}: Latitude (numeric, WGS84)
+#' deleted  \item \strong{X}: Longitude (numeric, WGS84)
+#' deleted  \item \strong{Y}: Latitude (numeric, WGS84)
 #'   \item \strong{Region}: Region name (string)
 #'   \item \strong{Elevation}: Elevation in meters (numeric)
 #'   \item \strong{Aspect}: Sun exposition in degrees (numeric)
@@ -89,9 +89,9 @@ Sheet1Data <- R6Class(
     #' @field Detector Detector name (string)
     Detector = NULL,
     #' @field X Longitude (numeric, WGS84)
-    X = NULL,
+    #' X = NULL,
     #' @field Y Latitude (numeric, WGS84)
-    Y = NULL,
+    #' Y = NULL,
     #' @field Region Region name (string)
     Region = NULL,
     #' @field Elevation Elevation in meters (numeric)
@@ -122,8 +122,8 @@ Sheet1Data <- R6Class(
       self$SU <- as.numeric(data_row[["SU"]])
       self$Sample.date <- as.Date(data_row[["Sample.date"]])
       self$Detector <- as.character(data_row[["Detector"]])
-      self$X <- as.numeric(data_row[["X"]])
-      self$Y <- as.numeric(data_row[["Y"]])
+      #'self$X <- as.numeric(data_row[["X"]])
+      #'self$Y <- as.numeric(data_row[["Y"]])
       self$Region <- as.character(data_row[["Region"]])
       self$Elevation <- as.numeric(data_row[["Elevation"]])
       self$Aspect <- as.numeric(data_row[["Aspect"]])
@@ -149,8 +149,8 @@ Sheet1Data <- R6Class(
         SU = self$SU,
         Sample.date = as.character(self$Sample.date),
         Detector = self$Detector,
-        X = self$X,
-        Y = self$Y,
+        #' X = self$X,
+        #' Y = self$Y,
         Region = self$Region,
         Elevation = self$Elevation,
         Aspect = self$Aspect,

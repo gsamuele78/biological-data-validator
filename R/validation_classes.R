@@ -34,19 +34,20 @@ Validator <- R6Class("Validator",
     #' @description
     #' Add default validation rules
     add_default_rules = function() {
-      self$add_rule(CSVFilenameValidationRule$new())
-      self$add_rule(CSVFileStructureValidationRule$new())
-      self$add_rule(CSVFileValidationRule$new())
-      self$add_rule(NotNullValidationRule$new())
-      self$add_rule(DataTypeValidationRule$new())
-      self$add_rule(MaxRowsValidationRule$new())
-      self$add_rule(UniqueSUValidationRule$new())
-      self$add_rule(NotesValidationRule$new())
-      self$add_rule(DuplicateRowValidationRule$new())
-      self$add_rule(SpeciesExistenceValidationRule$new())
-      self$add_rule(DetectorExistenceValidationRule$new())  # Register the new validation rule
-      self$add_rule(RegionExistenceValidationRule$new())  # Register the new validation rule
-      self$add_rule(CodiceExistenceValidationRule$new())  # Register the new validation rule
+      self$add_rule(CSVFilenameValidationRule$new())        # filename validation
+      self$add_rule(CSVFileStructureValidationRule$new())   # file structure validation
+      self$add_rule(CSVFileValidationRule$new())            # file content validation  
+      self$add_rule(DataTypeValidationRule$new())           # data type validation
+      self$add_rule(NotNullValidationRule$new())            # not null validation
+      self$add_rule(DuplicateRowValidationRule$new())       # duplicate row validation
+      self$add_rule(MaxRowsValidationRule$new())            # max rows validation
+      self$add_rule(UniqueSUValidationRule$new())           # unique SU validation
+      self$add_rule(NotesValidationRule$new())              # notes validation
+      
+      self$add_rule(SpeciesExistenceValidationRule$new())   # species existence validation
+      self$add_rule(DetectorExistenceValidationRule$new())  # detector existence validation
+      self$add_rule(RegionExistenceValidationRule$new())    # region existence validation
+      self$add_rule(CodiceExistenceValidationRule$new())    # codice existence validation
     },
     
     #' @description

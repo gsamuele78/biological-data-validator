@@ -5,11 +5,11 @@
 #' Mapping for Sheet1 CSV fields
 SHEET1_CSV_MAPPING <- list(
   Plot.code = "codice",
-  SU = "su",
+  SU = "plot",
   Sample.date = "sample_date",
   Detector = "detector",
-  X = "x",                                    # "longitude"
-  Y = "y",                                    # "latitude"
+  #X = "x",                                    # "longitude"
+  #Y = "y",                                    # "latitude"
   Region = "region",
   Elevation = "elevation",                    # "elevation_m"
   Aspect = "aspect",                          # "aspect_deg"
@@ -27,7 +27,7 @@ SHEET1_CSV_MAPPING <- list(
 #' Mapping for Sheet2 CSV fields
 SHEET2_CSV_MAPPING <- list(
   Plot.code = "codice",
-  Subplot = "sU",                             # "subplot_number"
+  Subplot = "plot",                             # "subplot_number"
   Layer = "layer",                            # "vegetation_layer T-S-H"
   Species = "species(genus_species)",      # "species (Genus + species)"
   cover = "cover_perc",                     # "species_cover Cover(perc.)"

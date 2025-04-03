@@ -35,13 +35,13 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           errors <- append(errors, ValidationError$new(
             source = "Sheet1", row = i, column = "Plot.code",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Plot.code",
+            error = "Wrong(Plot.code) Data Type Violation",
             message = "Plot.code should be alphanumeric."
           ))
         }
         if (!is.numeric(data_row$SU) || data_row$SU < 1 || data_row$SU > 4) {
           error_type <- if (!is.numeric(data_row$SU)) {
-            "Data Type Violation - SU"
+            "Wrong(SU) Data Type Violation"
           } else {
             "Out of range - SU"
           }
@@ -52,49 +52,33 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           ))
         }
         if (!inherits(data_row$Sample.date, "Date") ||
-          !grepl("^\\d{4}-\\d{2}-\\d{2}$", as.character(data_row$Sample.date))) {
+          !grepl("^\\d{4}\\d{2}\\d{2}$", as.character(data_row$Sample.date))) {
           errors <- append(errors, ValidationError$new(
             source = "Sheet1", row = i, column = "Sample.date",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Sample.date",
-            message = "Sample.date should be a valid date in the format YYYY-MM-DD."
+            error = "Wrong(Sample.date) Data Type Violation",
+            message = "Sample.date should be a valid date in the format YYYYMMDD."
           ))
         }
         if (!is.character(data_row$Detector)) {
           errors <- append(errors, ValidationError$new(
             source = "Sheet1", row = i, column = "Detector",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Detector",
+            error = "Wrong(Detector) Data Type Violation",
             message = "Detector should be a string."
-          ))
-        }
-        if (!is.numeric(data_row$X)) {
-          errors <- append(errors, ValidationError$new(
-            source = "Sheet1", row = i, column = "X",
-            error_code = 1, type = "Generic",
-            error = "Data Type Violation - X",
-            message = "X should be numeric (longitude)."
-          ))
-        }
-        if (!is.numeric(data_row$Y)) {
-          errors <- append(errors, ValidationError$new(
-            source = "Sheet1", row = i, column = "Y",
-            error_code = 1, type = "Generic",
-            error = "Data Type Violation - Y",
-            message = "Y should be numeric (latitude)."
           ))
         }
         if (!is.character(data_row$Region)) {
           errors <- append(errors, ValidationError$new(
             source = "Sheet1", row = i, column = "Region",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Region",
+            error = "Wrong(Region) Data Type Violation",
             message = "Region should be a string."
           ))
         }
         if (!is.numeric(data_row$Elevation) || data_row$Elevation < 0 || data_row$Elevation > 6000) {
           error_type <- if (!is.numeric(data_row$Elevation)) {
-            "Data Type Violation - Elevation"
+            "Wrong(Elevation) Data Type Violation"
           } else {
             "Out of range - Elevation"
           }
@@ -106,7 +90,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Aspect) || data_row$Aspect < 0 || data_row$Aspect > 360) {
           error_type <- if (!is.numeric(data_row$Aspect)) {
-            "Data Type Violation - Aspect"
+            "Wrong(Aspect) Data Type Violation"
           } else {
             "Out of range - Aspect"
           }
@@ -118,7 +102,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Slope) || data_row$Slope < 0 || data_row$Slope > 90) {
           error_type <- if (!is.numeric(data_row$Slope)) {
-            "Data Type Violation - Slope"
+            "Wrong(Slope) Data Type Violation"
           } else {
             "Out of range - Slope"
           }
@@ -130,7 +114,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Cop.tot) || data_row$Cop.tot < 0 || data_row$Cop.tot > 100) {
           error_type <- if (!is.numeric(data_row$Cop.tot)) {
-            "Data Type Violation - Cop.tot"
+            "Wrong(Cop.tot) Data Type Violation"
           } else {
             "Out of range - Cop.tot"
           }
@@ -142,7 +126,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Tree.cov) || data_row$Tree.cov < 0 || data_row$Tree.cov > 100) {
           error_type <- if (!is.numeric(data_row$Tree.cov)) {
-            "Data Type Violation - Tree.cov"
+            "Wrong(Tree.cov) Data Type Violation"
           } else {
             "Out of range - Tree.cov"
           }
@@ -154,7 +138,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Shrub.cov) || data_row$Shrub.cov < 0 || data_row$Shrub.cov > 100) {
           error_type <- if (!is.numeric(data_row$Shrub.cov)) {
-            "Data Type Violation - Shrub.cov"
+            "Wrong(Shrub.cov) Data Type Violation"
           } else {
             "Out of range - Shrub.cov"
           }
@@ -166,7 +150,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Herb.cov) || data_row$Herb.cov < 0 || data_row$Herb.cov > 100) {
           error_type <- if (!is.numeric(data_row$Herb.cov)) {
-            "Data Type Violation - Herb.cov"
+            "Wrong(Herb.cov) Data Type Violation"
           } else {
             "Out of range - Herb.cov"
           }
@@ -178,7 +162,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Brioph.cov) || data_row$Brioph.cov < 0 || data_row$Brioph.cov > 100) {
           error_type <- if (!is.numeric(data_row$Brioph.cov)) {
-            "Data Type Violation - Brioph.cov"
+            "Wrong(Brioph.cov) Data Type Violation"
           } else {
             "Out of range - Brioph.cov"
           }
@@ -190,7 +174,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Bare.soil.cov) || data_row$Bare.soil.cov < 0 || data_row$Bare.soil.cov > 100) {
           error_type <- if (!is.numeric(data_row$Bare.soil.cov)) {
-            "Data Type Violation - Bare.soil.cov"
+            "Wrong(Bare.soil.cov) Data Type Violation"
           } else {
             "Out of range - Bare.soil.cov"
           }
@@ -202,7 +186,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.numeric(data_row$Litter.cov) || data_row$Litter.cov < 0 || data_row$Litter.cov > 100) {
           error_type <- if (!is.numeric(data_row$Litter.cov)) {
-            "Data Type Violation - Litter.cov"
+            "Wrong(Litter.cov) Data Type Violation"
           } else {
             "Out of range - Litter.cov"
           }
@@ -216,7 +200,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           errors <- append(errors, ValidationError$new(
             source = "Sheet1", row = i, column = "notes",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - notes",
+            error = "Wrong(notes) Data Type Violation",
             message = "notes should be a string."
           ))
         }
@@ -230,13 +214,13 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           errors <- append(errors, ValidationError$new(
             source = "Sheet2", row = i, column = "Plot.code",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Plot.code",
+            error = "Wrong(Plot.code) Data Type Violation",
             message = "Plot.code should be alphanumeric."
           ))
         }
         if (!is.numeric(data_row$Subplot) || data_row$Subplot < 1 || data_row$Subplot > 4) {
           error_type <- if (!is.numeric(data_row$Subplot)) {
-            "Data Type Violation - Subplot"
+            "Wrong(Subplot) Data Type Violation"
           } else {
             "Out of range - Subplot"
           }
@@ -248,7 +232,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
         }
         if (!is.character(data_row$Layer) || !data_row$Layer %in% c("T", "S", "H")) {
           error_type <- if (!is.character(data_row$Layer)) {
-            "Data Type Violation - Layer"
+            "Wrong(Layer) Data Type Violation"
           } else {
             "Out of range - Layer"
           }
@@ -262,13 +246,13 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           errors <- append(errors, ValidationError$new(
             source = "Sheet2", row = i, column = "Species",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Species",
+            error = "Wrong(Species) Data Type Violation",
             message = "Species should be a string."
           ))
         }
         if (!is.numeric(data_row$cover) || data_row$cover < 0 || data_row$cover > 100) {
           error_type <- if (!is.numeric(data_row$cover)) {
-            "Data Type Violation - cover"
+            "Wrong(cover) Data Type Violation"
           } else {
             "Out of range - cover"
           }
@@ -282,7 +266,7 @@ DataTypeValidationRule <- R6Class("DataTypeValidationRule",
           errors <- append(errors, ValidationError$new(
             source = "Sheet2", row = i, column = "Notes",
             error_code = 1, type = "Generic",
-            error = "Data Type Violation - Notes",
+            error = "Wrong(Notes) Data Type Violation",
             message = "Notes should be a string."
           ))
         }
