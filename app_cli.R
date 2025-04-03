@@ -23,9 +23,11 @@ required_files <- c(
 )
 
 for (file in required_files) {
+  print(paste("Checking if file exists:", file))
   if (!file.exists(file)) {
     stop(paste("Required file not found:", file))
   }
+  print(paste("File exists:", file))
   print(paste("Sourcing:", file))
   source(file)
 }
