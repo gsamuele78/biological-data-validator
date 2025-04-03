@@ -1,4 +1,4 @@
-#' R/data_classes.R # nolint: commented_code_linter.
+# nolint: commented_code_linter. #' R/data_classes.R 
 library(R6)
 library(openxlsx)
 library(readxl)
