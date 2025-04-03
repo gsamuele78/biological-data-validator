@@ -1,4 +1,4 @@
-#' R/validation_classes.R # nolint: commented_code_linter.
+# R/validation_classes.R # nolint: commented_code_linter.
 library(R6)
 
 #' Source validation rules
