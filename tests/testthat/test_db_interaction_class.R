@@ -1,4 +1,4 @@
-# tests/testthat/test_db_interaction_class.R
+# tests/testthat/test_db_interaction_class.R # nolint: commented_code_linter.
 library(testthat)
 source("../../R/db_interaction_class.R")
 source("../../R/csv_mapping.R")

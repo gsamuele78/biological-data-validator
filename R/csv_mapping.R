@@ -1,4 +1,4 @@
-#' R/csv_mapping.R
+#' R/csv_mapping.R # nolint: commented_code_linter.
 #' CSV field mapping configuration
 #' Defines the mappings between CSV columns and internal field names
 

@@ -1,4 +1,4 @@
-# tests/testthat/test_data_classes.R
+# tests/testthat/test_data_classes.R # nolint: commented_code_linter.
 library(testthat)
 library(R6)
 source("../../R/data_classes.R")

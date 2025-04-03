@@ -1,3 +1,4 @@
+## nolint: commented_code_linter.
 library(here)
 
 # Set up test environment

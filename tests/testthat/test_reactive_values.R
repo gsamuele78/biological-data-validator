@@ -1,4 +1,4 @@
-# tests/testthat/test_reactive_values.R
+# tests/testthat/test_reactive_values.R # nolint: commented_code_linter.
 library(testthat)
 library(shiny)
 library(R6)

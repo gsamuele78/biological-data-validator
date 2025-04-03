@@ -1,4 +1,4 @@
-# tests/testthat/test_validation_classes.R
+# tests/testthat/test_validation_classes.R # nolint: commented_code_linter.
 #' @title Test suite for validation classes
 #' @description Tests for the validation classes in the biological data validator package
 #' @author Updated version based on original code

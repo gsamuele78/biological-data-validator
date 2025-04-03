@@ -1,3 +1,4 @@
+## nolint: commented_code_linter.
 library(testthat)
 library(logger)
 

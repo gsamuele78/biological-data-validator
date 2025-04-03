@@ -1,4 +1,4 @@
-#' R/path_generation_class.R
+#' R/path_generation_class.R # nolint: commented_code_linter.
 library(R6)
 library(lubridate)
 
@@ -24,9 +24,9 @@ PathGenerator <- R6Class(
     #'   "date/region/detector/plot", "region/date/detector/plot",
     #'   "detector/region/date/plot")
     initialize = function(base_path = getwd(),
-                          path_format = "date/region/detector/plot") {
-      if (!is.character(base_path) || length(base_path) != 1) {
-        stop("Base path must be a single character string")
+                          path_format = "region/detector/date/plot") {
+      if (!is.character(base_path) || length(base_path) != 1 || base_path == "") {
+        stop("Base path must be a single non-empty character string")
       }
       
       self$base_path <- normalizePath(base_path, mustWork = FALSE)

@@ -1,4 +1,4 @@
-#' R/email_class.R
+#' R/email_class.R # nolint: commented_code_linter.
 library(R6)
 library(mailR)
 

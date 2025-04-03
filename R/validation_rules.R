@@ -1,4 +1,4 @@
-#' R/validation_rules.R
+#' R/validation_rules.R # nolint: commented_code_linter.
 #' Validation rules for data validation
 library(R6)
 
@@ -640,7 +640,7 @@ CodiceExistenceValidationRule <- R6Class("CodiceExistenceValidationRule",
       
       # Load the reference codice list
       reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Codice.csv")
-      if (!file.exists(reference_file)) {
+      if (!file.exists(reference_file) || reference_file == "") {
         stop("Reference codice list not found at: ", reference_file)
       }
       

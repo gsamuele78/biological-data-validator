@@ -1,4 +1,4 @@
-#' app_shiny.R
+#' app_shiny.R # nolint: commented_code_linter.
 
 # Load necessary libraries using renv
 if (!require("renv")) install.packages("renv")

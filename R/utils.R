@@ -1,4 +1,4 @@
-#' R/utils.R
+#' R/utils.R # nolint: commented_code_linter.
 
 #' Utility functions for logging and data loading
 
@@ -245,7 +245,7 @@ load_reference_region_list <- function() {
 #' @return A vector of codice values
 load_reference_codice_list <- function() {
   reference_file <- file.path("inst", "extdata", "lists", "Lista_Riferimento_Codice.csv")
-  if (!file.exists(reference_file)) {
+  if (!file.exists(reference_file) || reference_file == "") {
     stop("Reference codice list not found at: ", reference_file)
   }
   

@@ -1,4 +1,4 @@
-#' R/db_interaction_class.R
+#' R/db_interaction_class.R # nolint: commented_code_linter.
 library(R6)
 library(DBI)
 library(RSQLite)

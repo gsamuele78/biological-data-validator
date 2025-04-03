@@ -1,4 +1,4 @@
-# tests/testthat/test_utils.R
+# tests/testthat/test_utils.R # nolint: commented_code_linter.
 library(testthat)
 source("../../R/utils.R")
 

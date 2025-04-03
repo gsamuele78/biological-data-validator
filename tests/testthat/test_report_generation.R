@@ -1,4 +1,4 @@
-# tests/testthat/test_report_generation.R
+# tests/testthat/test_report_generation.R # nolint: commented_code_linter.
 library(testthat)
 library(R6)
 

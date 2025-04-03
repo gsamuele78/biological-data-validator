@@ -1,4 +1,4 @@
-# tests/testthat/test_file_encoding.R
+# tests/testthat/test_file_encoding.R # nolint: commented_code_linter.
 library(testthat)
 library(R6)
 

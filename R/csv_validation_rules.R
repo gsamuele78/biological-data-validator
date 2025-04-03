@@ -1,4 +1,4 @@
-#' R/csv_validation_rules.R
+#' R/csv_validation_rules.R # nolint: commented_code_linter.
 #' Common CSV filename patterns
 CSVFilenamePatterns <- list(
   plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",
@@ -11,32 +11,52 @@ CSVFilenameValidationRule <- R6Class("CSVFilenameValidationRule",
   public = list(
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
-      
+
+      # Check if filepath is valid
+      if (is.null(data_source$filepath) || data_source$filepath == "") {
+        errors <- append(errors, ValidationError$new(
+          source = "FileSystem", row = NA, column = NA,
+          error_code = 1, type = "Generic", error = "Invalid Filepath",
+          message = "Filepath is missing or empty."
+        ))
+        return(errors)  # Return early if filepath is invalid
+      }
+
       main_file <- basename(data_source$filepath)
       plot_pattern <- CSVFilenamePatterns$plot_pattern
-      
+
       # Validate main file format
       if (!grepl(paste0("^", plot_pattern, "$"), main_file, ignore.case = TRUE)) {
         errors <- append(errors, ValidationError$new(
           source = "FileSystem", row = NA, column = NA,
           error_code = 1, type = "Generic", error = "Filename Violation",
-          message = paste("Invalid main file name format. Expected: Plot_Template_INFIYYYY.csv, Got:", main_file)
+          message = paste(
+            "Invalid main file name format. Expected: Plot_Template_INFIYYYY.csv, Got:", 
+            main_file
+          )
         ))
       }
-      
+
       # Extract year from main file
       year <- gsub(plot_pattern, "\\1", main_file)
-      
+
       # Derive species file name
       expected_species_file <- paste0("Species_Template_INFI", year, ".csv")
-      species_path <- file.path(dirname(data_source$filepath), expected_species_file)
-      
+      dir_path <- dirname(data_source$filepath)
+      if (dir_path == ".") {
+        dir_path <- getwd()  # Use the current working directory
+      }
+      species_path <- file.path(dir_path, expected_species_file)
+
       # Validate species file format
       if (!file.exists(species_path)) {
         errors <- append(errors, ValidationError$new(
           source = "FileSystem", row = NA, column = NA,
           error_code = 1, type = "Generic", error = "Missing File",
-          message = paste("Species file not found or invalid format. Expected:", expected_species_file)
+          message = paste(
+            "Species file not found or invalid format. Expected:", 
+            expected_species_file
+          )
         ))
       }
 
@@ -52,7 +72,7 @@ CSVFileValidationRule <- R6Class("CSVFileValidationRule",
   public = list(
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
-      
+
       main_file <- basename(data_source$filepath)
       species_file <- basename(gsub(
         CSVFilenamePatterns$plot_pattern,
@@ -60,10 +80,10 @@ CSVFileValidationRule <- R6Class("CSVFileValidationRule",
         main_file,
         ignore.case = TRUE
       ))
-      
+
       # Check if both files exist
       species_path <- file.path(dirname(data_source$filepath), species_file)
-      
+
       if (!file.exists(species_path)) {
         errors <- append(errors, ValidationError$new(
           source = "FileSystem", row = NA, column = NA,
@@ -84,12 +104,12 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
   public = list(
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
-      
+
       # Only run this validation for CSV data sources
       if (data_source$file_type != "csv") {
         return(do.call(rbind, lapply(errors, function(e) e$to_dataframe_row())))
       }
-      
+
       # Get filenames using patterns
       main_file <- basename(data_source$filepath)
       species_file <- basename(gsub(
@@ -98,10 +118,10 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
         main_file,
         ignore.case = TRUE
       ))
-      
+
       # Check if both files exist with correct structure
       species_path <- file.path(dirname(data_source$filepath), species_file)
-      
+
       if (!file.exists(species_path)) {
         errors <- append(errors, ValidationError$new(
           source = "FileSystem", row = NA, column = NA,
@@ -109,7 +129,7 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
           message = paste("Species data file not found:", species_path)
         ))
       }
-      
+
       # Check if the file is in UTF-8 encoding using readr's guess_encoding
       tryCatch({
         # Use readr's guess_encoding function for more reliable encoding detection
@@ -120,7 +140,10 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
             errors <- append(errors, ValidationError$new(
               source = "FileSystem", row = NA, column = NA,
               error_code = 1, type = "Generic", error = "Encoding Issue",
-              message = paste0("CSV file is not in UTF-8 encoding. Detected: ", top_encoding)
+              message = paste0(
+                "CSV file is not in UTF-8 encoding. Detected: ", 
+                top_encoding
+              )
             ))
           }
         }
@@ -141,7 +164,7 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
           message = "CSV file does not use ',' as column separator."
         ))
       }
-      
+
       sample_data <- read.csv(data_source$filepath, nrows = 10, sep = ",", dec = ".")
       if (any(is.na(as.numeric(gsub(",", "", unlist(sample_data), fixed = TRUE))))) {
         errors <- append(errors, ValidationError$new(

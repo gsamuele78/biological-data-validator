@@ -1,4 +1,4 @@
-#' R/validation_error.R
+#' R/validation_error.R # nolint: commented_code_linter.
 library(R6)
 
 ValidationError <- R6Class("ValidationError",

@@ -1,4 +1,4 @@
-# tests/testthat/test_path_generation_class.R
+# tests/testthat/test_path_generation_class.R # nolint: commented_code_linter.
 library(testthat)
 library(lubridate)
 source("../../R/path_generation.R")
