@@ -64,7 +64,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -e
-        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown", "shinytest" ), lib = Sys.getenv("R_LIBS_USER"))'
+        R -e 'install.packages(c("lintr", "styler", "testthat", "remotes", "optparse", "rprojroot", "pkgdown", "shinytest", repos = "https://cran.r-project.org" ), lib = Sys.getenv("R_LIBS_USER"))'
         R -e 'install.packages("DT", lib = Sys.getenv("R_LIBS_USER"))'
         R -e 'remotes::install_deps(dependencies = TRUE, Ncpus = parallel::detectCores(), lib = Sys.getenv("R_LIBS_USER"))'
       working-directory: ${{ github.workspace }}
