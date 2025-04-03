@@ -1,4 +1,4 @@
-# app_cli.R (Main CLI Script)
+#nolint commented_code_linter:app_cli.R (Main CLI Script)
 
 # Install and load necessary packages using renv
 if (!require("renv")) install.packages("renv")
