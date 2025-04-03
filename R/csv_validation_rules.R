@@ -1,4 +1,4 @@
-# R/csv_validation_rules.R # nolint: commented_code_linter. 
+#' R/csv_validation_rules.R # nolint: commented_code_linter. 
 #' Common CSV filename patterns
 CSVFilenamePatterns <- list(
   plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",
