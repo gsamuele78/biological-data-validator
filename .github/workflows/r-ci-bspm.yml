@@ -161,56 +161,27 @@ jobs:
         R -e 'lintr::lint_package()'
       shell: bash
 
-    - name: Run tests # keep run tests step
+    - name: Run tests
       run: |
         set -e
         R -e '
-          # First ensure the here package is installed and loaded
-          if (!requireNamespace("renv", quietly = TRUE)) {
-            install.packages("renv", repos = "https://cran.r-project.org")
-          # First ensure the here package is installed and loaded
-          if (!requireNamespace("here", quietly = TRUE)) {
-            install.packages("here", repos = "https://cran.r-project.org")
+          # Ensure required packages are installed and loaded
+          required_packages <- c(
+            "renv", "here", "testthat", "logger", "shiny", 
+            "openxlsx", "shinytest", "readxl", "DBI", 
+            "lubridate", "readr"
+          )
+          
+          for (pkg in required_packages) {
+            if (!requireNamespace(pkg, quietly = TRUE)) {
+              install.packages(pkg, repos = "https://cran.r-project.org")
+            }
           }
-          if (!requireNamespace("testthat", quietly = TRUE)) {
-            install.packages("testthat", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("logger", quietly = TRUE)) {
-            install.packages("logger", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("shiny", quietly = TRUE)) {
-            install.packages("shiny", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("openxlsx", quietly = TRUE)) {
-            install.packages("openxlsx", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("shinytest", quietly = TRUE)) {
-            install.packages("shinytest", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("readxl", quietly = TRUE)) {
-            install.packages("readxl", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("DBI", quietly = TRUE)) {
-            install.packages("DBI", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("lubridate", quietly = TRUE)) {
-            install.packages("lubridate", repos = "https://cran.r-project.org")
-          }
-          if (!requireNamespace("readr", quietly = TRUE)) {
-            install.packages("readr", repos = "https://cran.r-project.org")
-          }
-          library(rprojroot)
-          library(renv)          
-          library(shiny)
-          library(shinytest)
-          library(readxl)
-          library(DBI)
-          library(lubridate)
-          library(readr)
-          library(logger)    
-          library(here)
-          library(testthat)
-          # Now run the tests from the project root
+          
+          # Load required libraries
+          lapply(required_packages, library, character.only = TRUE)
+          
+          # Run tests from the project root
           setwd(getwd())
           testthat::test_dir("tests/testthat", reporter = "progress")
         '
