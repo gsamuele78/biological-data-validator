@@ -1,14 +1,33 @@
-#' R/csv_validation_rules.R # nolint: commented_code_linter. 
+#' R/csv_validation_rules.R # nolint: commented_code_linter.
 #' Common CSV filename patterns
+#' This file defines validation rules specific to CSV files, including filename validation,
+#' file existence checks, and file structure validation.
+
+# Documentation:
+# - R6 Classes: https://cran.r-project.org/web/packages/R6/vignettes/Introduction.html
+# - readr: https://readr.tidyverse.org/
+
+#' Define common filename patterns for CSV files
 CSVFilenamePatterns <- list(
-  plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",
-  species_pattern = "^Species_Template_INFI(\\d{4})\\.csv$"
+  plot_pattern = "^Plot_Template_INFI(\\d{4})\\.csv$",  # Pattern for main plot files
+  species_pattern = "^Species_Template_INFI(\\d{4})\\.csv$"  # Pattern for species files
 )
 
-#' CSV filename validation rule
+#' @title CSVFilenameValidationRule
+#' @description Validates the naming conventions of CSV files.
+#' Example:
+#' ```
+#' rule <- CSVFilenameValidationRule$new()
+#' errors <- rule$check(data_source)
+#' print(errors)
+#' ```
 CSVFilenameValidationRule <- R6Class("CSVFilenameValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the naming conventions of the main and species CSV files.
+    #' @param data_source A DataSource object containing the file paths.
+    #' @return A data frame of validation errors, if any.
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
 
@@ -19,7 +38,7 @@ CSVFilenameValidationRule <- R6Class("CSVFilenameValidationRule",
           error_code = 1, type = "Generic", error = "Invalid Filepath",
           message = "Filepath is missing or empty."
         ))
-        return(errors)  # Return early if filepath is invalid
+        return(do.call(rbind, lapply(errors, function(e) e$to_dataframe_row())))
       }
 
       main_file <- basename(data_source$filepath)
@@ -66,10 +85,21 @@ CSVFilenameValidationRule <- R6Class("CSVFilenameValidationRule",
   )
 )
 
-#' CSV-specific validation rule
+#' @title CSVFileValidationRule
+#' @description Validates the existence of required CSV files.
+#' Example:
+#' ```
+#' rule <- CSVFileValidationRule$new()
+#' errors <- rule$check(data_source)
+#' print(errors)
+#' ```
 CSVFileValidationRule <- R6Class("CSVFileValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the existence of the main and species CSV files.
+    #' @param data_source A DataSource object containing the file paths.
+    #' @return A data frame of validation errors, if any.
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
 
@@ -98,10 +128,21 @@ CSVFileValidationRule <- R6Class("CSVFileValidationRule",
   )
 )
 
-#' CSV-specific structure validation rule
+#' @title CSVFileStructureValidationRule
+#' @description Validates the structure and encoding of CSV files.
+#' Example:
+#' ```
+#' rule <- CSVFileStructureValidationRule$new()
+#' errors <- rule$check(data_source)
+#' print(errors)
+#' ```
 CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
   inherit = ValidationRule,
   public = list(
+    #' @description
+    #' Check the structure and encoding of the main and species CSV files.
+    #' @param data_source A DataSource object containing the file paths.
+    #' @return A data frame of validation errors, if any.
     check = function(data_source) {
       errors <- list()  # Use a list to collect ValidationError objects
 
@@ -132,7 +173,6 @@ CSVFileStructureValidationRule <- R6Class("CSVFileStructureValidationRule",
 
       # Check if the file is in UTF-8 encoding using readr's guess_encoding
       tryCatch({
-        # Use readr's guess_encoding function for more reliable encoding detection
         file_encoding <- readr::guess_encoding(data_source$filepath)
         if (nrow(file_encoding) > 0) {
           top_encoding <- file_encoding$encoding[1]

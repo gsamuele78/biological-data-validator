@@ -5,6 +5,15 @@ library(readxl)
 library(readr)
 library(tools)
 
+# Purpose:
+# This file defines classes for representing and handling data from CSV files.
+# These classes include `Sheet1Data` for main data rows, `Sheet2Data` for species data rows,
+# and `DataSource` for managing the loading and exporting of data.
+
+# Documentation:
+# - R6 Classes: https://cran.r-project.org/web/packages/R6/vignettes/Introduction.html
+# - readr: https://readr.tidyverse.org/
+
 #' Load CSV mapping configuration
 source("R/csv_mapping.R")
 
@@ -40,43 +49,11 @@ DataValidator <- R6::R6Class(
 
 #' @title Sheet1Data Class
 #' @description Represents a single row in Sheet 1 of the data file.
-#'
-#' This class stores environmental and site information extracted from the first
-#' sheet.
-#'
-#' @param data_row A named list or one-row data frame containing the following
-#'   fields:
-#' \itemize{
-#'   \item \strong{Plot.code}: Plot code (alphanumeric string)
-#'   \item \strong{SU}: Sampling Unit (numeric, expected range 1-4)
-#'   \item \strong{Sample.date}: Sample date (in a recognizable date format)
-#'   \item \strong{Detector}: Detector name (string)
-#' deleted  \item \strong{X}: Longitude (numeric, WGS84)
-#' deleted  \item \strong{Y}: Latitude (numeric, WGS84)
-#'   \item \strong{Region}: Region name (string)
-#'   \item \strong{Elevation}: Elevation in meters (numeric)
-#'   \item \strong{Aspect}: Sun exposition in degrees (numeric)
-#'   \item \strong{Slope}: Soil inclination in degrees (numeric)
-#'   \item \strong{Cop.tot}: Total cover percentage (numeric, 0-100)
-#'   \item \strong{Tree.cov}: Tree cover percentage (numeric, 0-100)
-#'   \item \strong{Shrub.cov}: Shrub cover percentage (numeric, 0-100)
-#'   \item \strong{Herb.cov}: Herb cover percentage (numeric, 0-100)
-#'   \item \strong{Brioph.cov}: Bryophyte cover percentage (numeric, 0-100)
-#'   \item \strong{Bare.soil.cov}: Bare soil cover percentage (numeric, 0-100)
-#'   \item \strong{Litter.cov}: Litter cover percentage (numeric, 0-100)
-#'   \item \strong{notes}: Additional notes (string)
-#' }
-#'
-#' @return A new instance of \code{Sheet1Data}.
-#'
-#' @examples
-#' row <- list(Plot.code = "A1", SU = 1, Sample.date = "2023-05-10",
-#'             Detector = "ABC", X = 12.34, Y = 56.78, Region = "North",
-#'             Elevation = 100, Aspect = 180, Slope = 15, Cop.tot = 90,
-#'             Tree.cov = 70, Shrub.cov = 30, Herb.cov = 40,
-#'             Brioph.cov = 5, Bare.soil.cov = 10, Litter.cov = 20,
-#'             notes = "Sample note")
+#' Example:
+#' ```
+#' row <- list(Plot.code = "A1", SU = 1, Sample.date = "2023-05-10", Detector = "ABC", Region = "North")
 #' obj <- Sheet1Data$new(row)
+#' ```
 Sheet1Data <- R6Class(
   "Sheet1Data",
   public = list(
@@ -88,10 +65,6 @@ Sheet1Data <- R6Class(
     Sample.date = NULL,
     #' @field Detector Detector name (string)
     Detector = NULL,
-    #' @field X Longitude (numeric, WGS84)
-    #' X = NULL,
-    #' @field Y Latitude (numeric, WGS84)
-    #' Y = NULL,
     #' @field Region Region name (string)
     Region = NULL,
     #' @field Elevation Elevation in meters (numeric)
@@ -117,13 +90,13 @@ Sheet1Data <- R6Class(
     #' @field notes Additional notes (string)
     notes = NULL,
 
+    #' @description Initialize a new Sheet1Data object.
+    #' @param data_row A named list or one-row data frame containing the data.
     initialize = function(data_row) {
       self$Plot.code <- as.character(data_row[["Plot.code"]])
       self$SU <- as.numeric(data_row[["SU"]])
       self$Sample.date <- as.Date(data_row[["Sample.date"]])
       self$Detector <- as.character(data_row[["Detector"]])
-      #'self$X <- as.numeric(data_row[["X"]])
-      #'self$Y <- as.numeric(data_row[["Y"]])
       self$Region <- as.character(data_row[["Region"]])
       self$Elevation <- as.numeric(data_row[["Elevation"]])
       self$Aspect <- as.numeric(data_row[["Aspect"]])
@@ -140,17 +113,12 @@ Sheet1Data <- R6Class(
 
     #' @description Convert the Sheet1Data object to a data frame.
     #' @return A data frame containing a single row with the object's data.
-    #' @examples
-    #' df <- obj$to_data_frame()
-    #' print(df)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
         SU = self$SU,
         Sample.date = as.character(self$Sample.date),
         Detector = self$Detector,
-        #' X = self$X,
-        #' Y = self$Y,
         Region = self$Region,
         Elevation = self$Elevation,
         Aspect = self$Aspect,
@@ -175,28 +143,11 @@ Sheet1Data <- R6Class(
 
 #' @title Sheet2Data Class
 #' @description Represents a single row in Sheet 2 of the data file.
-#'
-#' This class stores species and cover information extracted from the second
-#' sheet.
-#'
-#' @param data_row A named list or one-row data frame containing the following
-#'   fields:
-#' \itemize{
-#'   \item \strong{Plot.code}: Plot code (alphanumeric string)
-#'   \item \strong{Subplot}: Subplot number (numeric, expected range 1-4)
-#'   \item \strong{Layer}: Layer (string)
-#'   \item \strong{Species}: Species name (string)
-#'   \item \strong{cover}: Cover percentage (numeric, 0-100)
-#'   \item \strong{Notes}: Notes (string)
-#' }
-#'
-#' @return A new instance of \code{Sheet2Data}.
-#'
-#' @examples
-#' row2 <- list(Plot.code = "A1", Subplot = 2, Layer = "Tree",
-#'              Species = "Quercus ilex", cover = 80,
-#'              Notes = "Healthy specimen")
+#' Example:
+#' ```
+#' row2 <- list(Plot.code = "A1", Subplot = 2, Layer = "Tree", Species = "Quercus ilex", cover = 80)
 #' obj2 <- Sheet2Data$new(row2)
+#' ```
 Sheet2Data <- R6Class(
   "Sheet2Data",
   public = list(
@@ -213,6 +164,8 @@ Sheet2Data <- R6Class(
     #' @field Notes Notes (string)
     Notes = NULL,
 
+    #' @description Initialize a new Sheet2Data object.
+    #' @param data_row A named list or one-row data frame containing the data.
     initialize = function(data_row) {
       self$Plot.code <- as.character(data_row[["Plot.code"]])
       self$Subplot <- as.numeric(data_row[["Subplot"]])
@@ -224,9 +177,6 @@ Sheet2Data <- R6Class(
 
     #' @description Convert the Sheet2Data object to a data frame.
     #' @return A data frame containing a single row with the object's data.
-    #' @examples
-    #' df2 <- obj2$to_data_frame()
-    #' head(df2)
     to_data_frame = function() {
       data.frame(
         Plot.code = self$Plot.code,
@@ -247,6 +197,10 @@ Sheet2Data <- R6Class(
 
 #' @title DataSource Class
 #' @description Represents and handles loading and exporting CSV data files.
+#' Example:
+#' ```
+#' data_source <- DataSource$new("data/Plot_Template_INFI2023.csv")
+#' ```
 DataSource <- R6Class(
   "DataSource",
   public = list(
@@ -261,12 +215,15 @@ DataSource <- R6Class(
     #' @field species_filepath Path to the species data file.
     species_filepath = NULL,
 
+    #' @description Initialize a new DataSource object.
+    #' @param filepath Path to the main CSV file.
     initialize = function(filepath) {
       self$filepath <- filepath
       self$validate_filenames()
       self$load_data()
     },
 
+    #' @description Validate the filenames of the main and species CSV files.
     validate_filenames = function() {
       main_file <- basename(self$filepath)
       plot_pattern <- CSVFilenamePatterns$plot_pattern
@@ -302,6 +259,7 @@ DataSource <- R6Class(
       self$species_filepath <- species_path
     },
 
+    #' @description Load data from the main and species CSV files.
     load_data = function() {
       # Check if main file exists
       if (!file.exists(self$filepath)) {
@@ -349,6 +307,8 @@ DataSource <- R6Class(
       }
     },
 
+    #' @description Export data to CSV files.
+    #' @param output_path Path to save the main CSV file.
     export_data = function(output_path) {
       # Convert data to data frames
       sheet1_df <- do.call(

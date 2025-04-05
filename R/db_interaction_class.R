@@ -3,9 +3,22 @@ library(R6)
 library(DBI)
 library(RSQLite)
 
+# Purpose:
+# This file defines the `DatabaseHandler` class, which is responsible for interacting with the SQLite database.
+# It provides methods to create tables, add, update, delete, and query records, and manage associated images.
 
+# Documentation:
+# - R6 Classes: https://cran.r-project.org/web/packages/R6/vignettes/Introduction.html
+# - DBI: https://cran.r-project.org/web/packages/DBI/index.html
+# - RSQLite: https://cran.r-project.org/web/packages/RSQLite/index.html
 
-#' DatabaseHandler class for interacting with the SQLite database
+#' @title DatabaseHandler
+#' @description Class for interacting with the SQLite database.
+#' Example:
+#' ```
+#' db_handler <- DatabaseHandler$new("validation_history.db")
+#' db_handler$add_plot_data("file.csv", "Plot1", "2023-05-10", "DetectorA", "RegionX", "Valid", "report.html")
+#' ```
 DatabaseHandler <- R6Class(
   "DatabaseHandler",
   public = list(
@@ -13,15 +26,15 @@ DatabaseHandler <- R6Class(
     db = NULL,
 
     #' @description
-    #' Create a new DatabaseHandler object and connect to the database
-    #' @param db_path Path to the SQLite database file
+    #' Create a new DatabaseHandler object and connect to the database.
+    #' @param db_path Path to the SQLite database file.
     initialize = function(db_path = "validation_history.db") {
       self$db <- dbConnect(RSQLite::SQLite(), db_path)
       self$create_tables()
     },
 
     #' @description
-    #' Create the necessary database tables if they don't exist
+    #' Create the necessary database tables if they don't exist.
     create_tables = function() {
       dbExecute(
         self$db,
@@ -50,14 +63,14 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Add plot data to the database
-    #' @param filepath Path to the Excel file
-    #' @param plot_code Plot code
-    #' @param sample_date Sample date
-    #' @param detector Detector
-    #' @param region Region
-    #' @param validation_status Validation status
-    #' @param report_path Path to the report
+    #' Add plot data to the database.
+    #' @param filepath Path to the data file.
+    #' @param plot_code Plot code.
+    #' @param sample_date Sample date.
+    #' @param detector Detector.
+    #' @param region Region.
+    #' @param validation_status Validation status.
+    #' @param report_path Path to the validation report.
     add_plot_data = function(filepath, plot_code, sample_date, detector, region, validation_status, report_path) {
       dbExecute(
         self$db,
@@ -68,9 +81,9 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Add image data to the database
-    #' @param plot_data_id ID of the associated plot data
-    #' @param image_path Path to the image file
+    #' Add image data to the database.
+    #' @param plot_data_id ID of the associated plot data.
+    #' @param image_path Path to the image file.
     add_image_data = function(plot_data_id, image_path) {
       dbExecute(
         self$db,
@@ -80,67 +93,36 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Get plot history from the database with optional filtering
-    #' @param plot_code Plot code to filter by (optional)
-    #' @param from_date Start date for filtering (optional)
-    #' @param to_date End date for filtering (optional)
+    #' Get plot history from the database with optional filtering.
+    #' @param plot_code Plot code to filter by (optional).
+    #' @param from_date Start date for filtering (optional).
+    #' @param to_date End date for filtering (optional).
     get_plot_history = function(plot_code = NULL, from_date = NULL, to_date = NULL) {
-      # Standardized query building with consistent parameter handling
       query <- "SELECT * FROM plot_data WHERE 1=1"
       params <- list()
 
-      # Standardized parameter handling with proper type checking
-      if (!is.null(plot_code) && is.character(plot_code) && nchar(plot_code) > 0) {
+      if (!is.null(plot_code)) {
         query <- paste(query, "AND plot_code LIKE ?")
         params <- c(params, paste0("%", plot_code, "%"))
       }
 
-      # Ensure dates are properly formatted
       if (!is.null(from_date)) {
-        # Convert to Date object if it's not already
-        if (!inherits(from_date, "Date")) {
-          from_date <- tryCatch(
-            as.Date(from_date),
-            error = function(e) {
-              warning(paste("Invalid from_date format:", from_date))
-              return(NULL)
-            }
-          )
-        }
-        
-        if (!is.null(from_date)) {
-          query <- paste(query, "AND sample_date >= ?")
-          params <- c(params, as.character(from_date))
-        }
+        query <- paste(query, "AND sample_date >= ?")
+        params <- c(params, as.character(from_date))
       }
 
       if (!is.null(to_date)) {
-        # Convert to Date object if it's not already
-        if (!inherits(to_date, "Date")) {
-          to_date <- tryCatch(
-            as.Date(to_date),
-            error = function(e) {
-              warning(paste("Invalid to_date format:", to_date))
-              return(NULL)
-            }
-          )
-        }
-        
-        if (!is.null(to_date)) {
-          query <- paste(query, "AND sample_date <= ?")
-          params <- c(params, as.character(to_date))
-        }
+        query <- paste(query, "AND sample_date <= ?")
+        params <- c(params, as.character(to_date))
       }
 
       query <- paste(query, "ORDER BY timestamp DESC")
-
-      # Always use params parameter for consistency, even if empty
       dbGetQuery(self$db, query, params = params)
     },
 
     #' @description
-    #' Get images associated with a plot data record
-    #' @param plot_data_id ID of the plot data record
+    #' Get images associated with a plot data record.
+    #' @param plot_data_id ID of the plot data record.
     get_images = function(plot_data_id) {
       dbGetQuery(
         self$db,
@@ -150,15 +132,15 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Update a plot data record in the database
-    #' @param id ID of the record to update
-    #' @param filepath New filepath
-    #' @param plot_code New plot code
-    #' @param sample_date New sample date
-    #' @param detector New detector
-    #' @param region New region
-    #' @param validation_status New validation status
-    #' @param report_path New report path
+    #' Update a plot data record in the database.
+    #' @param id ID of the record to update.
+    #' @param filepath New filepath.
+    #' @param plot_code New plot code.
+    #' @param sample_date New sample date.
+    #' @param detector New detector.
+    #' @param region New region.
+    #' @param validation_status New validation status.
+    #' @param report_path New report path.
     update_plot_data = function(id, filepath, plot_code, sample_date, detector, region, validation_status, report_path) {
       dbExecute(
         self$db,
@@ -168,14 +150,14 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Delete a plot data record and associated images from the database
-    #' @param id ID of the record to delete
+    #' Delete a plot data record and associated images from the database.
+    #' @param id ID of the record to delete.
     delete_plot_data = function(id) {
       dbExecute(
         self$db,
         "DELETE FROM images WHERE plot_data_id = ?",
         params = list(id)
-      ) # Delete associated images first
+      )
       dbExecute(
         self$db,
         "DELETE FROM plot_data WHERE id = ?",
@@ -184,90 +166,8 @@ DatabaseHandler <- R6Class(
     },
 
     #' @description
-    #' Process and store data from a DataSource object
-    #' @param data_source A DataSource object containing the ecological data
-    #' @param validation_status The validation status of the data (e.g., "valid", "invalid", "pending")
-    #' @param report_path Optional path to a validation report file
-    #' @param image_paths Optional vector of image file paths associated with the plot data
-    #' @return The ID of the newly created database record
-    process_data_source = function(data_source, validation_status, report_path = NULL, image_paths = NULL) {
-      # Extract the first sheet1 data record for metadata
-      if (length(data_source$sheet1_data) == 0) {
-        stop("No data found in the DataSource object")
-      }
-
-      # Get the first record for metadata
-      first_record <- data_source$sheet1_data[[1]]
-
-      # Extract key metadata fields
-      filepath <- data_source$filepath
-      plot_code <- first_record$Plot.code
-      sample_date <- as.character(first_record$Sample.date)
-      detector <- first_record$Detector
-      region <- first_record$Region
-
-      # Add plot data to database
-      plot_data_id <- self$add_plot_data(
-        filepath = filepath,
-        plot_code = plot_code,
-        sample_date = sample_date,
-        detector = detector,
-        region = region,
-        validation_status = validation_status,
-        report_path = report_path
-      )
-
-      # Add associated images if provided
-      if (!is.null(image_paths) && length(image_paths) > 0) {
-        for (image_path in image_paths) {
-          if (file.exists(image_path)) {
-            self$add_image_data(plot_data_id, image_path)
-          } else {
-            warning(paste("Image file not found:", image_path))
-          }
-        }
-      }
-
-      # Return the ID of the newly created record
-      return(plot_data_id)
-    },
-
-    #' @description
-    #' Get plot history with associated images
-    #' @param plot_code Optional plot code to filter by
-    #' @param from_date Optional start date for filtering
-    #' @param to_date Optional end date for filtering
-    #' @return A list containing plot data and associated images
-    get_plot_history_with_images = function(plot_code = NULL, from_date = NULL, to_date = NULL) {
-      # Standardized parameter handling - reuse the improved get_plot_history method
-      plot_history <- self$get_plot_history(plot_code, from_date, to_date)
-
-      # If there's no history, return empty list
-      if (nrow(plot_history) == 0) {
-        return(list(plot_data = data.frame(), images = data.frame()))
-      }
-
-      # Get associated images for each plot data record
-      image_data <- data.frame(plot_data_id = integer(), image_path = character(), stringsAsFactors = FALSE)
-
-      # Enhanced error handling for image retrieval
-      for (id in plot_history$id) {
-        tryCatch({
-          images <- self$get_images(id)
-          if (nrow(images) > 0) {
-            image_data <- rbind(image_data, images)
-          }
-        }, error = function(e) {
-          warning(paste("Error retrieving images for plot data ID", id, ":", e$message))
-        })
-      }
-
-      return(list(plot_data = plot_history, images = image_data))
-    },
-
-    #' @description
-    #' Close the database connection
-    #' @return TRUE if successful
+    #' Close the database connection.
+    #' @return TRUE if successful.
     close = function() {
       if (!is.null(self$db)) {
         dbDisconnect(self$db)
@@ -276,14 +176,13 @@ DatabaseHandler <- R6Class(
       }
       return(FALSE)
     },
-    
+
     #' @description
-    #' Finalize method to ensure database connection is closed when object is garbage collected
+    #' Finalize method to ensure database connection is closed when object is garbage collected.
     finalize = function() {
-      # Enhanced resource cleanup
       tryCatch({
         self$close()
-        message("Database connection closed successfully")
+        message("Database connection closed successfully.")
       }, error = function(e) {
         warning(paste("Error closing database connection:", e$message))
       })
@@ -292,13 +191,17 @@ DatabaseHandler <- R6Class(
 )
 
 #' @title Validate and Store Data
-#' @description Function to validate ecological data and store the results in the database
-#' @param filepath Path to the data file (Excel or CSV)
-#' @param db_path Path to the SQLite database file
+#' @description Function to validate ecological data and store the results in the database.
+#' Example:
+#' ```
+#' validate_and_store_data("data.xlsx", "validation_history.db", validation_function, c("image1.png", "image2.png"))
+#' ```
+#' @param filepath Path to the data file (Excel or CSV).
+#' @param db_path Path to the SQLite database file.
 #' @param validation_function A function that takes a DataSource object and returns a list with 
-#'        validation_status and report_path
-#' @param image_paths Optional vector of image file paths associated with the plot data
-#' @return The ID of the newly created database record
+#'        validation_status and report_path.
+#' @param image_paths Optional vector of image file paths associated with the plot data.
+#' @return The ID of the newly created database record.
 #' @export
 validate_and_store_data <- function(filepath, db_path = "validation_history.db", 
                                    validation_function = NULL, image_paths = NULL) {
@@ -337,12 +240,16 @@ validate_and_store_data <- function(filepath, db_path = "validation_history.db",
 }
 
 #' @title Get Plot History with Images
-#' @description Function to retrieve plot history along with associated images
-#' @param db_path Path to the SQLite database file
-#' @param plot_code Optional plot code to filter by
-#' @param from_date Optional start date for filtering
-#' @param to_date Optional end date for filtering
-#' @return A list containing plot data and associated images
+#' @description Function to retrieve plot history along with associated images.
+#' Example:
+#' ```
+#' get_plot_history_with_images("validation_history.db", "Plot1", "2023-01-01", "2023-12-31")
+#' ```
+#' @param db_path Path to the SQLite database file.
+#' @param plot_code Optional plot code to filter by.
+#' @param from_date Optional start date for filtering.
+#' @param to_date Optional end date for filtering.
+#' @return A list containing plot data and associated images.
 #' @export
 get_plot_history_with_images <- function(db_path = "validation_history.db", 
                                         plot_code = NULL, from_date = NULL, to_date = NULL) {
