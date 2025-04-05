@@ -7,6 +7,6 @@ linters: linters_with_defaults(
 )
 exclusions: list(
     "inst/", 
-    "R/", "tests/testthat/"  # Ensure these paths exist
+    "tests/testthat/"  # Ensure these paths exist
 )
 encoding: "UTF-8" # Ensure the file is saved with UTF-8 encoding
