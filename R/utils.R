@@ -1,11 +1,22 @@
 #' R/utils.R # nolint: commented_code_linter.
 
-#' Utility functions for logging and data loading
+# Purpose:
+# This file contains utility functions used throughout the application, such as logging, data loading, and image handling.
+# These functions are designed to be reusable and modular, supporting various components of the application.
+
+# Documentation:
+# - Logger: https://cran.r-project.org/web/packages/logger/index.html
+# - Readr: https://readr.tidyverse.org/
 
 #' @description
-#' Set up logging for the application
-#' @param log_level The logging level (e.g., "INFO", "DEBUG", "ERROR", "TRACE")
-#' @param log_file Path to the log file
+#' Set up logging for the application.
+#' This function configures the logging level and log file for the application.
+#' @param log_level The logging level (e.g., "INFO", "DEBUG", "ERROR", "TRACE").
+#' @param log_file Path to the log file.
+#' Example:
+#' ```
+#' setup_logging(log_level = "DEBUG", log_file = "app.log")
+#' ```
 setup_logging <- function(log_level = "INFO", log_file = "validation.log") {
   # Check if logger package is installed, if not, install it
   if (!requireNamespace("logger", quietly = TRUE)) {
@@ -34,8 +45,12 @@ setup_logging <- function(log_level = "INFO", log_file = "validation.log") {
 }
 
 #' @description
-#' Log an INFO level message
-#' @param msg The message to log
+#' Log an INFO level message.
+#' @param msg The message to log.
+#' Example:
+#' ```
+#' log_info("This is an informational message.")
+#' ```
 log_info <- function(msg) {
   # Check if logger package is installed
   if (!requireNamespace("logger", quietly = TRUE)) {
@@ -73,9 +88,14 @@ log_error <- function(msg) {
 }
 
 #' @description
-#' Handle image uploads and saving (used in Shiny app)
-#' @param image_files List of uploaded image files
-#' @param base_path Base path for saving images
+#' Handle image uploads and saving (used in Shiny app).
+#' This function copies uploaded image files to a specified directory.
+#' @param image_files List of uploaded image files.
+#' @param base_path Base path for saving images.
+#' Example:
+#' ```
+#' handle_image_uploads(image_files, "/path/to/save/images")
+#' ```
 handle_image_uploads <- function(image_files, base_path) {
   for (file in image_files) {
     # Assuming image_files is a data frame with 'datapath' and 'name' columns (from Shiny)
@@ -96,6 +116,10 @@ library(tools)
 #' @param file_path The path to the main CSV file.
 #' @param description A brief description of the data being loaded.
 #' @return A list containing two data frames (main and species), or NULL if error.
+#' Example:
+#' ```
+#' data <- load_csv_data("data/Plot_Template_INFI2023.csv", "Plot Data")
+#' ```
 load_csv_data <- function(file_path, description = "CSV data") {
   logger::log_info(sprintf("Loading %s from: %s", description, file_path))
   
@@ -169,13 +193,15 @@ create_data_source <- function(file_path) {
 load_excel_data <- NULL
 
 #' Validate CSV data files and generate a report.
-#'
 #' This function validates CSV data files using the Validator class.
-#'
 #' @param file_path The path to the main CSV file.
 #' @param output_path Optional path to save the validation report.
 #' @param validator A Validator object. If NULL, a new one will be created.
 #' @return A data frame containing the validation results.
+#' Example:
+#' ```
+#' results <- validate_csv_files("data/Plot_Template_INFI2023.csv", "validation_report.csv")
+#' ```
 validate_csv_files <- function(file_path, output_path = NULL, validator = NULL) {
   logger::log_info(sprintf("Validating CSV files: %s", file_path))
   

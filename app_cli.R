@@ -1,25 +1,31 @@
 # app_cli.R (Main CLI Script) # nolint
 
+# Purpose:
+# This script is the Command-Line Interface (CLI) for the biological data validator application.
+# It allows users to validate CSV data files, update or delete database records, and perform searches.
+# The script uses the `optparse` library to parse command-line arguments and executes the appropriate logic.
+
 # Install and load necessary packages using renv
 if (!require("renv")) install.packages("renv")
 renv::restore()
 
-library(optparse)
-library(logger)
+library(optparse)  # For parsing command-line arguments
+library(logger)    # For logging messages
 
 # Debugging: Print working directory
 print(paste("Current working directory:", getwd()))
 
 # Source R functions and classes - Validate paths before sourcing
+# These files contain the definitions of classes and functions used in this script.
 required_files <- c(
-  "R/data_classes.R",
-  "R/validation_classes.R",
-  "R/report_class.R",
-  "R/path_generation.R",
-  "R/email_class.R",
-  "R/db_interaction_class.R",
-  "R/utils.R",
-  "R/csv_mapping.R"
+  "R/data_classes.R",          # Defines the DataSource class for handling CSV data
+  "R/validation_classes.R",    # Defines the Validator class for applying validation rules
+  "R/report_class.R",          # Defines the Report class for generating validation reports
+  "R/path_generation.R",       # Defines the PathGenerator class for managing file paths
+  "R/email_class.R",           # Defines the EmailSender class for sending emails
+  "R/db_interaction_class.R",  # Defines the DatabaseHandler class for interacting with the SQLite database
+  "R/utils.R",                 # Contains utility functions
+  "R/csv_mapping.R"            # Contains CSV mapping logic
 )
 
 for (file in required_files) {
@@ -33,7 +39,8 @@ for (file in required_files) {
 }
 
 # --- Command Line Options ---
-
+# Define the command-line arguments that the script accepts.
+# These options allow users to specify input files, perform database operations, and configure the script's behavior.
 option_list <- list(
   make_option(c("-f", "--file"), type = "character", default = NULL,
               help = "Path to the main CSV data file", metavar = "character"),
@@ -67,13 +74,13 @@ opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 # --- Main Execution ---
-
+# The main function executes the logic based on the parsed command-line arguments.
 main <- function(opt) {
   # Start logging
-  setup_logging() # Function defined in R/utils_csv_excel.R
+  setup_logging() # Function defined in R/utils.R
 
   # Initialize DatabaseHandler
-  db_handler <- DatabaseHandler$new(opt$database)
+  db_handler <- DatabaseHandler$new(opt$database)  # Class defined in R/db_interaction_class.R
 
   # Find project root
   project_root <- tryCatch({
@@ -88,6 +95,7 @@ main <- function(opt) {
 
   if (opt$search) {
     # --- Search Records ---
+    # Logic for searching database records based on plot code and date range.
     log_info("Performing database search...")
     records <- db_handler$get_plot_history(
       plot_code = opt$plot_code,
@@ -104,6 +112,7 @@ main <- function(opt) {
 
   } else if (opt$update && !is.null(opt$update_id)) {
     # --- Update Record ---
+    # Logic for updating a database record.
     log_info("Updating record with ID: {opt$update_id}...")
     
     # Example: Prompt user for updated values or use additional options
@@ -132,12 +141,14 @@ main <- function(opt) {
 
   } else if (opt$delete && !is.null(opt$delete_id)) {
     # --- Delete Record ---
+    # Logic for deleting a database record.
     log_info("Deleting record with ID: {opt$delete_id}...")
     db_handler$delete_plot_data(opt$delete_id)
     log_info("Record deleted successfully.")
 
   } else if (!is.null(opt$file)) {
     # --- Validate Data ---
+    # Logic for validating a CSV data file.
     log_info("Starting CSV data validation...")
     log_info("Loading data from: {opt$file}")
 
@@ -150,14 +161,14 @@ main <- function(opt) {
     if (is.null(opt$base_path) || opt$base_path == "") {
       stop("Base path is invalid or not provided.")
     }
-    path_generator <- PathGenerator$new(opt$base_path)
+    path_generator <- PathGenerator$new(opt$base_path)  # Class defined in R/path_generation.R
 
     # Initialize Validator with the PathGenerator instance
-    validator <- Validator$new(path_generator)
+    validator <- Validator$new(path_generator)  # Class defined in R/validation_classes.R
 
     # Load CSV data
     data_source <- tryCatch({
-      DataSource$new(opt$file)
+      DataSource$new(opt$file)  # Class defined in R/data_classes.R
     }, error = function(e) {
       stop("Failed to initialize DataSource. Error: ", e$message)
     })
@@ -175,7 +186,7 @@ main <- function(opt) {
     report_path <- file.path(dirname(data_paths$main_path), "report-validation.html")
 
     # Generate report using the Report class
-    report <- Report$new(data_source, errors)
+    report <- Report$new(data_source, errors)  # Class defined in R/report_class.R
     report$generate(dirname(data_paths$main_path), project_root)
         
     if (nrow(errors) > 0) {
@@ -213,7 +224,7 @@ main <- function(opt) {
 
     # Send email (if provided)
     if (!is.null(opt$email)) {
-      email_sender <- EmailSender$new()
+      email_sender <- EmailSender$new()  # Class defined in R/email_class.R
       email_sender$send(report_path, opt$email)
       log_info("Report sent to: {opt$email}")
     }

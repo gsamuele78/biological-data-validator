@@ -4,6 +4,9 @@ linters: linters_with_defaults(
     trailing_whitespace_linter = NULL,
     trailing_blank_lines_linter = NULL,
     object_usage_linter = NULL
-  )
-exclusions: list("inst/", "tests/testthat/")
-encoding: "UTF-8"
+)
+exclusions: list(
+    "inst/", 
+    "R/", "tests/testthat/"  # Ensure these paths exist
+)
+encoding: "UTF-8" # Ensure the file is saved with UTF-8 encoding

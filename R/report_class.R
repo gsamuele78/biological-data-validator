@@ -3,7 +3,24 @@ library(R6)
 library(rmarkdown)
 library(logger)
 
-#' Report class for generating validation reports from CSV data
+# Purpose:
+# This file defines the `Report` class, which is responsible for generating validation reports
+# from CSV data. The reports are generated in HTML format using R Markdown templates and can
+# also export validation errors to CSV files.
+
+# Documentation:
+# - R6 Classes: https://cran.r-project.org/web/packages/R6/vignettes/Introduction.html
+# - rmarkdown: https://rmarkdown.rstudio.com/
+
+#' @title Report
+#' @description Class for generating validation reports from CSV data.
+#' Example:
+#' ```
+#' data_source <- DataSource$new("data/Plot_Template_INFI2023.csv")
+#' errors <- validator$validate(data_source)
+#' report <- Report$new(data_source, errors)
+#' report$generate("output/", "project_root/")
+#' ```
 Report <- R6Class("Report",
   public = list(
     #' @field data_source DataSource object containing the processed CSV data
@@ -12,9 +29,9 @@ Report <- R6Class("Report",
     errors = NULL,
 
     #' @description
-    #' Create a new Report object
-    #' @param data_source DataSource object containing the CSV data
-    #' @param errors Data frame of validation errors
+    #' Create a new Report object.
+    #' @param data_source DataSource object containing the CSV data.
+    #' @param errors Data frame of validation errors.
     initialize = function(data_source, errors) {
       if (data_source$file_type != "csv") {
         stop("Data source must be CSV format")
@@ -24,9 +41,13 @@ Report <- R6Class("Report",
     },
 
     #' @description
-    #' Generate the HTML report
-    #' @param output_path Directory where the report should be saved
-    #' @param project_root The root directory of the project
+    #' Generate the HTML report.
+    #' @param output_path Directory where the report should be saved.
+    #' @param project_root The root directory of the project.
+    #' Example:
+    #' ```
+    #' report$generate("output/", "project_root/")
+    #' ```
     generate = function(output_path, project_root) {
       logger::log_info(paste("Generating validation report for:", self$data_source$filepath))
       
@@ -73,9 +94,13 @@ Report <- R6Class("Report",
     },
     
     #' @description
-    #' Export validation errors to CSV file
-    #' @param output_path Path to save the errors CSV file
-    #' @return TRUE if successful, FALSE otherwise
+    #' Export validation errors to a CSV file.
+    #' @param output_path Path to save the errors CSV file.
+    #' @return TRUE if successful, FALSE otherwise.
+    #' Example:
+    #' ```
+    #' report$export_errors_to_csv("output/errors.csv")
+    #' ```
     export_errors_to_csv = function(output_path) {
       logger::log_info(sprintf("Exporting validation errors to: %s", output_path))
       

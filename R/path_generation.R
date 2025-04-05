@@ -2,27 +2,41 @@
 library(R6)
 library(lubridate)
 
-#' PathGenerator class for creating directory paths based on data values
-#' @description
-#' This class generates directory paths based on plot data and handles both
-#' Excel and CSV file formats. It creates organized folder structures for
-#' storing data files.
+# Purpose:
+# This file defines the `PathGenerator` class, which is responsible for creating organized directory
+# structures and file paths based on plot data. It supports both Excel and CSV file formats.
+
+# Documentation:
+# - R6 Classes: https://cran.r-project.org/web/packages/R6/vignettes/Introduction.html
+# - lubridate: https://lubridate.tidyverse.org/
+
+#' @title PathGenerator
+#' @description Class for creating directory paths and file paths based on plot data.
+#' Example:
+#' ```
+#' path_gen <- PathGenerator$new(base_path = "output/")
+#' dir_path <- path_gen$generate("Plot1", "2023-05-10", "DetectorA", "RegionX")
+#' file_path <- path_gen$generate_file_path(sheet1_data, file_type = "csv")
+#' ```
 PathGenerator <- R6Class(
   "PathGenerator",
   public = list(
     #' @field base_path Base path for generating directories
     base_path = NULL,
     
-    #' @field path_format Format for directory structure (default:
-    #'   "date/region/detector/plot")
+    #' @field path_format Format for directory structure (default: "date/region/detector/plot")
     path_format = NULL,
     
     #' @description
-    #' Create a new PathGenerator object
-    #' @param base_path The base path for directory structure
+    #' Create a new PathGenerator object.
+    #' @param base_path The base path for directory structure.
     #' @param path_format Format for directory structure (options:
     #'   "date/region/detector/plot", "region/date/detector/plot",
-    #'   "detector/region/date/plot")
+    #'   "detector/region/date/plot").
+    #' Example:
+    #' ```
+    #' path_gen <- PathGenerator$new(base_path = "output/")
+    #' ```
     initialize = function(base_path = getwd(),
                           path_format = "region/detector/date/plot") {
       if (!is.character(base_path) || length(base_path) != 1 || base_path == "") {
@@ -45,14 +59,16 @@ PathGenerator <- R6Class(
     },
     
     #' @description
-    #' Generate a directory path based on plot code, sample date, detector, and
-    #' region
-    #' @param plot_code Plot code
-    #' @param sample_date Sample date (Date object or character string in
-    #'   YYYY-MM-DD format)
-    #' @param detector Detector
-    #' @param region Region
-    #' @return Full path to the created directory
+    #' Generate a directory path based on plot code, sample date, detector, and region.
+    #' @param plot_code Plot code.
+    #' @param sample_date Sample date (Date object or character string in YYYY-MM-DD format).
+    #' @param detector Detector.
+    #' @param region Region.
+    #' @return Full path to the created directory.
+    #' Example:
+    #' ```
+    #' dir_path <- path_gen$generate("Plot1", "2023-05-10", "DetectorA", "RegionX")
+    #' ```
     generate = function(plot_code, sample_date, detector, region) {
       # Input validation
       if (missing(plot_code) || is.null(plot_code) || plot_code == "") {
@@ -112,11 +128,15 @@ PathGenerator <- R6Class(
     },
     
     #' @description
-    #' Generate a path for a specific file type based on plot data
-    #' @param sheet1_data Sheet1Data object
-    #' @param file_type Type of file to create path for (excel or csv)
-    #' @param file_name Optional custom file name (without extension)
-    #' @return Full path to the file (including extension)
+    #' Generate a path for a specific file type based on plot data.
+    #' @param sheet1_data Sheet1Data object.
+    #' @param file_type Type of file to create path for (excel or csv).
+    #' @param file_name Optional custom file name (without extension).
+    #' @return Full path to the file (including extension).
+    #' Example:
+    #' ```
+    #' file_path <- path_gen$generate_file_path(sheet1_data, file_type = "csv")
+    #' ```
     generate_file_path = function(sheet1_data, file_type = "excel",
                                   file_name = NULL) {
       if (!inherits(sheet1_data, "Sheet1Data")) {
@@ -155,9 +175,13 @@ PathGenerator <- R6Class(
     },
     
     #' @description
-    #' Generate complementary species file path for CSV format
-    #' @param main_file_path Path to the main CSV file
-    #' @return Full path to the species file
+    #' Generate complementary species file path for CSV format.
+    #' @param main_file_path Path to the main CSV file.
+    #' @return Full path to the species file.
+    #' Example:
+    #' ```
+    #' species_path <- path_gen$generate_species_file_path("data/Plot_Template_INFI2023.csv")
+    #' ```
     generate_species_file_path = function(main_file_path) {
       if (!grepl("\\.csv$", main_file_path, ignore.case = TRUE)) {
         stop("Main file path must be a CSV file")
@@ -170,10 +194,14 @@ PathGenerator <- R6Class(
     },
     
     #' @description
-    #' Generate file paths for a CSV dataset
-    #' @param sheet1_data Sheet1Data object
-    #' @param create_dirs Whether to create directories
-    #' @return A list containing main_path and species_path
+    #' Generate file paths for a CSV dataset.
+    #' @param sheet1_data Sheet1Data object.
+    #' @param create_dirs Whether to create directories.
+    #' @return A list containing main_path and species_path.
+    #' Example:
+    #' ```
+    #' paths <- path_gen$generate_csv_paths(sheet1_data)
+    #' ```
     generate_csv_paths = function(sheet1_data, create_dirs = TRUE) {
       # Generate base directory path
       dir_path <- self$generate(
